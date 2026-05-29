@@ -356,7 +356,13 @@
       </div>
     </div>
 
-    <!-- Row 3: Firm URL -->
+    <!-- Row 3: Additional context -->
+    <div class="url-row">
+      <label for="additionalContext">Additional context <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional — anything not in the profile or thread)</span></label>
+      <textarea id="additionalContext" placeholder='e.g. "He mentioned he recently went independent", "She just posted about struggling to find HNW clients"...' style="min-height: 70px; resize: vertical;"></textarea>
+    </div>
+
+    <!-- Row 4: Firm URL -->
     <div class="url-row">
       <label for="firmurl">Firm URL <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></label>
       <input type="text" id="firmurl" placeholder="https://www.example.com" />
@@ -464,6 +470,7 @@ Your job is to analyze a LinkedIn profile and conversation thread, then:
 
    BOTH channels apply these principles regardless:
    - THEM not YOU — make the prospect feel seen, not pitched
+   - Avoid colloquial slang and filler phrases — no "it's been a minute", "just circling back", "touching base", "hope this finds you well", or similar. Warm and personable should feel like a thoughtful professional, not overly casual.
    - For Fund Clients: speak directly to their fundraising challenge; mention solo GP difficulty if applicable
    - For COIs: ask about fund managers in their network who are actively raising
    - For Investor Prospects: general curiosity-driven framing
@@ -498,7 +505,7 @@ Your job is to analyze a LinkedIn profile and conversation thread of a financial
    - "Strong Prospect" — independent or boutique FA/planner/wealth manager who fits well and shows receptivity signals
    - "Prospect" — advisor who fits the profile but needs more nurturing
    - "COI" — could refer advisors to us (wholesalers, practice management consultants, coaching firms, custodian reps, industry connectors)
-   - "Pass" — wirehouse/employee advisor at large firm (Fidelity, Vanguard, etc.), wrong fit, or no engagement signal
+   - "Pass" — advisor at a firm that prohibits independent marketing (e.g. Fidelity, Vanguard, Edward Jones company advisors) or no engagement signal. Do NOT assume an advisor has dedicated marketing support based on firm name or size alone — many advisors at larger broker-dealers and regional firms like Raymond James, LPL, Ameriprise, etc. handle their own marketing independently. Only classify as Pass if the profile clearly indicates they are an employee advisor with no individual book of business, or if the firm is known to prohibit independent outreach.
 
 2. Assign a fit score: High / Medium / Low
 
@@ -508,6 +515,7 @@ Your job is to analyze a LinkedIn profile and conversation thread of a financial
 
 5. Draft the ideal follow-up message using these principles:
    - Casual, warm, slow-dance approach — never pushy or salesy
+   - Avoid colloquial slang and filler phrases — no "it's been a minute", "just circling back", "touching base", "hope this finds you well", or similar. Warm and personable should feel like a thoughtful professional, not overly casual.
    - THEM not YOU — lead with their world, not our service
    - Build curiosity before pitching anything
    - Peer-level tone — one professional to another
@@ -628,6 +636,7 @@ dropZone.addEventListener('drop', e => {
 async function analyze() {
   const thread = document.getElementById('thread').value.trim();
   const firmurl = document.getElementById('firmurl').value.trim();
+  const additionalContext = document.getElementById('additionalContext').value.trim();
 
   if (!profilePdfBase64 && !profileText) { showError('Please upload a LinkedIn profile PDF.'); return; }
   if (!thread) { showError('Please paste the conversation thread.'); return; }
@@ -638,7 +647,7 @@ async function analyze() {
   document.getElementById('analyzeBtn').disabled = true;
 
   const systemPrompt = selectedProspectType === 'FA' ? SYSTEM_PROMPT_FA : SYSTEM_PROMPT_FUND;
-  const textSuffix = `\n\nCURRENT CHANNEL: ${selectedChannel}\n\nCONVERSATION THREAD:\n${thread}${firmurl ? '\n\nFIRM URL: ' + firmurl : ''}\n\nPlease classify this contact and draft the ideal follow-up message for the ${selectedChannel} channel.`;
+  const textSuffix = `\n\nCURRENT CHANNEL: ${selectedChannel}\n\nCONVERSATION THREAD:\n${thread}${additionalContext ? '\n\nADDITIONAL CONTEXT:\n' + additionalContext : ''}${firmurl ? '\n\nFIRM URL: ' + firmurl : ''}\n\nPlease classify this contact and draft the ideal follow-up message for the ${selectedChannel} channel.`;
 
   const userMessage = profilePdfBase64 ? {
     role: 'user',
