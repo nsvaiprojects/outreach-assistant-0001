@@ -113,6 +113,21 @@
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 16px;
+    align-items: stretch;
+  }
+
+  .input-grid .field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .input-grid .field textarea {
+    flex: 1;
+    min-height: 160px;
+  }
+
+  .input-grid .drop-zone {
+    flex: 1;
   }
 
   @media (max-width: 600px) {
@@ -201,7 +216,49 @@
 
   .drop-clear:hover { color: var(--danger); }
 
-  textarea, input[type="text"], input[type="password"] {
+  .channel-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .channel-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .channel-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .channel-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+    color: var(--accent-text);
+  }
+
+  .channel-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+  }
     width: 100%;
     font-size: 13px;
     font-family: inherit;
@@ -441,6 +498,18 @@
 
 
   <div class="card">
+    <div style="margin-bottom: 16px;">
+      <span class="channel-label">Channel</span>
+      <div class="channel-selector">
+        <button class="channel-btn active" id="btnLinkedIn" onclick="setChannel('LinkedIn')">
+          <i class="ti ti-brand-linkedin" aria-hidden="true"></i> LinkedIn
+        </button>
+        <button class="channel-btn" id="btnEmail" onclick="setChannel('Email')">
+          <i class="ti ti-mail" aria-hidden="true"></i> Email
+        </button>
+      </div>
+    </div>
+
     <div class="input-grid">
       <div class="field">
         <label>LinkedIn profile PDF</label>
@@ -454,7 +523,7 @@
         <textarea id="profile" style="display:none"></textarea>
       </div>
       <div class="field">
-        <label for="thread">Conversation thread</label>
+        <label for="thread" id="threadLabel">LinkedIn conversation thread</label>
         <textarea id="thread" placeholder="Paste the LinkedIn conversation so far..."></textarea>
       </div>
     </div>
@@ -509,10 +578,19 @@
       <div id="draftmsg"></div>
     </div>
 
-    <div class="action-row">
-      <button class="btn btn-sm" onclick="reanalyze()">
-        <i class="ti ti-refresh" aria-hidden="true"></i> Re-analyze
-      </button>
+    <div class="feedback-box" id="feedbackBox" style="margin-top: 12px;">
+      <label for="feedbackInput" class="channel-label">Feedback on this draft</label>
+      <div style="display: flex; gap: 8px; align-items: flex-start;">
+        <textarea id="feedbackInput" placeholder='e.g. "Make it shorter", "Less salesy", "Reference his PE background"...' style="min-height: 60px; flex: 1;"></textarea>
+        <button class="btn btn-primary" id="regenerateBtn" onclick="regenerate()" style="white-space: nowrap; align-self: flex-end;">
+          <i class="ti ti-refresh" aria-hidden="true"></i> Regenerate
+        </button>
+      </div>
+    </div>
+
+    <div class="loading" id="loadingRegen" style="display:none; margin-top: 10px;">
+      <i class="ti ti-refresh spin" aria-hidden="true"></i>
+      Regenerating draft...
     </div>
   </div>
 
@@ -537,16 +615,28 @@ Your job is to analyze a LinkedIn profile and conversation thread, then:
 
 4. Write a short rationale (2-3 sentences max) explaining your classification and any key observations about fit or timing.
 
-5. Draft the ideal follow-up message using these principles:
+5. Draft the ideal follow-up message. The user has indicated the current channel (LinkedIn or Email) — use that to inform the message format:
+
+   LINKEDIN messages:
+   - Under 60 words
+   - Warm, conversational, peer-level tone
+   - No subject line needed
+   - No fund specifics or return promises for direct investor outreach
+   - The opening connection message is always: "Hi [Name]. I noticed your background in alternative investments and thought I'd reach out. Looking forward to connecting." — so draft the NEXT message after connection acceptance
+
+   EMAIL messages:
+   - Short and forwardable (3-5 sentences max)
+   - Always include a subject line
+   - Professional but warm
+   - If this is a follow-up after a LinkedIn handoff (e.g. prospect shared their email on LinkedIn), acknowledge the LinkedIn connection briefly
+   - No fund specifics or return promises for direct investor outreach
+
+   BOTH channels apply these principles regardless:
    - THEM not YOU — make the prospect feel seen, not pitched
    - For Fund Clients: speak directly to their fundraising challenge; mention solo GP difficulty if applicable
    - For COIs: ask about fund managers in their network who are actively raising
-   - For Investor Prospects: general curiosity-driven framing, no fund specifics or return promises
-   - Warm, peer-level tone — never salesy or rushed
+   - For Investor Prospects: general curiosity-driven framing
    - No performance guarantees ever
-   - LinkedIn messages: keep under 60 words
-   - Email (after LinkedIn handoff): keep short and forwardable, include a subject line
-   - The opening connection message is always: "Hi [Name]. I noticed your background in alternative investments and thought I'd reach out. Looking forward to connecting." — so the follow-up message should be the NEXT message after they accept the connection request, not the initial outreach.
 
 Respond ONLY with valid JSON in this exact format, no markdown fences, no preamble, no explanation:
 {
@@ -558,7 +648,19 @@ Respond ONLY with valid JSON in this exact format, no markdown fences, no preamb
   "message": "..."
 }
 
-If channel is LinkedIn, leave subject as empty string. If email, include a subject line.`;
+If drafting a LinkedIn message, leave subject as empty string. If drafting an email, include a subject line.`;
+
+let selectedChannel = 'LinkedIn';
+
+function setChannel(channel) {
+  selectedChannel = channel;
+  document.getElementById('btnLinkedIn').classList.toggle('active', channel === 'LinkedIn');
+  document.getElementById('btnEmail').classList.toggle('active', channel === 'Email');
+  document.getElementById('threadLabel').textContent = channel === 'LinkedIn' ? 'LinkedIn conversation thread' : 'Email thread';
+  document.getElementById('thread').placeholder = channel === 'LinkedIn'
+    ? 'Paste the LinkedIn conversation so far...'
+    : 'Paste the email thread so far...';
+}
 
 let profileText = '';
 let profilePdfBase64 = '';
@@ -615,7 +717,7 @@ async function analyze() {
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('analyzeBtn').disabled = true;
 
-  const textSuffix = `\n\nCONVERSATION THREAD:\n${thread}${firmurl ? '\n\nFIRM URL: ' + firmurl : ''}\n\nPlease classify this contact and draft the ideal follow-up message.`;
+  const textSuffix = `\n\nCURRENT CHANNEL: ${selectedChannel}\n\nCONVERSATION THREAD:\n${thread}${firmurl ? '\n\nFIRM URL: ' + firmurl : ''}\n\nPlease classify this contact and draft the ideal follow-up message for the ${selectedChannel} channel.`;
 
   const userMessage = profilePdfBase64 ? {
     role: 'user',
@@ -627,6 +729,8 @@ async function analyze() {
     role: 'user',
     content: `LINKEDIN PROFILE:\n${profileText}` + textSuffix
   };
+
+  lastUserMessage = userMessage;
 
   try {
     const response = await fetch(PROXY_URL, {
@@ -661,10 +765,13 @@ async function analyze() {
   }
 }
 
+let lastUserMessage = null;
+let lastResult = null;
+
 function renderResults(result) {
+  lastResult = result;
   const classEl = document.getElementById('classification');
   classEl.textContent = result.classification;
-  const badges = { 'Fund Client': 'badge-fund', 'COI': 'badge-coi', 'Investor Prospect': 'badge-investor', 'Pass': 'badge-pass' };
   classEl.className = 'metric-value';
 
   const fitEl = document.getElementById('fitscore');
@@ -683,8 +790,54 @@ function renderResults(result) {
     subjectRow.style.display = 'none';
   }
 
+  document.getElementById('feedbackInput').value = '';
   document.getElementById('results').style.display = 'block';
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function regenerate() {
+  const feedback = document.getElementById('feedbackInput').value.trim();
+  if (!feedback) { showError('Please enter feedback before regenerating.'); return; }
+  if (!lastResult || !lastUserMessage) { showError('Please run an analysis first.'); return; }
+
+  hideError();
+  document.getElementById('loadingRegen').style.display = 'flex';
+  document.getElementById('regenerateBtn').disabled = true;
+
+  const regenMessages = [
+    lastUserMessage,
+    { role: 'assistant', content: JSON.stringify(lastResult) },
+    { role: 'user', content: `Please revise only the draft message based on this feedback: "${feedback}". Keep the classification, fit score, channel, and rationale the same. Return the full JSON object with the updated message.` }
+  ];
+
+  try {
+    const response = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: regenMessages
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'API error ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    renderResults(result);
+  } catch (e) {
+    showError(e.message || 'Something went wrong during regeneration.');
+  } finally {
+    document.getElementById('loadingRegen').style.display = 'none';
+    document.getElementById('regenerateBtn').disabled = false;
+  }
 }
 
 function reanalyze() {
