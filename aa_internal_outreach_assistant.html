@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Message Assistant — Advisor Appointments</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface-2: #f0efe9;
+    --border: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.22);
+    --text: #1a1a18;
+    --text-muted: #6b6a65;
+    --text-hint: #9b9a94;
+    --accent: #1a4a8a;
+    --accent-bg: #e8f0fa;
+    --accent-text: #0c3366;
+    --success: #2a6e3f;
+    --success-bg: #e6f4ec;
+    --warning: #7a5200;
+    --warning-bg: #fef3d8;
+    --danger: #8a1f1f;
+    --danger-bg: #faeaea;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #18181a;
+      --surface: #232325;
+      --surface-2: #2c2c2f;
+      --border: rgba(255,255,255,0.1);
+      --border-strong: rgba(255,255,255,0.2);
+      --text: #f0efe8;
+      --text-muted: #a0a09a;
+      --text-hint: #6b6a65;
+      --accent: #5b8fd4;
+      --accent-bg: #1a2a40;
+      --accent-text: #a0c0ee;
+      --success: #4aaa6a;
+      --success-bg: #1a2e22;
+      --warning: #d4a020;
+      --warning-bg: #2a2010;
+      --danger: #d46060;
+      --danger-bg: #2e1a1a;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 16px;
+  }
+
+  header h1 { font-size: 16px; font-weight: 500; color: var(--text); }
+  header span { font-size: 13px; color: var(--text-muted); margin-left: 4px; }
+
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .selector-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .selector-row { grid-template-columns: 1fr; }
+  }
+
+  .selector-group { display: flex; flex-direction: column; }
+
+  .selector-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+  }
+
+  .toggle-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .toggle-btn.active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-text); }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: stretch;
+  }
+
+  .input-grid .field { display: flex; flex-direction: column; }
+  .input-grid .field textarea { flex: 1; min-height: 160px; }
+  .input-grid .drop-zone { flex: 1; }
+
+  @media (max-width: 600px) {
+    .input-grid { grid-template-columns: 1fr; }
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+  }
+
+  .drop-zone {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: center;
+    padding: 16px;
+    position: relative;
+  }
+
+  .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: var(--accent-bg); }
+  .drop-zone.loaded { border-style: solid; border-color: var(--success); background: var(--success-bg); }
+
+  .drop-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .drop-icon { font-size: 28px; color: var(--text-hint); }
+  .drop-zone.loaded .drop-icon { color: var(--success); }
+  .drop-label { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+  .drop-filename { font-size: 12px; font-weight: 500; color: var(--success); margin-top: 2px; }
+
+  .drop-clear {
+    font-size: 11px; color: var(--text-hint); cursor: pointer;
+    text-decoration: underline; background: none; border: none; padding: 0; margin-top: 4px;
+  }
+  .drop-clear:hover { color: var(--danger); }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    resize: vertical;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--accent); }
+  textarea { min-height: 160px; }
+
+  .url-row { margin-bottom: 18px; }
+  .url-row label {
+    display: block; font-size: 12px; font-weight: 500; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 14px; font-weight: 500; padding: 9px 20px;
+    border-radius: var(--radius-sm); border: 0.5px solid var(--border-strong);
+    background: var(--surface); color: var(--text); cursor: pointer;
+    transition: background 0.12s, transform 0.1s;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--accent); color: #fff; border-color: transparent; }
+  .btn-primary:hover { background: var(--accent-text); }
+  .btn-sm { font-size: 12px; padding: 5px 12px; }
+
+  .results { display: none; }
+
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+
+  .metric { background: var(--surface-2); border-radius: var(--radius-sm); padding: 14px 16px; }
+  .metric-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-hint); margin-bottom: 5px; }
+  .metric-value { font-size: 18px; font-weight: 500; }
+
+  .fit-high { color: var(--success); }
+  .fit-medium { color: var(--warning); }
+  .fit-low { color: var(--danger); }
+
+  .rationale-box {
+    background: var(--surface-2); border-radius: var(--radius-sm);
+    padding: 14px 16px; font-size: 14px; color: var(--text);
+    margin-bottom: 16px; line-height: 1.65;
+  }
+
+  .draft-box { border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+
+  .draft-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; background: var(--surface-2); border-bottom: 0.5px solid var(--border);
+  }
+  .draft-header span { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-hint); }
+
+  .subject-row { padding: 10px 16px; border-bottom: 0.5px solid var(--border); font-size: 13px; display: none; }
+  .subject-row .subject-label { color: var(--text-muted); margin-right: 6px; }
+  .subject-row .subject-text { font-weight: 500; }
+
+  #draftmsg { padding: 16px; font-size: 14px; line-height: 1.75; white-space: pre-wrap; min-height: 80px; }
+
+  .feedback-box { margin-top: 12px; }
+
+  .loading {
+    display: none; align-items: center; gap: 10px;
+    color: var(--text-muted); font-size: 14px; padding: 16px 0;
+  }
+
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .spin { animation: spin 0.9s linear infinite; display: inline-block; }
+
+  .error-box {
+    display: none; background: var(--danger-bg); border: 0.5px solid var(--danger);
+    border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px;
+    color: var(--danger); margin-top: 14px;
+  }
+
+  .copy-toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--text); color: var(--bg); font-size: 13px;
+    padding: 8px 16px; border-radius: var(--radius-sm);
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s; pointer-events: none;
+  }
+  .copy-toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><i class="ti ti-target-arrow" aria-hidden="true"></i></div>
+  <h1>Message Assistant <span>— Advisor Appointments</span></h1>
+</header>
+
+<div class="main">
+  <div class="card">
+
+    <!-- Row 1: Client Type + Channel -->
+    <div class="selector-row">
+      <div class="selector-group">
+        <span class="selector-label">Prospect type</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btnFA" onclick="setProspectType('FA')">
+            <i class="ti ti-briefcase" aria-hidden="true"></i> Financial Advisor
+          </button>
+          <button class="toggle-btn" id="btnFund" onclick="setProspectType('Fund')">
+            <i class="ti ti-chart-line" aria-hidden="true"></i> Fund Manager
+          </button>
+        </div>
+      </div>
+      <div class="selector-group">
+        <span class="selector-label">Channel</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btnLinkedIn" onclick="setChannel('LinkedIn')">
+            <i class="ti ti-brand-linkedin" aria-hidden="true"></i> LinkedIn
+          </button>
+          <button class="toggle-btn" id="btnEmail" onclick="setChannel('Email')">
+            <i class="ti ti-mail" aria-hidden="true"></i> Email
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: PDF + Thread -->
+    <div class="input-grid">
+      <div class="field">
+        <label>LinkedIn profile PDF</label>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()">
+          <input type="file" id="pdfInput" accept=".pdf" onclick="event.stopPropagation()" onchange="handleFile(this.files[0])" />
+          <i class="ti ti-file-type-pdf drop-icon" aria-hidden="true" id="dropIcon"></i>
+          <div class="drop-label" id="dropLabel">Drop PDF here or click to browse</div>
+          <div class="drop-filename" id="dropFilename"></div>
+          <button class="drop-clear" id="dropClear" style="display:none" onclick="clearPdf(event)">Remove</button>
+        </div>
+        <textarea id="profile" style="display:none"></textarea>
+      </div>
+      <div class="field">
+        <label for="thread" id="threadLabel">LinkedIn conversation thread</label>
+        <textarea id="thread" placeholder="Paste the LinkedIn conversation so far..."></textarea>
+      </div>
+    </div>
+
+    <!-- Row 3: Firm URL -->
+    <div class="url-row">
+      <label for="firmurl">Firm URL <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></label>
+      <input type="text" id="firmurl" placeholder="https://www.example.com" />
+    </div>
+
+    <button class="btn btn-primary" id="analyzeBtn" onclick="analyze()">
+      <i class="ti ti-sparkles" aria-hidden="true"></i>
+      Analyze &amp; draft message
+    </button>
+
+    <div class="loading" id="loading">
+      <i class="ti ti-refresh spin" aria-hidden="true"></i>
+      Analyzing profile and drafting message...
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Classification</div>
+        <div class="metric-value" id="classification"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Fit score</div>
+        <div class="metric-value" id="fitscore"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Channel</div>
+        <div class="metric-value" id="channel"></div>
+      </div>
+    </div>
+
+    <div class="rationale-box" id="rationale"></div>
+
+    <div class="draft-box">
+      <div class="draft-header">
+        <span>Draft message</span>
+        <button class="btn btn-sm" onclick="copyMessage()">
+          <i class="ti ti-copy" aria-hidden="true"></i> Copy
+        </button>
+      </div>
+      <div class="subject-row" id="subjectRow">
+        <span class="subject-label">Subject:</span>
+        <span class="subject-text" id="subject"></span>
+      </div>
+      <div id="draftmsg"></div>
+    </div>
+
+    <div class="feedback-box" id="feedbackBox" style="margin-top: 12px;">
+      <label for="feedbackInput" class="selector-label">Feedback on this draft</label>
+      <div style="display: flex; gap: 8px; align-items: flex-start;">
+        <textarea id="feedbackInput" placeholder='e.g. "Make it shorter", "Less salesy", "Reference her RIA background"...' style="min-height: 60px; flex: 1;"></textarea>
+        <button class="btn btn-primary" id="regenerateBtn" onclick="regenerate()" style="white-space: nowrap; align-self: flex-end;">
+          <i class="ti ti-refresh" aria-hidden="true"></i> Regenerate
+        </button>
+      </div>
+    </div>
+
+    <div class="loading" id="loadingRegen" style="display:none; margin-top: 10px;">
+      <i class="ti ti-refresh spin" aria-hidden="true"></i>
+      Regenerating draft...
+    </div>
+  </div>
+</div>
+
+<div class="copy-toast" id="toast">Copied to clipboard</div>
+
+<script>
+// ── System prompts ─────────────────────────────────────────────────────────────
+
+const SYSTEM_PROMPT_FUND = `You are an expert business development assistant for Advisor Appointments, a firm that runs SAMCO (Single Audience Multi Channel Outreach) campaigns for private fund managers and alternative investment firms seeking to grow their investor base.
+
+Your job is to analyze a LinkedIn profile and conversation thread, then:
+
+1. Classify the contact into one of these categories:
+   - "Fund Client" — actively raising a fund and likely to hire outreach services
+   - "COI" — Center of Influence; well-networked in alternatives, could refer fund managers
+   - "Investor Prospect" — accredited investor who could be targeted in a client campaign
+   - "Pass" — no clear fit
+
+2. Assign a fit score: High / Medium / Low
+
+3. Recommend a channel: LinkedIn / Email / Both
+
+4. Write a short rationale (2-3 sentences max) explaining your classification and any key observations about fit or timing.
+
+5. Draft the ideal follow-up message. The user has indicated the current channel (LinkedIn or Email) — use that to inform the message format:
+
+   LINKEDIN messages:
+   - Under 60 words
+   - Warm, conversational, peer-level tone
+   - No subject line needed
+   - No fund specifics or return promises for direct investor outreach
+   - The opening connection message is always: "Hi [Name]. I noticed your background in alternative investments and thought I'd reach out. Looking forward to connecting." — so draft the NEXT message after connection acceptance
+
+   EMAIL messages:
+   - Short and forwardable (3-5 sentences max)
+   - Always include a subject line
+   - Professional but warm
+   - If this is a follow-up after a LinkedIn handoff (e.g. prospect shared their email on LinkedIn), acknowledge the LinkedIn connection briefly
+   - No fund specifics or return promises for direct investor outreach
+
+   BOTH channels apply these principles regardless:
+   - THEM not YOU — make the prospect feel seen, not pitched
+   - For Fund Clients: speak directly to their fundraising challenge; mention solo GP difficulty if applicable
+   - For COIs: ask about fund managers in their network who are actively raising
+   - For Investor Prospects: general curiosity-driven framing
+   - No performance guarantees ever
+
+Respond ONLY with valid JSON in this exact format, no markdown fences, no preamble, no explanation:
+{
+  "classification": "Fund Client",
+  "fit_score": "High",
+  "channel": "LinkedIn",
+  "rationale": "...",
+  "subject": "",
+  "message": "..."
+}
+
+If drafting a LinkedIn message, leave subject as empty string. If drafting an email, include a subject line.`;
+
+
+const SYSTEM_PROMPT_FA = `You are an expert business development assistant for Advisor Appointments, a done-for-you LinkedIn outreach service that helps financial advisors, financial planners, and wealth managers grow their client base through consistent, personalized LinkedIn outreach.
+
+About Advisor Appointments:
+- We run done-for-you LinkedIn outreach campaigns on behalf of financial advisors
+- We identify ideal prospects via LinkedIn Sales Navigator, send connection requests, and run structured DM sequences ghostwritten in the advisor's voice
+- We use a SAMCO (Single Audience Multi Channel Outreach) methodology combining LinkedIn and email
+- Core pain point we solve: LinkedIn has a high concentration of advisors' ideal clients (business owners, executives, professionals), but advisors don't have the time or consistency to run effective outreach themselves
+- We make it easy for advisors to have consistent outreach with minimal time investment
+- Service tiers: Grow+ ($650/mo, recommended entry point — daily inbox monitoring, reply categorization, re-engagement of passive leads), Grow (fully managed campaigns, client handles inbox), Scale (fully hands-off, dedicated account manager handles everything)
+
+Your job is to analyze a LinkedIn profile and conversation thread of a financial advisor prospect, then:
+
+1. Classify the contact into one of these categories:
+   - "Strong Prospect" — independent or boutique FA/planner/wealth manager who fits well and shows receptivity signals
+   - "Prospect" — advisor who fits the profile but needs more nurturing
+   - "COI" — could refer advisors to us (wholesalers, practice management consultants, coaching firms, custodian reps, industry connectors)
+   - "Pass" — wirehouse/employee advisor at large firm (Fidelity, Vanguard, etc.), wrong fit, or no engagement signal
+
+2. Assign a fit score: High / Medium / Low
+
+3. Recommend a channel: LinkedIn / Email / Both
+
+4. Write a short rationale (2-3 sentences max). Note any fit signals — firm type, independence, likely target market, platform engagement.
+
+5. Draft the ideal follow-up message using these principles:
+   - Casual, warm, slow-dance approach — never pushy or salesy
+   - THEM not YOU — lead with their world, not our service
+   - Build curiosity before pitching anything
+   - Peer-level tone — one professional to another
+   - Do NOT lead with features or pricing
+   - Golden Question test: would a real person actually send this?
+   - The opening connection message is always generic ("Hi [Name], I noticed your background in financial services...") — draft the NEXT message after they accept
+
+   LINKEDIN messages:
+   - Under 60 words
+   - Warm and conversational
+   - No subject line
+
+   EMAIL messages:
+   - Short and conversational (3-5 sentences)
+   - Include a subject line
+   - If following up after LinkedIn handoff, briefly acknowledge the connection
+
+Respond ONLY with valid JSON in this exact format, no markdown fences, no preamble, no explanation:
+{
+  "classification": "Strong Prospect",
+  "fit_score": "High",
+  "channel": "LinkedIn",
+  "rationale": "...",
+  "subject": "",
+  "message": "..."
+}
+
+If drafting a LinkedIn message, leave subject as empty string. If drafting an email, include a subject line.`;
+
+// ── State ──────────────────────────────────────────────────────────────────────
+
+let selectedProspectType = 'FA';
+let selectedChannel = 'LinkedIn';
+let profileText = '';
+let profilePdfBase64 = '';
+let lastUserMessage = null;
+let lastResult = null;
+
+const PROXY_URL = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev/';
+
+// ── Selectors ──────────────────────────────────────────────────────────────────
+
+function setProspectType(type) {
+  selectedProspectType = type;
+  document.getElementById('btnFA').classList.toggle('active', type === 'FA');
+  document.getElementById('btnFund').classList.toggle('active', type === 'Fund');
+}
+
+function setChannel(channel) {
+  selectedChannel = channel;
+  document.getElementById('btnLinkedIn').classList.toggle('active', channel === 'LinkedIn');
+  document.getElementById('btnEmail').classList.toggle('active', channel === 'Email');
+  document.getElementById('threadLabel').textContent = channel === 'LinkedIn' ? 'LinkedIn conversation thread' : 'Email thread';
+  document.getElementById('thread').placeholder = channel === 'LinkedIn'
+    ? 'Paste the LinkedIn conversation so far...'
+    : 'Paste the email thread so far...';
+}
+
+// ── PDF handling ───────────────────────────────────────────────────────────────
+
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    profilePdfBase64 = e.target.result.split(',')[1];
+    profileText = '';
+    document.getElementById('dropZone').classList.add('loaded');
+    document.getElementById('dropFilename').textContent = file.name;
+    document.getElementById('dropLabel').textContent = 'PDF loaded';
+    document.getElementById('dropClear').style.display = 'inline';
+    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPdf(e) {
+  e.stopPropagation();
+  profilePdfBase64 = '';
+  profileText = '';
+  document.getElementById('pdfInput').value = '';
+  document.getElementById('dropZone').classList.remove('loaded');
+  document.getElementById('dropFilename').textContent = '';
+  document.getElementById('dropLabel').textContent = 'Drop PDF here or click to browse';
+  document.getElementById('dropClear').style.display = 'none';
+  document.getElementById('dropIcon').className = 'ti ti-file-type-pdf drop-icon';
+}
+
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') handleFile(file);
+  else showError('Please drop a PDF file.');
+});
+
+// ── Analyze ────────────────────────────────────────────────────────────────────
+
+async function analyze() {
+  const thread = document.getElementById('thread').value.trim();
+  const firmurl = document.getElementById('firmurl').value.trim();
+
+  if (!profilePdfBase64 && !profileText) { showError('Please upload a LinkedIn profile PDF.'); return; }
+  if (!thread) { showError('Please paste the conversation thread.'); return; }
+
+  hideError();
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('analyzeBtn').disabled = true;
+
+  const systemPrompt = selectedProspectType === 'FA' ? SYSTEM_PROMPT_FA : SYSTEM_PROMPT_FUND;
+  const textSuffix = `\n\nCURRENT CHANNEL: ${selectedChannel}\n\nCONVERSATION THREAD:\n${thread}${firmurl ? '\n\nFIRM URL: ' + firmurl : ''}\n\nPlease classify this contact and draft the ideal follow-up message for the ${selectedChannel} channel.`;
+
+  const userMessage = profilePdfBase64 ? {
+    role: 'user',
+    content: [
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: profilePdfBase64 } },
+      { type: 'text', text: 'The above is the LinkedIn profile PDF.' + textSuffix }
+    ]
+  } : {
+    role: 'user',
+    content: `LINKEDIN PROFILE:\n${profileText}` + textSuffix
+  };
+
+  lastUserMessage = userMessage;
+
+  try {
+    const response = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [userMessage]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'API error ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    renderResults(result);
+  } catch (e) {
+    showError(e.message || 'Something went wrong. Please try again.');
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+  }
+}
+
+// ── Regenerate ─────────────────────────────────────────────────────────────────
+
+async function regenerate() {
+  const feedback = document.getElementById('feedbackInput').value.trim();
+  if (!feedback) { showError('Please enter feedback before regenerating.'); return; }
+  if (!lastResult || !lastUserMessage) { showError('Please run an analysis first.'); return; }
+
+  hideError();
+  document.getElementById('loadingRegen').style.display = 'flex';
+  document.getElementById('regenerateBtn').disabled = true;
+
+  const systemPrompt = selectedProspectType === 'FA' ? SYSTEM_PROMPT_FA : SYSTEM_PROMPT_FUND;
+
+  const regenMessages = [
+    lastUserMessage,
+    { role: 'assistant', content: JSON.stringify(lastResult) },
+    { role: 'user', content: `Please revise only the draft message based on this feedback: "${feedback}". Keep the classification, fit score, channel, and rationale the same. Return the full JSON object with the updated message.` }
+  ];
+
+  try {
+    const response = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: regenMessages
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'API error ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    renderResults(result);
+  } catch (e) {
+    showError(e.message || 'Something went wrong during regeneration.');
+  } finally {
+    document.getElementById('loadingRegen').style.display = 'none';
+    document.getElementById('regenerateBtn').disabled = false;
+  }
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+
+function renderResults(result) {
+  lastResult = result;
+
+  document.getElementById('classification').textContent = result.classification;
+  document.getElementById('classification').className = 'metric-value';
+
+  const fitEl = document.getElementById('fitscore');
+  fitEl.textContent = result.fit_score;
+  fitEl.className = 'metric-value ' + ({ High: 'fit-high', Medium: 'fit-medium', Low: 'fit-low' }[result.fit_score] || '');
+
+  document.getElementById('channel').textContent = result.channel;
+  document.getElementById('rationale').textContent = result.rationale;
+  document.getElementById('draftmsg').textContent = result.message;
+
+  const subjectRow = document.getElementById('subjectRow');
+  if (result.subject) {
+    document.getElementById('subject').textContent = result.subject;
+    subjectRow.style.display = 'block';
+  } else {
+    subjectRow.style.display = 'none';
+  }
+
+  document.getElementById('feedbackInput').value = '';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── Utilities ──────────────────────────────────────────────────────────────────
+
+function copyMessage() {
+  const subject = document.getElementById('subject').textContent;
+  const msg = document.getElementById('draftmsg').textContent;
+  const full = subject ? 'Subject: ' + subject + '\n\n' + msg : msg;
+  navigator.clipboard.writeText(full).then(showToast);
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function showError(msg) {
+  const b = document.getElementById('errorBox');
+  b.textContent = msg;
+  b.style.display = 'block';
+}
+
+function hideError() {
+  document.getElementById('errorBox').style.display = 'none';
+}
+</script>
+</body>
+</html>
