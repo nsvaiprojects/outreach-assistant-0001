@@ -537,6 +537,23 @@ Respond ONLY with valid JSON in this exact format, no markdown fences, no preamb
 
 If drafting a LinkedIn message, leave subject as empty string. If drafting an email, include a subject line.`;
 
+// ── URL parameter handler (for Chrome extension) ──────────────────────────────
+
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const profileParam = params.get('profile');
+  if (profileParam) {
+    profileText = decodeURIComponent(profileParam);
+    profilePdfBase64 = '';
+    const dz = document.getElementById('dropZone');
+    dz.classList.add('loaded');
+    document.getElementById('dropLabel').textContent = 'Profile loaded from LinkedIn';
+    document.getElementById('dropFilename').textContent = 'Via Chrome extension';
+    document.getElementById('dropClear').style.display = 'inline';
+    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+  }
+});
+
 // ── State ──────────────────────────────────────────────────────────────────────
 
 let selectedProspectType = 'FA';
