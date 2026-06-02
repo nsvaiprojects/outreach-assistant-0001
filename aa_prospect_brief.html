@@ -437,11 +437,14 @@ dropZone.addEventListener('drop', e => {
 function loadProfileFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const profileParam = params.get('profile');
+  const encoding = params.get('encoding');
   if (profileParam) {
     try {
-      profileText = decodeURIComponent(profileParam);
+      profileText = encoding === 'base64'
+        ? decodeURIComponent(escape(atob(profileParam)))
+        : decodeURIComponent(profileParam);
     } catch(e) {
-      profileText = profileParam.replace(/\+/g, ' ');
+      profileText = profileParam;
     }
     profilePdfBase64 = '';
     const dz = document.getElementById('dropZone');
