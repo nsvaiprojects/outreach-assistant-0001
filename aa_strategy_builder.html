@@ -527,6 +527,9 @@ Each message must pass the Golden Question test.` });
       clearInterval(intv);
       if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error?.message || 'API error ' + resp.status); }
       const data = await resp.json();
+      console.log('API response stop_reason:', data.stop_reason);
+      console.log('API response content blocks:', data.content?.length);
+      console.log('Full API response:', JSON.stringify(data).substring(0, 2000));
 
       // Check for stop reason — if max_tokens hit, response was truncated
       if (data.stop_reason === 'max_tokens') {
@@ -534,18 +537,22 @@ Each message must pass the Golden Question test.` });
       }
 
       const raw = (data.content||[]).map(b=>b.text||'').join('');
+      console.log('Raw text length:', raw.length);
+      console.log('Raw text preview:', raw.substring(0, 500));
       const cleaned = raw.replace(/```json|```/g,'').trim();
 
       let parsed;
       try {
         parsed = JSON.parse(cleaned);
       } catch(jsonErr) {
+        console.error('JSON parse error:', jsonErr.message);
+        console.log('Full raw text:', raw);
         // Attempt to extract just the JSON object if there's surrounding text
         const match = cleaned.match(/\{[\s\S]*\}/);
         if (match) {
           parsed = JSON.parse(match[0]);
         } else {
-          throw new Error('Could not parse response. Raw response logged to console for debugging.');
+          throw new Error('Could not parse response — check browser console (F12) for details. Raw: ' + raw.substring(0, 200));
         }
       }
       renderOutput(parsed, clientName, chLabel);
