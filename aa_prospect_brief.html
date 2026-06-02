@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Prospect Brief — Advisor Appointments</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -434,20 +434,25 @@ dropZone.addEventListener('drop', e => {
   else showError('Please drop a PDF file.');
 });
 
-window.addEventListener('DOMContentLoaded', () => {
+function loadProfileFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const profileParam = params.get('profile');
   if (profileParam) {
     profileText = decodeURIComponent(profileParam);
     profilePdfBase64 = '';
     const dz = document.getElementById('dropZone');
-    dz.classList.add('loaded');
-    document.getElementById('dropLabel').textContent = 'Profile loaded from LinkedIn';
-    document.getElementById('dropFilename').textContent = 'Via Chrome extension';
-    document.getElementById('dropClear').style.display = 'inline';
-    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+    if (dz) {
+      dz.classList.add('loaded');
+      document.getElementById('dropLabel').textContent = 'Profile loaded from LinkedIn';
+      document.getElementById('dropFilename').textContent = 'Via Chrome extension';
+      document.getElementById('dropClear').style.display = 'inline';
+      document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+    }
   }
-});
+}
+
+window.addEventListener('DOMContentLoaded', loadProfileFromUrl);
+window.addEventListener('load', loadProfileFromUrl);
 
 async function analyze() {
   const thread = document.getElementById('thread').value.trim();
