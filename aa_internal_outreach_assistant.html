@@ -548,7 +548,11 @@ function loadProfileFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const profileParam = params.get('profile');
   if (profileParam) {
-    profileText = decodeURIComponent(profileParam);
+    try {
+      profileText = decodeURIComponent(profileParam);
+    } catch(e) {
+      profileText = profileParam.replace(/\+/g, ' ');
+    }
     profilePdfBase64 = '';
     const dz = document.getElementById('dropZone');
     if (dz) {
