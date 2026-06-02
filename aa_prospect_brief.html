@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prospect Brief — Advisor Appointments</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface-2: #f0efe9;
+    --border: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.22);
+    --text: #1a1a18;
+    --text-muted: #6b6a65;
+    --text-hint: #9b9a94;
+    --accent: #1a4a8a;
+    --accent-bg: #e8f0fa;
+    --accent-text: #0c3366;
+    --success: #2a6e3f;
+    --success-bg: #e6f4ec;
+    --warning: #7a5200;
+    --warning-bg: #fef3d8;
+    --danger: #8a1f1f;
+    --danger-bg: #faeaea;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #18181a; --surface: #232325; --surface-2: #2c2c2f;
+      --border: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+      --text: #f0efe8; --text-muted: #a0a09a; --text-hint: #6b6a65;
+      --accent: #5b8fd4; --accent-bg: #1a2a40; --accent-text: #a0c0ee;
+      --success: #4aaa6a; --success-bg: #1a2e22;
+      --warning: #d4a020; --warning-bg: #2a2010;
+      --danger: #d46060; --danger-bg: #2e1a1a;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6;
+  }
+
+  header {
+    background: var(--surface); border-bottom: 0.5px solid var(--border);
+    padding: 16px 24px; display: flex; align-items: center; gap: 12px;
+  }
+  .logo img { height: 36px; width: auto; display: block; }
+  header h1 { font-size: 16px; font-weight: 500; color: var(--text); }
+  header span { font-size: 13px; color: var(--text-muted); margin-left: 4px; }
+
+  .main { max-width: 860px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  .card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .selector-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 600px) { .selector-row { grid-template-columns: 1fr; } }
+
+  .selector-group { display: flex; flex-direction: column; }
+
+  .selector-label {
+    display: block; font-size: 12px; font-weight: 500; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px;
+  }
+
+  .toggle-group { display: flex; gap: 8px; }
+
+  .toggle-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+    font-size: 13px; font-weight: 500; padding: 10px 16px;
+    border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    background: var(--surface-2); color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  }
+  .toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .toggle-btn.active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-text); }
+
+  .input-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px; align-items: stretch;
+  }
+  .input-grid .field { display: flex; flex-direction: column; }
+  .input-grid .field textarea { flex: 1; min-height: 160px; }
+  .input-grid .drop-zone { flex: 1; }
+  @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
+
+  .field label {
+    display: block; font-size: 12px; font-weight: 500; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px;
+  }
+
+  .drop-zone {
+    border: 1.5px dashed var(--border-strong); border-radius: var(--radius-sm);
+    background: var(--surface-2); min-height: 160px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s; text-align: center; padding: 16px; position: relative;
+  }
+  .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: var(--accent-bg); }
+  .drop-zone.loaded { border-style: solid; border-color: var(--success); background: var(--success-bg); }
+  .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .drop-icon { font-size: 28px; color: var(--text-hint); }
+  .drop-zone.loaded .drop-icon { color: var(--success); }
+  .drop-label { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+  .drop-filename { font-size: 12px; font-weight: 500; color: var(--success); margin-top: 2px; }
+  .drop-clear { font-size: 11px; color: var(--text-hint); cursor: pointer; text-decoration: underline; background: none; border: none; padding: 0; margin-top: 4px; }
+  .drop-clear:hover { color: var(--danger); }
+
+  textarea, input[type="text"] {
+    width: 100%; font-size: 13px; font-family: inherit; line-height: 1.6;
+    color: var(--text); background: var(--surface-2); border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; resize: vertical; transition: border-color 0.15s;
+  }
+  textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--accent); }
+  textarea { min-height: 160px; }
+
+  .url-row { margin-bottom: 18px; }
+  .url-row label {
+    display: block; font-size: 12px; font-weight: 500; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 500;
+    padding: 9px 20px; border-radius: var(--radius-sm); border: 0.5px solid var(--border-strong);
+    background: var(--surface); color: var(--text); cursor: pointer; transition: background 0.12s, transform 0.1s;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--accent); color: #fff; border-color: transparent; }
+  .btn-primary:hover { background: var(--accent-text); }
+  .btn-sm { font-size: 12px; padding: 5px 12px; }
+  .btn-success { background: var(--success); color: #fff; border-color: transparent; }
+  .btn-success:hover { background: #1a5a2f; }
+
+  .results { display: none; }
+
+  .brief-section {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .brief-section-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; background: var(--surface-2);
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .brief-section-header .section-icon {
+    width: 28px; height: 28px; border-radius: var(--radius-sm);
+    background: var(--accent-bg); color: var(--accent-text);
+    display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+  }
+
+  .brief-section-header h3 {
+    font-size: 13px; font-weight: 600; color: var(--text); text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .brief-section-body { padding: 14px 16px; font-size: 14px; line-height: 1.7; color: var(--text); }
+
+  .brief-section-body ul { padding-left: 20px; }
+  .brief-section-body li { margin-bottom: 6px; }
+
+  .prospect-header {
+    background: var(--accent); color: #fff; border-radius: var(--radius);
+    padding: 18px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .prospect-header h2 { font-size: 20px; font-weight: 600; }
+  .prospect-header p { font-size: 13px; opacity: 0.8; margin-top: 3px; }
+  .fit-badge {
+    font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
+    background: rgba(255,255,255,0.2); color: #fff; white-space: nowrap;
+  }
+
+  .action-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+  .loading {
+    display: none; align-items: center; gap: 10px;
+    color: var(--text-muted); font-size: 14px; padding: 16px 0;
+  }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .spin { animation: spin 0.9s linear infinite; display: inline-block; }
+
+  .error-box {
+    display: none; background: var(--danger-bg); border: 0.5px solid var(--danger);
+    border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px;
+    color: var(--danger); margin-top: 14px;
+  }
+
+  .copy-toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--text); color: var(--bg);
+    font-size: 13px; padding: 8px 16px; border-radius: var(--radius-sm);
+    opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none;
+  }
+  .copy-toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><img src="https://img1.wsimg.com/isteam/ip/58874d4d-c9ad-4a85-9ac2-461d28f3abbd/imgi_1_2006274595.png/:/rs=w:299,h:75,cg:true,m/cr=w:299,h:75/qt=q:100/ll" alt="Advisor Appointments" /></div>
+  <h1>Prospect Brief <span>— Call Preparation</span></h1>
+</header>
+
+<div class="main">
+  <div class="card">
+
+    <div class="selector-row">
+      <div class="selector-group">
+        <span class="selector-label">Prospect type</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btnFA" onclick="setProspectType('FA')">
+            <i class="ti ti-briefcase" aria-hidden="true"></i> Financial Advisor
+          </button>
+          <button class="toggle-btn" id="btnFund" onclick="setProspectType('Fund')">
+            <i class="ti ti-chart-line" aria-hidden="true"></i> Fund Manager
+          </button>
+        </div>
+      </div>
+      <div class="selector-group">
+        <span class="selector-label">Meeting type</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btnDiscovery" onclick="setMeetingType('Discovery')">
+            <i class="ti ti-zoom-question" aria-hidden="true"></i> Discovery
+          </button>
+          <button class="toggle-btn" id="btnFollowUp" onclick="setMeetingType('Follow-up')">
+            <i class="ti ti-repeat" aria-hidden="true"></i> Follow-up
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-grid">
+      <div class="field">
+        <label>LinkedIn profile PDF</label>
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('pdfInput').click()">
+          <input type="file" id="pdfInput" accept=".pdf" onclick="event.stopPropagation()" onchange="handleFile(this.files[0])" />
+          <i class="ti ti-file-type-pdf drop-icon" aria-hidden="true" id="dropIcon"></i>
+          <div class="drop-label" id="dropLabel">Drop PDF here or click to browse</div>
+          <div class="drop-filename" id="dropFilename"></div>
+          <button class="drop-clear" id="dropClear" style="display:none" onclick="clearPdf(event)">Remove</button>
+        </div>
+        <textarea id="profile" style="display:none"></textarea>
+      </div>
+      <div class="field">
+        <label for="thread">Conversation thread</label>
+        <textarea id="thread" placeholder="Paste the LinkedIn or email conversation so far..."></textarea>
+      </div>
+    </div>
+
+    <div class="url-row">
+      <label for="additionalContext">Additional context <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></label>
+      <textarea id="additionalContext" placeholder='e.g. "He mentioned he recently went independent", "She runs a fee-only practice focused on doctors"...' style="min-height: 70px; resize: vertical;"></textarea>
+    </div>
+
+    <div class="url-row">
+      <label for="firmurl">Firm URL <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></label>
+      <input type="text" id="firmurl" placeholder="https://www.example.com" />
+    </div>
+
+    <button class="btn btn-primary" id="analyzeBtn" onclick="analyze()">
+      <i class="ti ti-file-description" aria-hidden="true"></i>
+      Generate Prospect Brief
+    </button>
+
+    <div class="loading" id="loading">
+      <i class="ti ti-refresh spin" aria-hidden="true"></i>
+      Building prospect brief...
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="prospect-header" id="prospectHeader">
+      <div>
+        <h2 id="prospectName"></h2>
+        <p id="prospectSubtitle"></p>
+      </div>
+      <div class="fit-badge" id="fitBadge"></div>
+    </div>
+
+    <div id="briefSections"></div>
+
+    <div class="action-row">
+      <button class="btn btn-success" onclick="downloadDocx()">
+        <i class="ti ti-download" aria-hidden="true"></i> Download as Word Doc
+      </button>
+      <button class="btn btn-sm" onclick="resetForm()">
+        <i class="ti ti-refresh" aria-hidden="true"></i> New brief
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="copy-toast" id="toast">Downloaded!</div>
+
+<script>
+const PROXY_URL = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev/';
+
+const SECTION_CONFIG = {
+  FA: [
+    { key: 'who_they_are', label: 'Who They Are', icon: 'ti-user' },
+    { key: 'their_practice', label: 'Their Practice', icon: 'ti-building' },
+    { key: 'likely_pain_points', label: 'Likely Pain Points', icon: 'ti-alert-triangle' },
+    { key: 'linkedin_signals', label: 'LinkedIn & Engagement Signals', icon: 'ti-brand-linkedin' },
+    { key: 'potential_objections', label: 'Potential Objections', icon: 'ti-shield' },
+    { key: 'talking_points', label: 'Recommended Talking Points', icon: 'ti-message-2' },
+    { key: 'opening_question', label: 'Suggested Opening Question', icon: 'ti-question-mark' },
+  ],
+  Fund: [
+    { key: 'who_they_are', label: 'Who They Are', icon: 'ti-user' },
+    { key: 'fund_overview', label: 'Fund & Raise Overview', icon: 'ti-chart-line' },
+    { key: 'fundraising_challenge', label: 'Fundraising Challenge', icon: 'ti-alert-triangle' },
+    { key: 'compliance_signals', label: 'Compliance Signals', icon: 'ti-shield' },
+    { key: 'service_fit', label: 'Service Track Fit', icon: 'ti-target' },
+    { key: 'talking_points', label: 'Recommended Talking Points', icon: 'ti-message-2' },
+    { key: 'opening_question', label: 'Suggested Opening Question', icon: 'ti-question-mark' },
+  ]
+};
+
+const SYSTEM_PROMPT_FA = `You are an expert sales preparation assistant for Advisor Appointments, a done-for-you LinkedIn outreach service that helps financial advisors grow their client base through consistent, personalized LinkedIn outreach.
+
+About Advisor Appointments:
+- Done-for-you LinkedIn outreach campaigns for financial advisors
+- SAMCO (Single Audience Multi Channel Outreach) — LinkedIn + email sequencing
+- Core pain point solved: LinkedIn has advisors' ideal clients but advisors lack time/consistency for outreach
+- Service tiers: Grow+ ($650/mo — recommended entry, daily inbox monitoring, reply categorization, re-engagement), Grow (managed campaigns, client handles inbox), Scale (fully hands-off)
+
+Your job is to analyze a LinkedIn profile and conversation thread for a financial advisor prospect and produce a structured call preparation brief. Be specific and insightful — draw on actual details from the profile. Avoid generic filler.
+
+Respond ONLY with valid JSON in this exact format, no markdown fences, no preamble:
+{
+  "prospect_name": "First Last",
+  "prospect_subtitle": "Role at Firm — Location",
+  "fit_score": "High",
+  "who_they_are": "2-3 sentence summary of who this person is professionally — firm, role, background, years in practice, any notable credentials",
+  "their_practice": "What their practice likely looks like — target market, client profile, AUM signals, how they position themselves",
+  "likely_pain_points": ["Pain point 1", "Pain point 2", "Pain point 3"],
+  "linkedin_signals": "Notes on their LinkedIn activity — do they post, what about, any recent activity worth referencing in the call, how active they appear",
+  "potential_objections": ["Objection 1", "Objection 2", "Objection 3"],
+  "talking_points": ["Talking point 1", "Talking point 2", "Talking point 3"],
+  "opening_question": "One specific, thoughtful opening question tailored to this prospect"
+}`;
+
+const SYSTEM_PROMPT_FUND = `You are an expert sales preparation assistant for Advisor Appointments, a firm that runs SAMCO (Single Audience Multi Channel Outreach) campaigns for private fund managers and alternative investment firms seeking to grow their investor base.
+
+Services offered:
+- Track A: Direct accredited investor outreach via LinkedIn (~500 invites/month)
+- Track B: Direct accredited investor outreach via email
+- Track C: RIA outreach as centers of influence (COIs) — lower volume, higher per-conversion value
+- Compliance-aware: 506(c) funds can broadly solicit; 506(b) cannot — must confirm before launch
+
+Your job is to analyze a LinkedIn profile and conversation thread for a fund manager prospect and produce a structured call preparation brief. Be specific — draw on actual details from the profile.
+
+Respond ONLY with valid JSON in this exact format, no markdown fences, no preamble:
+{
+  "prospect_name": "First Last",
+  "prospect_subtitle": "Role at Firm — Location",
+  "fit_score": "High",
+  "who_they_are": "2-3 sentence summary — fund type, strategy, team size, background",
+  "fund_overview": "What their fund looks like — strategy, stage of raise, target raise size if determinable, note structure or equity, geography focus",
+  "fundraising_challenge": "What their likely fundraising challenge is — conference-dependent, no systematic outreach, solo GP doing everything, limited IR resources, etc.",
+  "compliance_signals": "Any signals in their profile about 506(c) vs 506(b) status — keywords like 'accredited investors', '506(c)', 'general solicitation' in their bio are strong signals. Note if unclear.",
+  "service_fit": "Which service tracks fit best and why — Track A (direct investor LinkedIn), Track B (direct investor email), Track C (RIA COI), or combination",
+  "talking_points": ["Talking point 1", "Talking point 2", "Talking point 3"],
+  "opening_question": "One specific, thoughtful opening question tailored to this prospect"
+}`;
+
+let selectedProspectType = 'FA';
+let selectedMeetingType = 'Discovery';
+let profileText = '';
+let profilePdfBase64 = '';
+let lastBriefData = null;
+
+function setProspectType(type) {
+  selectedProspectType = type;
+  document.getElementById('btnFA').classList.toggle('active', type === 'FA');
+  document.getElementById('btnFund').classList.toggle('active', type === 'Fund');
+}
+
+function setMeetingType(type) {
+  selectedMeetingType = type;
+  document.getElementById('btnDiscovery').classList.toggle('active', type === 'Discovery');
+  document.getElementById('btnFollowUp').classList.toggle('active', type === 'Follow-up');
+}
+
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    profilePdfBase64 = e.target.result.split(',')[1];
+    profileText = '';
+    document.getElementById('dropZone').classList.add('loaded');
+    document.getElementById('dropFilename').textContent = file.name;
+    document.getElementById('dropLabel').textContent = 'PDF loaded';
+    document.getElementById('dropClear').style.display = 'inline';
+    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPdf(e) {
+  e.stopPropagation();
+  profilePdfBase64 = ''; profileText = '';
+  document.getElementById('pdfInput').value = '';
+  document.getElementById('dropZone').classList.remove('loaded');
+  document.getElementById('dropFilename').textContent = '';
+  document.getElementById('dropLabel').textContent = 'Drop PDF here or click to browse';
+  document.getElementById('dropClear').style.display = 'none';
+  document.getElementById('dropIcon').className = 'ti ti-file-type-pdf drop-icon';
+}
+
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') handleFile(file);
+  else showError('Please drop a PDF file.');
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const profileParam = params.get('profile');
+  if (profileParam) {
+    profileText = decodeURIComponent(profileParam);
+    profilePdfBase64 = '';
+    const dz = document.getElementById('dropZone');
+    dz.classList.add('loaded');
+    document.getElementById('dropLabel').textContent = 'Profile loaded from LinkedIn';
+    document.getElementById('dropFilename').textContent = 'Via Chrome extension';
+    document.getElementById('dropClear').style.display = 'inline';
+    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+  }
+});
+
+async function analyze() {
+  const thread = document.getElementById('thread').value.trim();
+  const firmurl = document.getElementById('firmurl').value.trim();
+  const additionalContext = document.getElementById('additionalContext').value.trim();
+
+  if (!profilePdfBase64 && !profileText) { showError('Please upload a LinkedIn profile PDF.'); return; }
+  if (!thread) { showError('Please paste the conversation thread.'); return; }
+
+  hideError();
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('analyzeBtn').disabled = true;
+
+  const systemPrompt = selectedProspectType === 'FA' ? SYSTEM_PROMPT_FA : SYSTEM_PROMPT_FUND;
+  const textSuffix = `\n\nMEETING TYPE: ${selectedMeetingType}\n\nCONVERSATION THREAD:\n${thread}${additionalContext ? '\n\nADDITIONAL CONTEXT:\n' + additionalContext : ''}${firmurl ? '\n\nFIRM URL: ' + firmurl : ''}\n\nGenerate a prospect brief for call preparation.`;
+
+  const userMessage = profilePdfBase64 ? {
+    role: 'user',
+    content: [
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: profilePdfBase64 } },
+      { type: 'text', text: 'The above is the LinkedIn profile PDF.' + textSuffix }
+    ]
+  } : { role: 'user', content: 'LINKEDIN PROFILE:\n' + profileText + textSuffix };
+
+  try {
+    const response = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [userMessage]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'API error ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    lastBriefData = result;
+    renderBrief(result);
+  } catch (e) {
+    showError(e.message || 'Something went wrong. Please try again.');
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('analyzeBtn').disabled = false;
+  }
+}
+
+function renderBrief(data) {
+  document.getElementById('prospectName').textContent = data.prospect_name || 'Prospect';
+  document.getElementById('prospectSubtitle').textContent = data.prospect_subtitle || '';
+  const fitEl = document.getElementById('fitBadge');
+  fitEl.textContent = (data.fit_score || '') + ' Fit';
+
+  const sections = SECTION_CONFIG[selectedProspectType];
+  const container = document.getElementById('briefSections');
+  container.innerHTML = '';
+
+  sections.forEach(sec => {
+    const value = data[sec.key];
+    if (!value) return;
+
+    const div = document.createElement('div');
+    div.className = 'brief-section';
+
+    const header = document.createElement('div');
+    header.className = 'brief-section-header';
+    header.innerHTML = `<div class="section-icon"><i class="ti ${sec.icon}"></i></div><h3>${sec.label}</h3>`;
+
+    const body = document.createElement('div');
+    body.className = 'brief-section-body';
+
+    if (Array.isArray(value)) {
+      const ul = document.createElement('ul');
+      value.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    } else {
+      body.textContent = value;
+    }
+
+    div.appendChild(header);
+    div.appendChild(body);
+    container.appendChild(div);
+  });
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function downloadDocx() {
+  if (!lastBriefData) return;
+  const data = lastBriefData;
+  const sections = SECTION_CONFIG[selectedProspectType];
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, WidthType, LevelFormat } = docx;
+
+  const border = { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
+
+  function h1(text) {
+    return new Paragraph({ spacing: { before: 0, after: 120 }, children: [new TextRun({ text, bold: true, size: 36, font: "Arial", color: "1a4a8a" })] });
+  }
+  function h2(text) {
+    return new Paragraph({ spacing: { before: 240, after: 80 }, children: [new TextRun({ text, bold: true, size: 24, font: "Arial", color: "1a1a18" })] });
+  }
+  function p(text) {
+    return new Paragraph({ spacing: { before: 60, after: 60 }, children: [new TextRun({ text, size: 22, font: "Arial" })] });
+  }
+  function bullet(text) {
+    return new Paragraph({
+      numbering: { reference: "bullets", level: 0 },
+      spacing: { before: 40, after: 40 },
+      children: [new TextRun({ text, size: 22, font: "Arial" })]
+    });
+  }
+  function spacer() {
+    return new Paragraph({ spacing: { before: 80, after: 80 }, children: [new TextRun("")] });
+  }
+
+  const children = [
+    h1(`Prospect Brief: ${data.prospect_name || 'Prospect'}`),
+    new Paragraph({ spacing: { before: 40, after: 80 }, children: [new TextRun({ text: `${data.prospect_subtitle || ''} | ${selectedMeetingType} Call | Fit: ${data.fit_score || ''}`, size: 20, font: "Arial", color: "6b6a65", italics: true })] }),
+    spacer(),
+  ];
+
+  sections.forEach(sec => {
+    const value = data[sec.key];
+    if (!value) return;
+    children.push(h2(sec.label));
+    if (Array.isArray(value)) {
+      value.forEach(item => children.push(bullet(item)));
+    } else {
+      children.push(p(value));
+    }
+    children.push(spacer());
+  });
+
+  children.push(new Paragraph({ spacing: { before: 120, after: 0 }, children: [new TextRun({ text: `Generated by Advisor Appointments Message Assistant — ${new Date().toLocaleDateString()}`, size: 18, font: "Arial", color: "9b9a94", italics: true })] }));
+
+  const doc = new Document({
+    numbering: {
+      config: [{ reference: "bullets", levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 720, hanging: 360 } } } }] }]
+    },
+    styles: { default: { document: { run: { font: "Arial", size: 22 } } } },
+    sections: [{
+      properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
+      children
+    }]
+  });
+
+  const buffer = await Packer.toBlob(doc);
+  const url = URL.createObjectURL(buffer);
+  const a = document.createElement('a');
+  const safeName = (data.prospect_name || 'Prospect').replace(/[^a-zA-Z0-9]/g, '_');
+  a.href = url;
+  a.download = `${safeName}_CallPrep.docx`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast();
+}
+
+function resetForm() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('thread').value = '';
+  document.getElementById('additionalContext').value = '';
+  document.getElementById('firmurl').value = '';
+  clearPdf({ stopPropagation: () => {} });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+function showError(msg) { const b = document.getElementById('errorBox'); b.textContent = msg; b.style.display = 'block'; }
+function hideError() { document.getElementById('errorBox').style.display = 'none'; }
+</script>
+</body>
+</html>
