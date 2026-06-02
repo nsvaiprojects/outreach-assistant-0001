@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AA Strategy Builder</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f7f5;
+    --bg3: #f0efec;
+    --border: #e0ddd8;
+    --border2: #c8c5bf;
+    --text: #1a1a18;
+    --text2: #6b6860;
+    --text3: #9a9890;
+    --blue: #1a6ab1;
+    --blue-bg: #eef4fb;
+    --blue-text: #144f85;
+    --green: #2a7a4a;
+    --green-bg: #eaf5ee;
+    --green-text: #1e5c36;
+    --amber: #b07010;
+    --amber-bg: #fdf5e6;
+    --amber-text: #8a5608;
+    --red: #c0392b;
+    --red-bg: #fdf0ee;
+    --red-text: #922b21;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+  .page { max-width: 820px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .header { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .header-logo { font-size: 13px; font-weight: 600; color: var(--text2); letter-spacing: 0.08em; text-transform: uppercase; }
+  .header h1 { font-size: 20px; font-weight: 600; color: var(--text); }
+  .header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text2); margin-bottom: 14px; }
+
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fld { display: flex; flex-direction: column; gap: 5px; }
+  .fld label { font-size: 13px; color: var(--text2); font-weight: 500; }
+  .fld input, .fld textarea, .fld select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .fld input:focus, .fld textarea:focus { border-color: var(--blue); }
+  .fld textarea { resize: vertical; }
+
+  .ch-row { display: flex; gap: 8px; }
+  .ch-btn { flex: 1; padding: 9px 0; font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; background: var(--bg2); border: 1px solid var(--border); color: var(--text2); transition: all 0.15s; font-family: inherit; }
+  .ch-btn[data-selected="true"] { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-text); font-weight: 600; }
+
+  .dz { border: 1.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 20px; text-align: center; cursor: pointer; background: var(--bg2); transition: all 0.15s; }
+  .dz:hover, .dz.over { background: var(--blue-bg); border-color: var(--blue); }
+  .dz-icon { font-size: 22px; color: var(--text3); margin-bottom: 6px; }
+  .dz-main { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .dz-sub { font-size: 12px; color: var(--text2); }
+  .dz-fn { font-size: 12px; color: var(--green); margin-top: 6px; font-weight: 600; }
+  .multi-dz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .aud-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .aud-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .aud-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+  .aud-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .aud-remove { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 18px; line-height: 1; padding: 0; font-family: inherit; }
+  .aud-remove:hover { color: var(--red); }
+  .aud-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .aud-body label { font-size: 12px; color: var(--text2); font-weight: 500; display: block; margin-bottom: 4px; }
+  .aud-body textarea { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 12px; font-family: inherit; background: var(--bg); color: var(--text); resize: vertical; outline: none; }
+  .aud-body textarea:focus { border-color: var(--blue); }
+  .aud-file-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1.5px dashed var(--border2); border-radius: var(--radius); cursor: pointer; background: var(--bg2); font-size: 12px; color: var(--text2); transition: all 0.15s; }
+  .aud-file-btn:hover { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-text); }
+  .aud-fn { font-size: 12px; color: var(--green); font-weight: 600; }
+
+  .add-aud-row { display: flex; gap: 8px; }
+  .add-aud-row input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
+  .add-aud-row input:focus { border-color: var(--blue); }
+
+  .fetch-row { display: flex; gap: 8px; }
+  .fetch-row input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
+  .fetch-row input:focus { border-color: var(--blue); }
+  .fetch-status { font-size: 12px; margin-top: 4px; }
+  .fetch-status.ok { color: var(--green); }
+  .fetch-status.err { color: var(--red); }
+
+  button { font-family: inherit; cursor: pointer; }
+  .btn { padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg); color: var(--text); transition: all 0.15s; }
+  .btn:hover { background: var(--bg2); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
+  .btn-primary:hover { background: #333; border-color: #333; }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+  .gen-btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; background: var(--text); color: #fff; border: none; border-radius: var(--radius-lg); cursor: pointer; transition: all 0.15s; margin-top: 8px; }
+  .gen-btn:hover { background: #333; }
+  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .err-msg { background: var(--red-bg); color: var(--red-text); border: 1px solid #f5c0bb; border-radius: var(--radius); padding: 10px 14px; font-size: 13px; margin-top: 12px; display: none; }
+  .err-msg.on { display: block; }
+
+  .out { margin-top: 28px; display: none; }
+  .out.on { display: block; }
+
+  .load { text-align: center; padding: 40px 0; }
+  .load p { font-size: 14px; color: var(--text2); margin-top: 14px; }
+  .spin { width: 30px; height: 30px; border: 2.5px solid var(--border); border-top-color: var(--text2); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .out-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .out-header h2 { font-size: 16px; font-weight: 600; color: var(--text); }
+  .out-header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 9px 20px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+  .tab.on { color: var(--text); border-bottom-color: var(--text); }
+  .panel { display: none; }
+  .panel.on { display: block; }
+
+  .strat-sec { margin-bottom: 24px; }
+  .strat-sec h3 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; padding-left: 10px; border-left: 3px solid var(--blue); }
+  .strat-body { font-size: 13px; color: var(--text2); line-height: 1.75; white-space: pre-wrap; }
+
+  .seq-note { font-size: 13px; color: var(--text2); background: var(--amber-bg); border: 1px solid #f0d898; border-radius: var(--radius); padding: 10px 14px; margin-bottom: 20px; }
+
+  .seq-aud-block { margin-bottom: 32px; }
+  .seq-aud-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  .seq-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .seq-tbl th { background: var(--bg2); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text2); padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+  .seq-tbl td { padding: 10px 10px; border: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  .seq-tbl td:nth-child(1) { white-space: nowrap; min-width: 100px; }
+  .seq-tbl td:nth-child(2) { white-space: nowrap; width: 80px; font-size: 12px; color: var(--text2); }
+  .seq-tbl td:nth-child(3) { width: 32px; text-align: center; color: var(--text2); font-size: 12px; }
+  .seq-tbl td:nth-child(4) { white-space: nowrap; min-width: 110px; font-size: 12px; color: var(--text2); }
+  .seq-tbl td:nth-child(5) { min-width: 200px; }
+
+  .phase-badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .ph-cr { background: var(--blue-bg); color: var(--blue-text); }
+  .ph-en { background: var(--green-bg); color: var(--green-text); }
+  .ph-bu { background: var(--amber-bg); color: var(--amber-text); }
+  .ph-su { background: var(--bg2); color: var(--text2); }
+
+  .msg-subject { font-size: 11px; color: var(--text2); margin-bottom: 5px; }
+  .msg-subject strong { color: var(--text); }
+  .msg-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+  .copy-btn { margin-top: 6px; font-size: 11px; padding: 3px 9px; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; color: var(--text2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .copy-btn:hover { background: var(--bg3); }
+  .copy-btn.ok { color: var(--green); border-color: #a0d4b0; }
+
+  @media (max-width: 600px) {
+    .g2, .multi-dz { grid-template-columns: 1fr; }
+    .page { padding: 20px 16px 60px; }
+    .seq-tbl { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="header-logo">Advisor Appointments</div>
+      <h1>LinkedIn & Email Strategy Builder</h1>
+      <p>Build a comprehensive outreach strategy and message sequences for a client.</p>
+    </div>
+  </div>
+
+  <!-- Channel -->
+  <div class="card">
+    <div class="card-title">Channel</div>
+    <div class="ch-row" id="chRow">
+      <button class="ch-btn" data-ch="linkedin" data-selected="true" onclick="setCh('linkedin')">LinkedIn only</button>
+      <button class="ch-btn" data-ch="email" data-selected="false" onclick="setCh('email')">Email only</button>
+      <button class="ch-btn" data-ch="both" data-selected="false" onclick="setCh('both')">LinkedIn + Email</button>
+    </div>
+  </div>
+
+  <!-- LinkedIn Profile -->
+  <div class="card">
+    <div class="card-title">Client LinkedIn Profile (PDF)</div>
+    <div class="dz" id="liDz" onclick="document.getElementById('liPdf').click()">
+      <div class="dz-icon">&#8679;</div>
+      <div class="dz-main">Drop LinkedIn PDF here</div>
+      <div class="dz-sub">Export from LinkedIn › More › Save to PDF, then drop here or click to browse</div>
+      <div class="dz-fn" id="liName"></div>
+    </div>
+    <input type="file" id="liPdf" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'li')">
+  </div>
+
+  <!-- Client Info -->
+  <div class="card">
+    <div class="card-title">Client Information</div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="fld">
+        <label>Client name</label>
+        <input type="text" id="cName" placeholder="e.g. Sarah Chen">
+      </div>
+      <div class="fld">
+        <label>Client website URL</label>
+        <div class="fetch-row">
+          <input type="text" id="cUrl" placeholder="https://...">
+          <button class="btn" onclick="fetchSite()" id="fetchBtn">Fetch</button>
+        </div>
+        <div class="fetch-status" id="fetchStatus"></div>
+      </div>
+    </div>
+    <div class="fld" style="margin-bottom:14px">
+      <label>Core offering & value proposition</label>
+      <textarea id="valueProps" rows="4" placeholder="Enter manually or click Fetch above to pull from website…"></textarea>
+    </div>
+    <div class="fld">
+      <label>Writing / communication style</label>
+      <textarea id="writingStyle" rows="3" placeholder="e.g. Conversational and warm, avoids jargon, short sentences, occasional dry humor"></textarea>
+    </div>
+  </div>
+
+  <!-- Target Audiences -->
+  <div class="card">
+    <div class="card-title">Target Audiences</div>
+    <div class="aud-list" id="audList"></div>
+    <div class="add-aud-row">
+      <input type="text" id="audInput" placeholder="e.g. Independent RIAs with $100M–$500M AUM" onkeydown="if(event.key==='Enter')addAud()">
+      <button class="btn" onclick="addAud()">+ Add audience</button>
+    </div>
+  </div>
+
+  <!-- Additional Context -->
+  <div class="card">
+    <div class="card-title">Additional Context Documents (optional)</div>
+    <div class="multi-dz" style="margin-bottom:14px">
+      <div class="dz" id="ctx1Dz" onclick="document.getElementById('ctx1File').click()">
+        <div class="dz-icon">&#128196;</div>
+        <div class="dz-main">Context document 1</div>
+        <div class="dz-sub">PDF or text file</div>
+        <div class="dz-fn" id="ctx1Name"></div>
+      </div>
+      <div class="dz" id="ctx2Dz" onclick="document.getElementById('ctx2File').click()">
+        <div class="dz-icon">&#128196;</div>
+        <div class="dz-main">Context document 2</div>
+        <div class="dz-sub">PDF or text file</div>
+        <div class="dz-fn" id="ctx2Name"></div>
+      </div>
+    </div>
+    <input type="file" id="ctx1File" accept=".pdf,.txt" style="display:none" onchange="handlePdf(this.files[0],'ctx1')">
+    <input type="file" id="ctx2File" accept=".pdf,.txt" style="display:none" onchange="handlePdf(this.files[0],'ctx2')">
+    <div class="fld">
+      <label>Additional context notes (optional)</label>
+      <textarea id="addCtx" rows="3" placeholder="Compliance notes, geographic focus, pricing to mention, seasonal timing, etc."></textarea>
+    </div>
+  </div>
+
+  <div class="err-msg" id="errMsg"></div>
+  <button class="gen-btn" id="genBtn" onclick="generate()">Generate Strategy</button>
+
+  <!-- Output -->
+  <div class="out" id="outArea">
+    <div class="load" id="loadState">
+      <div class="spin"></div>
+      <p id="loadMsg">Analyzing profile and building strategy…</p>
+    </div>
+    <div id="outContent" style="display:none">
+      <div class="out-header">
+        <div>
+          <h2 id="outTitle">Strategy</h2>
+          <p id="outMeta"></p>
+        </div>
+        <button class="btn btn-sm" onclick="exportStrategy()">Copy strategy text</button>
+      </div>
+      <div class="tabs">
+        <button class="tab on" onclick="switchTab('strat',this)">Strategy document</button>
+        <button class="tab" onclick="switchTab('seq',this)" id="seqTabLabel">Message sequences</button>
+      </div>
+      <div class="panel on" id="stratPanel"><div id="stratContent"></div></div>
+      <div class="panel" id="seqPanel"><div id="seqContent"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────────────────────
+  // Replace with your Cloudflare Worker proxy URL before deploying
+  const PROXY_URL = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
+  // ────────────────────────────────────────────────────────────────────────────
+
+  let ch = 'linkedin';
+  let files = { li: null, ctx1: null, ctx2: null };
+  let audiences = [];
+
+  function setCh(c) {
+    ch = c;
+    document.querySelectorAll('.ch-btn').forEach(b => {
+      b.dataset.selected = (b.dataset.ch === c) ? 'true' : 'false';
+    });
+    const lbl = document.getElementById('seqTabLabel');
+    if (lbl) lbl.textContent = c === 'linkedin' ? 'LinkedIn sequences' : c === 'email' ? 'Email sequences' : 'Message sequences';
+  }
+
+  ['liDz','ctx1Dz','ctx2Dz'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
+    el.addEventListener('dragleave', () => el.classList.remove('over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault(); el.classList.remove('over');
+      const f = e.dataTransfer.files[0];
+      if (!f) return;
+      handlePdf(f, id === 'liDz' ? 'li' : id === 'ctx1Dz' ? 'ctx1' : 'ctx2');
+    });
+  });
+
+  function handlePdf(file, key) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      files[key] = { name: file.name, type: file.type, b64: e.target.result.split(',')[1] };
+      const el = document.getElementById(key + 'Name');
+      if (el) el.textContent = '✓ ' + file.name;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleAudFile(file, idx) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      audiences[idx].file = { name: file.name, type: file.type, b64: e.target.result.split(',')[1] };
+      const el = document.getElementById('aud-fn-' + idx);
+      if (el) el.textContent = '✓ ' + file.name;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function addAud() {
+    const input = document.getElementById('audInput');
+    const val = input.value.trim();
+    if (!val) return;
+    audiences.push({ name: val, notes: '', file: null });
+    input.value = '';
+    renderAudiences();
+  }
+
+  function removeAud(i) {
+    audiences.splice(i, 1);
+    renderAudiences();
+  }
+
+  function renderAudiences() {
+    const container = document.getElementById('audList');
+    if (!audiences.length) { container.innerHTML = ''; return; }
+    container.innerHTML = audiences.map((a, i) => `
+      <div class="aud-item">
+        <div class="aud-header">
+          <span class="aud-name">${esc(a.name)}</span>
+          <button class="aud-remove" onclick="removeAud(${i})" aria-label="Remove audience">×</button>
+        </div>
+        <div class="aud-body">
+          <div>
+            <label>Messaging strategy notes (optional)</label>
+            <textarea rows="2" placeholder="e.g. Lead with education angle, avoid pricing until 3rd message…" onchange="audiences[${i}].notes=this.value">${esc(a.notes)}</textarea>
+          </div>
+          <div>
+            <div class="aud-file-btn" onclick="document.getElementById('aud-file-${i}').click()">
+              <span>&#128196;</span>
+              <span>Upload persona file (optional)</span>
+            </div>
+            <div class="aud-fn" id="aud-fn-${i}">${a.file ? '✓ ' + esc(a.file.name) : ''}</div>
+            <input type="file" id="aud-file-${i}" accept=".pdf,.txt" style="display:none" onchange="handleAudFile(this.files[0],${i})">
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  async function fetchSite() {
+    const url = document.getElementById('cUrl').value.trim();
+    if (!url) return;
+    const btn = document.getElementById('fetchBtn');
+    const status = document.getElementById('fetchStatus');
+    btn.disabled = true;
+    btn.textContent = 'Fetching…';
+    status.textContent = '';
+    status.className = 'fetch-status';
+    try {
+      const resp = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 1000,
+          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+          system: 'You extract value propositions from websites. Respond ONLY with a concise 2-4 sentence summary of what the company does and who it serves. No preamble, no headers, just the text.',
+          messages: [{ role: 'user', content: `Visit this website and summarize the core offering and value proposition in 2-4 sentences: ${url}` }]
+        })
+      });
+      const data = await resp.json();
+      const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
+      if (text) {
+        document.getElementById('valueProps').value = text;
+        status.textContent = '✓ Pulled from website — edit as needed';
+        status.className = 'fetch-status ok';
+      } else {
+        status.textContent = 'Could not extract — enter manually';
+        status.className = 'fetch-status err';
+      }
+    } catch(e) {
+      status.textContent = 'Fetch failed — enter manually';
+      status.className = 'fetch-status err';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Fetch';
+    }
+  }
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('stratPanel').classList.toggle('on', tab === 'strat');
+    document.getElementById('seqPanel').classList.toggle('on', tab === 'seq');
+  }
+
+  function showErr(msg) { const el = document.getElementById('errMsg'); el.textContent = msg; el.classList.add('on'); }
+  function hideErr() { document.getElementById('errMsg').classList.remove('on'); }
+
+  async function generate() {
+    hideErr();
+    const clientName = document.getElementById('cName').value.trim();
+    const clientUrl = document.getElementById('cUrl').value.trim();
+    const valueProps = document.getElementById('valueProps').value.trim();
+    const writingStyle = document.getElementById('writingStyle').value.trim();
+    const addCtx = document.getElementById('addCtx').value.trim();
+
+    if (!clientName) { showErr('Please enter the client name.'); return; }
+    if (!audiences.length) { showErr('Please add at least one target audience.'); return; }
+    if (!valueProps) { showErr('Please describe the client\'s core offering or click Fetch.'); return; }
+
+    const btn = document.getElementById('genBtn');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+
+    const outArea = document.getElementById('outArea');
+    outArea.classList.add('on');
+    document.getElementById('loadState').style.display = 'block';
+    document.getElementById('outContent').style.display = 'none';
+
+    const loadMsgs = ['Analyzing client profile and audiences…','Building positioning and voice guidelines…','Drafting message sequences…','Finalizing the strategy document…'];
+    let mi = 0;
+    const msgEl = document.getElementById('loadMsg');
+    const intv = setInterval(() => { mi = (mi+1) % loadMsgs.length; msgEl.textContent = loadMsgs[mi]; }, 2400);
+
+    const chLabel = ch === 'linkedin' ? 'LinkedIn' : ch === 'email' ? 'Email' : 'LinkedIn and Email';
+    const audSummary = audiences.map((a,i) => `Audience ${i+1}: ${a.name}${a.notes ? '\n  Messaging notes: '+a.notes : ''}${a.file ? '\n  [Persona file attached: '+a.file.name+']' : ''}`).join('\n');
+
+    const userContent = [];
+    if (files.li) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:files.li.b64 }, title:'Client LinkedIn Profile' });
+    if (files.ctx1) userContent.push({ type:'document', source:{ type:'base64', media_type:files.ctx1.type||'application/pdf', data:files.ctx1.b64 }, title:'Context Document 1' });
+    if (files.ctx2) userContent.push({ type:'document', source:{ type:'base64', media_type:files.ctx2.type||'application/pdf', data:files.ctx2.b64 }, title:'Context Document 2' });
+    audiences.forEach(a => { if (a.file) userContent.push({ type:'document', source:{ type:'base64', media_type:a.file.type||'application/pdf', data:a.file.b64 }, title:'Persona File: '+a.name }); });
+
+    userContent.push({ type:'text', text:`Build a comprehensive ${chLabel} outreach strategy for this client.
+
+CLIENT: ${clientName}
+${clientUrl ? 'WEBSITE: '+clientUrl : ''}
+VALUE PROPOSITION: ${valueProps}
+${writingStyle ? 'WRITING STYLE: '+writingStyle : ''}
+${addCtx ? 'ADDITIONAL CONTEXT: '+addCtx : ''}
+
+TARGET AUDIENCES:
+${audSummary}
+
+MESSAGING FRAMEWORK:
+- Connection Request: 1 message, Day 0. Brief, personal, no ask.
+- Engage Phase: 3 messages. First ~3 days after acceptance, then ~5 days, then ~7 days. Goal: develop engagement, explore interest. Soft CTAs appropriate depending on audience and context.
+- Build Phase: 2 messages, ~30 days apart. Goal: reinforce connection, keep client top of mind.
+- Sustain Phase: 2 messages, ~90 days apart. Goal: quarterly refresh, evergreen tone.
+- ALL messages assume NO response has been received from the prospect.
+- Principles: trust-first, politely persistent, never spammy or pushy. Peer-level, warm, professional.
+- Forbidden phrases: 'hope this finds you well', 'just circling back', 'touching base', 'it's been a minute', 'just wanted to follow up'
+- Golden Question test: would a real person actually send this?
+
+Respond ONLY with valid JSON (no markdown fences, no preamble) in this exact structure:
+{
+  "strategy": {
+    "positioning": "2-3 paragraph analysis of how this client should position on ${chLabel}. What makes them compelling? What pain points do they solve?",
+    "icp_breakdown": "For each target audience: who they are, what motivates them, what language resonates, key objection to address.",
+    "channel_approach": "Specific tactical guidance for ${chLabel} — connection strategy, profile optimization notes, timing, cadence, volume expectations.",
+    "tone_and_voice": "Exact voice based on client style. What to avoid. 2-3 example phrases that fit and 2-3 that don't.",
+    "compliance_and_guardrails": "Compliance, legal, or reputational considerations for this client and audiences.",
+    "success_metrics": "KPIs to track, benchmarks to use, when to adjust the strategy."
+  },
+  "sequences": [
+    {
+      "audience": "exact audience name as provided",
+      "phase": "Connection Request",
+      "message_number": 1,
+      "timing": "Day 0",
+      "channel": "LinkedIn",
+      "subject": null,
+      "message": "full message text"
+    }
+  ]
+}
+
+CRITICAL: Build sequences for EVERY target audience listed. Each audience gets ALL phases:
+1 Connection Request + 3 Engage + 2 Build + 2 Sustain = 8 messages per audience minimum.
+For Email: include subject lines (not null). For LinkedIn: connection request ≤300 chars, follow-ups ≤500 chars.
+Calibrate soft CTAs based on audience receptivity and any audience-specific notes.
+Each message must pass the Golden Question test.` });
+
+    try {
+      const resp = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 4000,
+          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services. You understand advisor and fund manager audiences deeply. You always respond with only valid JSON, no markdown, no preamble.',
+          messages: [{ role:'user', content:userContent }]
+        })
+      });
+
+      clearInterval(intv);
+      if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error?.message || 'API error ' + resp.status); }
+      const data = await resp.json();
+      const raw = (data.content||[]).map(b=>b.text||'').join('');
+      const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+      renderOutput(parsed, clientName, chLabel);
+      document.getElementById('loadState').style.display = 'none';
+      document.getElementById('outContent').style.display = 'block';
+      document.getElementById('outTitle').textContent = clientName + ' — Outreach Strategy';
+      document.getElementById('outMeta').textContent = chLabel + ' · ' + audiences.length + ' audience' + (audiences.length > 1 ? 's' : '');
+    } catch(e) {
+      clearInterval(intv);
+      document.getElementById('loadState').style.display = 'none';
+      outArea.classList.remove('on');
+      showErr('Error: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate Strategy';
+    }
+  }
+
+  function renderOutput(parsed, clientName, chLabel) {
+    const s = parsed.strategy || {};
+    const defs = [
+      { k:'positioning', l:'Positioning & differentiation' },
+      { k:'icp_breakdown', l:'Target audience breakdown' },
+      { k:'channel_approach', l:chLabel + ' channel approach & tactics' },
+      { k:'tone_and_voice', l:'Tone, voice & language guidelines' },
+      { k:'compliance_and_guardrails', l:'Compliance & guardrails' },
+      { k:'success_metrics', l:'Success metrics & KPIs' }
+    ];
+    document.getElementById('stratContent').innerHTML = defs.filter(d=>s[d.k]).map(d =>
+      `<div class="strat-sec"><h3>${d.l}</h3><div class="strat-body">${esc(s[d.k])}</div></div>`
+    ).join('');
+
+    const seqs = parsed.sequences || [];
+    if (!seqs.length) { document.getElementById('seqContent').innerHTML = '<p style="color:var(--text2)">No sequences returned.</p>'; return; }
+
+    const byAud = {};
+    seqs.forEach(s => { const k = s.audience||'General'; if(!byAud[k]) byAud[k]=[]; byAud[k].push(s); });
+
+    const phCls = p => {
+      const pl = (p||'').toLowerCase();
+      if (pl.includes('connection')) return 'ph-cr';
+      if (pl.includes('engage')) return 'ph-en';
+      if (pl.includes('build')) return 'ph-bu';
+      return 'ph-su';
+    };
+
+    let html = `<div class="seq-note"><strong>Note:</strong> All sequences assume no response has been received from the prospect. If a prospect replies at any point, pause the sequence and handle manually.</div>`;
+
+    Object.entries(byAud).forEach(([aud, rows]) => {
+      html += `<div class="seq-aud-block">
+        <div class="seq-aud-label">${esc(aud)}</div>
+        <table class="seq-tbl">
+          <thead><tr><th>Phase</th><th>Channel</th><th>#</th><th>Timing</th><th>Message</th></tr></thead>
+          <tbody>`;
+      rows.forEach(r => {
+        const subj = r.subject ? `<div class="msg-subject"><strong>Subject:</strong> ${esc(r.subject)}</div>` : '';
+        html += `<tr>
+          <td><span class="phase-badge ${phCls(r.phase)}">${esc(r.phase||'')}</span></td>
+          <td>${esc(r.channel||'')}</td>
+          <td>${r.message_number||''}</td>
+          <td>${esc(r.timing||'')}</td>
+          <td>${subj}<div class="msg-text">${esc(r.message||'')}</div><button class="copy-btn" onclick="copyMsg(this,\`${et(r.subject ? 'Subject: '+r.subject+'\n\n'+r.message : r.message)}\`)">Copy</button></td>
+        </tr>`;
+      });
+      html += `</tbody></table></div>`;
+    });
+    document.getElementById('seqContent').innerHTML = html;
+  }
+
+  function exportStrategy() {
+    let text = '';
+    document.querySelectorAll('.strat-sec').forEach(el => {
+      const h = el.querySelector('h3');
+      const b = el.querySelector('.strat-body');
+      if (h && b) text += h.textContent.toUpperCase() + '\n\n' + b.textContent + '\n\n---\n\n';
+    });
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      const btn = document.querySelector('.out-header .btn');
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = 'Copy strategy text'; }, 2000);
+    });
+  }
+
+  function copyMsg(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('ok');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
+    });
+  }
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function et(s) { return String(s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
+</script>
+</body>
+</html>
