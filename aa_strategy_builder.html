@@ -518,8 +518,8 @@ Each message must pass the Golden Question test.` });
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5',
-          max_tokens: 4000,
-          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services. You understand advisor and fund manager audiences deeply. You always respond with only valid JSON, no markdown, no preamble.',
+          max_tokens: 8000,
+          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services. You understand advisor and fund manager audiences deeply. You always respond with only valid JSON, no markdown, no preamble. Your JSON must be complete and valid — never truncate.',
           messages: [{ role:'user', content:userContent }]
         })
       });
@@ -527,8 +527,27 @@ Each message must pass the Golden Question test.` });
       clearInterval(intv);
       if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error?.message || 'API error ' + resp.status); }
       const data = await resp.json();
+
+      // Check for stop reason — if max_tokens hit, response was truncated
+      if (data.stop_reason === 'max_tokens') {
+        throw new Error('Response was too long and got cut off. Try reducing the number of target audiences, or split into two separate runs.');
+      }
+
       const raw = (data.content||[]).map(b=>b.text||'').join('');
-      const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+      const cleaned = raw.replace(/```json|```/g,'').trim();
+
+      let parsed;
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch(jsonErr) {
+        // Attempt to extract just the JSON object if there's surrounding text
+        const match = cleaned.match(/\{[\s\S]*\}/);
+        if (match) {
+          parsed = JSON.parse(match[0]);
+        } else {
+          throw new Error('Could not parse response. Raw response logged to console for debugging.');
+        }
+      }
       renderOutput(parsed, clientName, chLabel);
       document.getElementById('loadState').style.display = 'none';
       document.getElementById('outContent').style.display = 'block';
