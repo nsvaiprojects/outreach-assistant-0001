@@ -20696,12 +20696,12 @@ var __async = (__this, __arguments, generator) => {
   }
 
   async function exportDocx() {
-    if (!lastParsed || !window.docx) { alert('Please generate a strategy first.'); return; }
+    if (!lastParsed || typeof docx === 'undefined') { alert('Please generate a strategy first.'); return; }
     var btn = document.getElementById('docxBtn');
     btn.disabled = true; btn.textContent = 'Building\u2026';
 
     try {
-      var D = window.docx;
+      var D = docx;
       var border = { style: D.BorderStyle.SINGLE, size: 1, color: 'CCCCCC' };
       var cb = { top: border, bottom: border, left: border, right: border };
       var cm = { top: 80, bottom: 80, left: 120, right: 120 };
