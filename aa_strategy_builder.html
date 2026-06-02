@@ -4,66 +4,43 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AA Strategy Builder</title>
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #ffffff;
-    --bg2: #f7f7f5;
-    --bg3: #f0efec;
-    --border: #e0ddd8;
-    --border2: #c8c5bf;
-    --text: #1a1a18;
-    --text2: #6b6860;
-    --text3: #9a9890;
-    --blue: #1a6ab1;
-    --blue-bg: #eef4fb;
-    --blue-text: #144f85;
-    --green: #2a7a4a;
-    --green-bg: #eaf5ee;
-    --green-text: #1e5c36;
-    --amber: #b07010;
-    --amber-bg: #fdf5e6;
-    --amber-text: #8a5608;
-    --red: #c0392b;
-    --red-bg: #fdf0ee;
-    --red-text: #922b21;
-    --radius: 8px;
-    --radius-lg: 12px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efec;
+    --border: #e0ddd8; --border2: #c8c5bf;
+    --text: #1a1a18; --text2: #6b6860; --text3: #9a9890;
+    --blue: #1a6ab1; --blue-bg: #eef4fb; --blue-text: #144f85;
+    --green: #2a7a4a; --green-bg: #eaf5ee; --green-text: #1e5c36;
+    --amber: #b07010; --amber-bg: #fdf5e6; --amber-text: #8a5608;
+    --red: #c0392b; --red-bg: #fdf0ee; --red-text: #922b21;
+    --radius: 8px; --radius-lg: 12px; --shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
-
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
-
-  .page { max-width: 820px; margin: 0 auto; padding: 32px 24px 80px; }
-
-  .header { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-  .header-logo { font-size: 13px; font-weight: 600; color: var(--text2); letter-spacing: 0.08em; text-transform: uppercase; }
-  .header h1 { font-size: 20px; font-weight: 600; color: var(--text); }
-  .header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
-
+  .page { max-width: 840px; margin: 0 auto; padding: 32px 24px 80px; }
+  .header { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .header-logo { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+  .header h1 { font-size: 22px; font-weight: 600; color: var(--text); }
+  .header p { font-size: 13px; color: var(--text2); margin-top: 3px; }
   .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
-  .card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text2); margin-bottom: 14px; }
-
+  .card-title { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text2); margin-bottom: 14px; }
   .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .fld { display: flex; flex-direction: column; gap: 5px; }
   .fld label { font-size: 13px; color: var(--text2); font-weight: 500; }
-  .fld input, .fld textarea, .fld select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .fld input, .fld textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; transition: border-color .15s; }
   .fld input:focus, .fld textarea:focus { border-color: var(--blue); }
   .fld textarea { resize: vertical; }
-
   .ch-row { display: flex; gap: 8px; }
-  .ch-btn { flex: 1; padding: 9px 0; font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; background: var(--bg2); border: 1px solid var(--border); color: var(--text2); transition: all 0.15s; font-family: inherit; }
+  .ch-btn { flex: 1; padding: 9px 0; font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; background: var(--bg2); border: 1px solid var(--border); color: var(--text2); transition: all .15s; font-family: inherit; }
   .ch-btn[data-selected="true"] { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-text); font-weight: 600; }
-
-  .dz { border: 1.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 20px; text-align: center; cursor: pointer; background: var(--bg2); transition: all 0.15s; }
+  .dz { border: 1.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 18px; text-align: center; cursor: pointer; background: var(--bg2); transition: all .15s; }
   .dz:hover, .dz.over { background: var(--blue-bg); border-color: var(--blue); }
-  .dz-icon { font-size: 22px; color: var(--text3); margin-bottom: 6px; }
+  .dz-icon { font-size: 20px; color: var(--text3); margin-bottom: 5px; }
   .dz-main { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
   .dz-sub { font-size: 12px; color: var(--text2); }
-  .dz-fn { font-size: 12px; color: var(--green); margin-top: 6px; font-weight: 600; }
+  .dz-fn { font-size: 12px; color: var(--green); margin-top: 5px; font-weight: 600; }
   .multi-dz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
   .aud-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
   .aud-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
   .aud-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg2); border-bottom: 1px solid var(--border); }
@@ -74,104 +51,79 @@
   .aud-body label { font-size: 12px; color: var(--text2); font-weight: 500; display: block; margin-bottom: 4px; }
   .aud-body textarea { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 12px; font-family: inherit; background: var(--bg); color: var(--text); resize: vertical; outline: none; }
   .aud-body textarea:focus { border-color: var(--blue); }
-  .aud-file-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1.5px dashed var(--border2); border-radius: var(--radius); cursor: pointer; background: var(--bg2); font-size: 12px; color: var(--text2); transition: all 0.15s; }
+  .aud-file-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1.5px dashed var(--border2); border-radius: var(--radius); cursor: pointer; background: var(--bg2); font-size: 12px; color: var(--text2); transition: all .15s; }
   .aud-file-btn:hover { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-text); }
   .aud-fn { font-size: 12px; color: var(--green); font-weight: 600; }
-
   .add-aud-row { display: flex; gap: 8px; }
   .add-aud-row input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
   .add-aud-row input:focus { border-color: var(--blue); }
-
   .fetch-row { display: flex; gap: 8px; }
   .fetch-row input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
   .fetch-row input:focus { border-color: var(--blue); }
   .fetch-status { font-size: 12px; margin-top: 4px; }
   .fetch-status.ok { color: var(--green); }
   .fetch-status.err { color: var(--red); }
-
   button { font-family: inherit; cursor: pointer; }
-  .btn { padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg); color: var(--text); transition: all 0.15s; }
+  .btn { padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg); color: var(--text); transition: all .15s; }
   .btn:hover { background: var(--bg2); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
-  .btn-primary:hover { background: #333; border-color: #333; }
-  .btn-sm { padding: 4px 10px; font-size: 11px; }
-
-  .gen-btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; background: var(--text); color: #fff; border: none; border-radius: var(--radius-lg); cursor: pointer; transition: all 0.15s; margin-top: 8px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .gen-btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; background: var(--text); color: #fff; border: none; border-radius: var(--radius-lg); cursor: pointer; transition: all .15s; margin-top: 8px; }
   .gen-btn:hover { background: #333; }
-  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
+  .gen-btn:disabled { opacity: .5; cursor: not-allowed; }
   .err-msg { background: var(--red-bg); color: var(--red-text); border: 1px solid #f5c0bb; border-radius: var(--radius); padding: 10px 14px; font-size: 13px; margin-top: 12px; display: none; }
   .err-msg.on { display: block; }
-
   .out { margin-top: 28px; display: none; }
   .out.on { display: block; }
-
   .load { text-align: center; padding: 40px 0; }
   .load p { font-size: 14px; color: var(--text2); margin-top: 14px; }
-  .spin { width: 30px; height: 30px; border: 2.5px solid var(--border); border-top-color: var(--text2); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+  .spin { width: 30px; height: 30px; border: 2.5px solid var(--border); border-top-color: var(--text2); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .out-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .out-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
   .out-header h2 { font-size: 16px; font-weight: 600; color: var(--text); }
   .out-header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
-
+  .out-actions { display: flex; gap: 8px; flex-shrink: 0; }
   .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-  .tab { padding: 9px 20px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+  .tab { padding: 9px 20px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
   .tab.on { color: var(--text); border-bottom-color: var(--text); }
   .panel { display: none; }
   .panel.on { display: block; }
-
   .strat-sec { margin-bottom: 24px; }
   .strat-sec h3 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; padding-left: 10px; border-left: 3px solid var(--blue); }
   .strat-body { font-size: 13px; color: var(--text2); line-height: 1.75; white-space: pre-wrap; }
-
-  .seq-note { font-size: 13px; color: var(--text2); background: var(--amber-bg); border: 1px solid #f0d898; border-radius: var(--radius); padding: 10px 14px; margin-bottom: 20px; }
-
+  .seq-note { font-size: 13px; color: var(--amber-text); background: var(--amber-bg); border: 1px solid #f0d898; border-radius: var(--radius); padding: 10px 14px; margin-bottom: 20px; }
   .seq-aud-block { margin-bottom: 32px; }
-  .seq-aud-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-
+  .seq-aud-label { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
   .seq-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .seq-tbl th { background: var(--bg2); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text2); padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
-  .seq-tbl td { padding: 10px 10px; border: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  .seq-tbl th { background: var(--bg2); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text2); padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
+  .seq-tbl td { padding: 10px; border: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
   .seq-tbl td:nth-child(1) { white-space: nowrap; min-width: 100px; }
   .seq-tbl td:nth-child(2) { white-space: nowrap; width: 80px; font-size: 12px; color: var(--text2); }
   .seq-tbl td:nth-child(3) { width: 32px; text-align: center; color: var(--text2); font-size: 12px; }
-  .seq-tbl td:nth-child(4) { white-space: nowrap; min-width: 110px; font-size: 12px; color: var(--text2); }
+  .seq-tbl td:nth-child(4) { white-space: nowrap; min-width: 100px; font-size: 12px; color: var(--text2); }
   .seq-tbl td:nth-child(5) { min-width: 200px; }
-
   .phase-badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
   .ph-cr { background: var(--blue-bg); color: var(--blue-text); }
   .ph-en { background: var(--green-bg); color: var(--green-text); }
   .ph-bu { background: var(--amber-bg); color: var(--amber-text); }
-  .ph-su { background: var(--bg2); color: var(--text2); }
-
+  .ph-su { background: var(--bg2); color: var(--text2); border: 1px solid var(--border); }
   .msg-subject { font-size: 11px; color: var(--text2); margin-bottom: 5px; }
   .msg-subject strong { color: var(--text); }
   .msg-text { font-size: 13px; color: var(--text); line-height: 1.6; }
-  .copy-btn { margin-top: 6px; font-size: 11px; padding: 3px 9px; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; color: var(--text2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .copy-btn { margin-top: 6px; font-size: 11px; padding: 3px 9px; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; color: var(--text2); cursor: pointer; font-family: inherit; transition: all .15s; }
   .copy-btn:hover { background: var(--bg3); }
   .copy-btn.ok { color: var(--green); border-color: #a0d4b0; }
-
-  @media (max-width: 600px) {
-    .g2, .multi-dz { grid-template-columns: 1fr; }
-    .page { padding: 20px 16px 60px; }
-    .seq-tbl { display: block; overflow-x: auto; }
-  }
+  @media (max-width: 600px) { .g2, .multi-dz { grid-template-columns: 1fr; } .page { padding: 20px 16px 60px; } .seq-tbl { display: block; overflow-x: auto; } }
 </style>
 </head>
 <body>
 <div class="page">
-
   <div class="header">
-    <div>
-      <div class="header-logo">Advisor Appointments</div>
-      <h1>LinkedIn & Email Strategy Builder</h1>
-      <p>Build a comprehensive outreach strategy and message sequences for a client.</p>
-    </div>
+    <div class="header-logo">Advisor Appointments</div>
+    <h1>LinkedIn &amp; Email Strategy Builder</h1>
+    <p>Build a comprehensive outreach strategy and message sequences for a client.</p>
   </div>
 
-  <!-- Channel -->
   <div class="card">
     <div class="card-title">Channel</div>
     <div class="ch-row" id="chRow">
@@ -181,19 +133,17 @@
     </div>
   </div>
 
-  <!-- LinkedIn Profile -->
   <div class="card">
     <div class="card-title">Client LinkedIn Profile (PDF)</div>
     <div class="dz" id="liDz" onclick="document.getElementById('liPdf').click()">
       <div class="dz-icon">&#8679;</div>
       <div class="dz-main">Drop LinkedIn PDF here</div>
-      <div class="dz-sub">Export from LinkedIn › More › Save to PDF, then drop here or click to browse</div>
+      <div class="dz-sub">Export from LinkedIn &rsaquo; More &rsaquo; Save to PDF</div>
       <div class="dz-fn" id="liName"></div>
     </div>
     <input type="file" id="liPdf" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'li')">
   </div>
 
-  <!-- Client Info -->
   <div class="card">
     <div class="card-title">Client Information</div>
     <div class="g2" style="margin-bottom:14px">
@@ -211,58 +161,55 @@
       </div>
     </div>
     <div class="fld" style="margin-bottom:14px">
-      <label>Core offering & value proposition</label>
-      <textarea id="valueProps" rows="4" placeholder="Enter manually or click Fetch above to pull from website…"></textarea>
+      <label>Core offering &amp; value proposition</label>
+      <textarea id="valueProps" rows="4" placeholder="Enter manually or click Fetch above to pull from website&hellip;"></textarea>
     </div>
     <div class="fld">
       <label>Writing / communication style</label>
-      <textarea id="writingStyle" rows="3" placeholder="e.g. Conversational and warm, avoids jargon, short sentences, occasional dry humor"></textarea>
+      <textarea id="writingStyle" rows="3" placeholder="e.g. Conversational and warm, avoids jargon, short sentences, peer-level tone"></textarea>
     </div>
   </div>
 
-  <!-- Target Audiences -->
   <div class="card">
     <div class="card-title">Target Audiences</div>
     <div class="aud-list" id="audList"></div>
     <div class="add-aud-row">
-      <input type="text" id="audInput" placeholder="e.g. Independent RIAs with $100M–$500M AUM" onkeydown="if(event.key==='Enter')addAud()">
+      <input type="text" id="audInput" placeholder="e.g. Executives in Nashville area with $500k+ investable assets" onkeydown="if(event.key==='Enter')addAud()">
       <button class="btn" onclick="addAud()">+ Add audience</button>
     </div>
   </div>
 
-  <!-- Additional Context -->
   <div class="card">
     <div class="card-title">Additional Context Documents (optional)</div>
     <div class="multi-dz" style="margin-bottom:14px">
       <div class="dz" id="ctx1Dz" onclick="document.getElementById('ctx1File').click()">
         <div class="dz-icon">&#128196;</div>
         <div class="dz-main">Context document 1</div>
-        <div class="dz-sub">PDF or text file</div>
+        <div class="dz-sub">PDF only</div>
         <div class="dz-fn" id="ctx1Name"></div>
       </div>
       <div class="dz" id="ctx2Dz" onclick="document.getElementById('ctx2File').click()">
         <div class="dz-icon">&#128196;</div>
         <div class="dz-main">Context document 2</div>
-        <div class="dz-sub">PDF or text file</div>
+        <div class="dz-sub">PDF only</div>
         <div class="dz-fn" id="ctx2Name"></div>
       </div>
     </div>
-    <input type="file" id="ctx1File" accept=".pdf,.txt" style="display:none" onchange="handlePdf(this.files[0],'ctx1')">
-    <input type="file" id="ctx2File" accept=".pdf,.txt" style="display:none" onchange="handlePdf(this.files[0],'ctx2')">
+    <input type="file" id="ctx1File" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'ctx1')">
+    <input type="file" id="ctx2File" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'ctx2')">
     <div class="fld">
       <label>Additional context notes (optional)</label>
-      <textarea id="addCtx" rows="3" placeholder="Compliance notes, geographic focus, pricing to mention, seasonal timing, etc."></textarea>
+      <textarea id="addCtx" rows="3" placeholder="Compliance notes, geographic focus, seasonal timing, etc."></textarea>
     </div>
   </div>
 
   <div class="err-msg" id="errMsg"></div>
   <button class="gen-btn" id="genBtn" onclick="generate()">Generate Strategy</button>
 
-  <!-- Output -->
   <div class="out" id="outArea">
     <div class="load" id="loadState">
       <div class="spin"></div>
-      <p id="loadMsg">Analyzing profile and building strategy…</p>
+      <p id="loadMsg">Analyzing profile and building strategy&hellip;</p>
     </div>
     <div id="outContent" style="display:none">
       <div class="out-header">
@@ -270,7 +217,10 @@
           <h2 id="outTitle">Strategy</h2>
           <p id="outMeta"></p>
         </div>
-        <button class="btn btn-sm" onclick="exportStrategy()">Copy strategy text</button>
+        <div class="out-actions">
+          <button class="btn btn-sm" onclick="exportStrategy()" id="copyStratBtn">Copy strategy</button>
+          <button class="btn btn-sm" onclick="exportDocx()" id="docxBtn">&#8659; Download Word doc</button>
+        </div>
       </div>
       <div class="tabs">
         <button class="tab on" onclick="switchTab('strat',this)">Strategy document</button>
@@ -280,372 +230,509 @@
       <div class="panel" id="seqPanel"><div id="seqContent"></div></div>
     </div>
   </div>
-
 </div>
 
 <script>
-  // ── CONFIG ──────────────────────────────────────────────────────────────────
-  // Replace with your Cloudflare Worker proxy URL before deploying
   const PROXY_URL = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
-  // ────────────────────────────────────────────────────────────────────────────
 
   let ch = 'linkedin';
   let files = { li: null, ctx1: null, ctx2: null };
   let audiences = [];
+  let lastParsed = null;
+  let lastClientName = '';
+  let lastChLabel = '';
 
   function setCh(c) {
     ch = c;
-    document.querySelectorAll('.ch-btn').forEach(b => {
-      b.dataset.selected = (b.dataset.ch === c) ? 'true' : 'false';
-    });
+    document.querySelectorAll('.ch-btn').forEach(b => { b.dataset.selected = (b.dataset.ch === c) ? 'true' : 'false'; });
     const lbl = document.getElementById('seqTabLabel');
     if (lbl) lbl.textContent = c === 'linkedin' ? 'LinkedIn sequences' : c === 'email' ? 'Email sequences' : 'Message sequences';
   }
 
-  ['liDz','ctx1Dz','ctx2Dz'].forEach(id => {
-    const el = document.getElementById(id);
+  ['liDz','ctx1Dz','ctx2Dz'].forEach(function(id) {
+    var el = document.getElementById(id);
     if (!el) return;
-    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
-    el.addEventListener('dragleave', () => el.classList.remove('over'));
-    el.addEventListener('drop', e => {
+    el.addEventListener('dragover', function(e) { e.preventDefault(); el.classList.add('over'); });
+    el.addEventListener('dragleave', function() { el.classList.remove('over'); });
+    el.addEventListener('drop', function(e) {
       e.preventDefault(); el.classList.remove('over');
-      const f = e.dataTransfer.files[0];
-      if (!f) return;
+      var f = e.dataTransfer.files[0]; if (!f) return;
       handlePdf(f, id === 'liDz' ? 'li' : id === 'ctx1Dz' ? 'ctx1' : 'ctx2');
     });
   });
 
   function handlePdf(file, key) {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      files[key] = { name: file.name, type: file.type, b64: e.target.result.split(',')[1] };
-      const el = document.getElementById(key + 'Name');
-      if (el) el.textContent = '✓ ' + file.name;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      files[key] = { name: file.name, b64: e.target.result.split(',')[1] };
+      var el = document.getElementById(key + 'Name');
+      if (el) el.textContent = '\u2713 ' + file.name;
     };
     reader.readAsDataURL(file);
   }
 
   function handleAudFile(file, idx) {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      audiences[idx].file = { name: file.name, type: file.type, b64: e.target.result.split(',')[1] };
-      const el = document.getElementById('aud-fn-' + idx);
-      if (el) el.textContent = '✓ ' + file.name;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      audiences[idx].file = { name: file.name, b64: e.target.result.split(',')[1] };
+      var el = document.getElementById('aud-fn-' + idx);
+      if (el) el.textContent = '\u2713 ' + file.name;
     };
     reader.readAsDataURL(file);
   }
 
   function addAud() {
-    const input = document.getElementById('audInput');
-    const val = input.value.trim();
+    var input = document.getElementById('audInput');
+    var val = input.value.trim();
     if (!val) return;
     audiences.push({ name: val, notes: '', file: null });
     input.value = '';
     renderAudiences();
   }
 
-  function removeAud(i) {
-    audiences.splice(i, 1);
-    renderAudiences();
-  }
+  function removeAud(i) { audiences.splice(i, 1); renderAudiences(); }
 
   function renderAudiences() {
-    const container = document.getElementById('audList');
+    var container = document.getElementById('audList');
     if (!audiences.length) { container.innerHTML = ''; return; }
-    container.innerHTML = audiences.map((a, i) => `
-      <div class="aud-item">
-        <div class="aud-header">
-          <span class="aud-name">${esc(a.name)}</span>
-          <button class="aud-remove" onclick="removeAud(${i})" aria-label="Remove audience">×</button>
-        </div>
-        <div class="aud-body">
-          <div>
-            <label>Messaging strategy notes (optional)</label>
-            <textarea rows="2" placeholder="e.g. Lead with education angle, avoid pricing until 3rd message…" onchange="audiences[${i}].notes=this.value">${esc(a.notes)}</textarea>
-          </div>
-          <div>
-            <div class="aud-file-btn" onclick="document.getElementById('aud-file-${i}').click()">
-              <span>&#128196;</span>
-              <span>Upload persona file (optional)</span>
-            </div>
-            <div class="aud-fn" id="aud-fn-${i}">${a.file ? '✓ ' + esc(a.file.name) : ''}</div>
-            <input type="file" id="aud-file-${i}" accept=".pdf,.txt" style="display:none" onchange="handleAudFile(this.files[0],${i})">
-          </div>
-        </div>
-      </div>`).join('');
+    container.innerHTML = audiences.map(function(a, i) {
+      return '<div class="aud-item">' +
+        '<div class="aud-header"><span class="aud-name">' + esc(a.name) + '</span>' +
+        '<button class="aud-remove" onclick="removeAud(' + i + ')" aria-label="Remove">\u00d7</button></div>' +
+        '<div class="aud-body">' +
+        '<div><label>Messaging strategy notes (optional)</label>' +
+        '<textarea rows="2" placeholder="e.g. Lead with education angle, avoid pricing until 3rd message\u2026" onchange="audiences[' + i + '].notes=this.value">' + esc(a.notes) + '</textarea></div>' +
+        '<div><div class="aud-file-btn" onclick="document.getElementById(\'aud-file-' + i + '\').click()">' +
+        '<span>&#128196;</span> <span>Upload persona file \u2014 PDF only (optional)</span></div>' +
+        '<div class="aud-fn" id="aud-fn-' + i + '">' + (a.file ? '\u2713 ' + esc(a.file.name) : '') + '</div>' +
+        '<input type="file" id="aud-file-' + i + '" accept=".pdf" style="display:none" onchange="handleAudFile(this.files[0],' + i + ')"></div>' +
+        '</div></div>';
+    }).join('');
   }
 
   async function fetchSite() {
-    const url = document.getElementById('cUrl').value.trim();
+    var url = document.getElementById('cUrl').value.trim();
     if (!url) return;
-    const btn = document.getElementById('fetchBtn');
-    const status = document.getElementById('fetchStatus');
-    btn.disabled = true;
-    btn.textContent = 'Fetching…';
-    status.textContent = '';
-    status.className = 'fetch-status';
+    var btn = document.getElementById('fetchBtn');
+    var status = document.getElementById('fetchStatus');
+    btn.disabled = true; btn.textContent = 'Fetching\u2026';
+    status.textContent = ''; status.className = 'fetch-status';
     try {
-      const resp = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      var resp = await fetch(PROXY_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 1000,
+          model: 'claude-sonnet-4-5', max_tokens: 1000,
           tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-          system: 'You extract value propositions from websites. Respond ONLY with a concise 2-4 sentence summary of what the company does and who it serves. No preamble, no headers, just the text.',
-          messages: [{ role: 'user', content: `Visit this website and summarize the core offering and value proposition in 2-4 sentences: ${url}` }]
+          system: 'You extract value propositions from websites. Respond ONLY with a concise 2-4 sentence summary of what the company does and who it serves. No preamble, no headers.',
+          messages: [{ role: 'user', content: 'Visit this website and summarize the core offering and value proposition in 2-4 sentences: ' + url }]
         })
       });
-      const data = await resp.json();
-      const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
+      var data = await resp.json();
+      var text = (data.content || []).filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('').trim();
       if (text) {
         document.getElementById('valueProps').value = text;
-        status.textContent = '✓ Pulled from website — edit as needed';
+        status.textContent = '\u2713 Pulled from website \u2014 edit as needed';
         status.className = 'fetch-status ok';
       } else {
-        status.textContent = 'Could not extract — enter manually';
+        status.textContent = 'Could not extract \u2014 enter manually';
         status.className = 'fetch-status err';
       }
     } catch(e) {
-      status.textContent = 'Fetch failed — enter manually';
+      status.textContent = 'Fetch failed \u2014 enter manually';
       status.className = 'fetch-status err';
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'Fetch';
+      btn.disabled = false; btn.textContent = 'Fetch';
     }
   }
 
   function switchTab(tab, btn) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('on'); });
     btn.classList.add('on');
     document.getElementById('stratPanel').classList.toggle('on', tab === 'strat');
     document.getElementById('seqPanel').classList.toggle('on', tab === 'seq');
   }
 
-  function showErr(msg) { const el = document.getElementById('errMsg'); el.textContent = msg; el.classList.add('on'); }
+  function showErr(msg) { var el = document.getElementById('errMsg'); el.textContent = msg; el.classList.add('on'); }
   function hideErr() { document.getElementById('errMsg').classList.remove('on'); }
 
   async function generate() {
     hideErr();
-    const clientName = document.getElementById('cName').value.trim();
-    const clientUrl = document.getElementById('cUrl').value.trim();
-    const valueProps = document.getElementById('valueProps').value.trim();
-    const writingStyle = document.getElementById('writingStyle').value.trim();
-    const addCtx = document.getElementById('addCtx').value.trim();
+    var clientName = document.getElementById('cName').value.trim();
+    var clientUrl = document.getElementById('cUrl').value.trim();
+    var valueProps = document.getElementById('valueProps').value.trim();
+    var writingStyle = document.getElementById('writingStyle').value.trim();
+    var addCtx = document.getElementById('addCtx').value.trim();
 
     if (!clientName) { showErr('Please enter the client name.'); return; }
     if (!audiences.length) { showErr('Please add at least one target audience.'); return; }
     if (!valueProps) { showErr('Please describe the client\'s core offering or click Fetch.'); return; }
 
-    const btn = document.getElementById('genBtn');
-    btn.disabled = true;
-    btn.textContent = 'Generating…';
-
-    const outArea = document.getElementById('outArea');
+    var btn = document.getElementById('genBtn');
+    btn.disabled = true; btn.textContent = 'Generating\u2026';
+    var outArea = document.getElementById('outArea');
     outArea.classList.add('on');
     document.getElementById('loadState').style.display = 'block';
     document.getElementById('outContent').style.display = 'none';
 
-    const loadMsgs = ['Analyzing client profile and audiences…','Building positioning and voice guidelines…','Drafting message sequences…','Finalizing the strategy document…'];
-    let mi = 0;
-    const msgEl = document.getElementById('loadMsg');
-    const intv = setInterval(() => { mi = (mi+1) % loadMsgs.length; msgEl.textContent = loadMsgs[mi]; }, 2400);
+    var loadMsgs = ['Analyzing client profile and audiences\u2026','Building positioning and voice guidelines\u2026','Drafting message sequences\u2026','Finalizing strategy document\u2026'];
+    var mi = 0;
+    var msgEl = document.getElementById('loadMsg');
+    var intv = setInterval(function() { mi = (mi+1) % loadMsgs.length; msgEl.textContent = loadMsgs[mi]; }, 2400);
 
-    const chLabel = ch === 'linkedin' ? 'LinkedIn' : ch === 'email' ? 'Email' : 'LinkedIn and Email';
-    const audSummary = audiences.map((a,i) => `Audience ${i+1}: ${a.name}${a.notes ? '\n  Messaging notes: '+a.notes : ''}${a.file ? '\n  [Persona file attached: '+a.file.name+']' : ''}`).join('\n');
+    var chLabel = ch === 'linkedin' ? 'LinkedIn' : ch === 'email' ? 'Email' : 'LinkedIn and Email';
+    var audSummary = audiences.map(function(a,i) {
+      return 'Audience ' + (i+1) + ': ' + a.name + (a.notes ? '\n  Messaging notes: ' + a.notes : '') + (a.file ? '\n  [Persona file: ' + a.file.name + ']' : '');
+    }).join('\n');
 
-    const userContent = [];
+    var userContent = [];
     if (files.li) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:files.li.b64 }, title:'Client LinkedIn Profile' });
-    if (files.ctx1) userContent.push({ type:'document', source:{ type:'base64', media_type:files.ctx1.type||'application/pdf', data:files.ctx1.b64 }, title:'Context Document 1' });
-    if (files.ctx2) userContent.push({ type:'document', source:{ type:'base64', media_type:files.ctx2.type||'application/pdf', data:files.ctx2.b64 }, title:'Context Document 2' });
-    audiences.forEach(a => { if (a.file) userContent.push({ type:'document', source:{ type:'base64', media_type:a.file.type||'application/pdf', data:a.file.b64 }, title:'Persona File: '+a.name }); });
+    if (files.ctx1) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:files.ctx1.b64 }, title:'Context Document 1' });
+    if (files.ctx2) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:files.ctx2.b64 }, title:'Context Document 2' });
+    audiences.forEach(function(a) { if (a.file) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:a.file.b64 }, title:'Persona: '+a.name }); });
 
-    userContent.push({ type:'text', text:`Build a comprehensive ${chLabel} outreach strategy for this client.
+    var prompt = 'Build a comprehensive ' + chLabel + ' outreach strategy for this client. These messages are sent BY THE CLIENT directly to prospects from the client\'s own LinkedIn account. Write in the client\'s voice.\n\n' +
+      'CLIENT: ' + clientName + '\n' +
+      (clientUrl ? 'WEBSITE: ' + clientUrl + '\n' : '') +
+      'VALUE PROPOSITION: ' + valueProps + '\n' +
+      (writingStyle ? 'WRITING STYLE: ' + writingStyle + '\n' : '') +
+      (addCtx ? 'ADDITIONAL CONTEXT: ' + addCtx + '\n' : '') +
+      '\nTARGET AUDIENCES:\n' + audSummary +
+      '\n\nMESSAGING FRAMEWORK & RULES:\n\n' +
+      'PHASE STRUCTURE:\n' +
+      '- Connection Request: 1 message, Day 0\n' +
+      '- Engage Phase: 3 messages. Day 3 after acceptance, Day 8, Day 15\n' +
+      '- Build Phase: 2 messages. Day 45, Day 75\n' +
+      '- Sustain Phase: 2 messages. Day 165, Day 255\n' +
+      '- ALL messages assume NO response received\n\n' +
+      'LENGTH RULES - STRICTLY ENFORCED:\n' +
+      '- Connection Request: 1-2 sentences max. Brief, personal, logical reason to connect. No ask.\n' +
+      '- Engage messages: 2 sentences HARD LIMIT. One idea. Then stop. No third sentence.\n' +
+      '- Build messages: 3 sentences max. Warmer, relationship established.\n' +
+      '- Sustain messages: 3 sentences max. Light touch, evergreen, check-in feel.\n\n' +
+      'ANGLE VARIATION - CRITICAL:\n' +
+      '- Each message must use a DIFFERENT angle than all previous messages in the sequence\n' +
+      '- Never repeat the same positioning, phrase, or value claim across messages\n' +
+      '- Build and Sustain messages must each introduce a fresh perspective or hook\n\n' +
+      'TONE & VOICE:\n' +
+      '- Peer-level, warm, professional - one human to another\n' +
+      '- Use "you" more than "I"\n' +
+      '- Statement + question structure works well for Engage\n' +
+      '- Trust-first: never push, never pitch, never sell\n' +
+      '- Politely persistent: confident but not aggressive\n' +
+      '- No emojis under any circumstances\n\n' +
+      'FORBIDDEN PHRASES - never use:\n' +
+      '"hope this finds you well", "just circling back", "touching base", "it\'s been a minute",\n' +
+      '"just wanted to follow up", "I wanted to circle back", "I wanted to reach back out",\n' +
+      '"I\'ll leave you alone", "no worries" as a softener, "just checking in", "per my last message"\n\n' +
+      'MEETING ASK RULE:\n' +
+      'Never ask for a meeting unless the prospect has expressed direct interest.\n' +
+      'Soft CTAs (offer a resource, ask a yes/no question) are OK in Engage when logical.\n\n' +
+      'GOLDEN QUESTION: Before finalizing each message ask: would the prospect think this sounds\n' +
+      'like a financial advisor pitching them? If yes - rewrite it.\n\n' +
+      'RESPOND ONLY with valid JSON (no markdown, no preamble):\n' +
+      '{\n' +
+      '  "strategy": {\n' +
+      '    "positioning": "2-3 paragraph analysis",\n' +
+      '    "icp_breakdown": "Per-audience: who they are, motivations, resonant language, key objection",\n' +
+      '    "channel_approach": "Tactical guidance for ' + chLabel + '",\n' +
+      '    "tone_and_voice": "Exact voice. What to avoid. 2-3 example phrases that fit, 2-3 that don\'t.",\n' +
+      '    "compliance_and_guardrails": "Compliance and reputational considerations",\n' +
+      '    "success_metrics": "KPIs, benchmarks, when to adjust"\n' +
+      '  },\n' +
+      '  "sequences": [\n' +
+      '    {\n' +
+      '      "audience": "exact audience name",\n' +
+      '      "phase": "Connection Request",\n' +
+      '      "message_number": 1,\n' +
+      '      "timing": "Day 0",\n' +
+      '      "channel": "LinkedIn",\n' +
+      '      "subject": null,\n' +
+      '      "message": "message text"\n' +
+      '    }\n' +
+      '  ]\n' +
+      '}\n\n' +
+      'Build ALL phases for EVERY audience: 1 CR + 3 Engage + 2 Build + 2 Sustain = 8 per audience.\n' +
+      'For Email: include subject lines. LinkedIn CR <=300 chars. LinkedIn follow-ups <=500 chars.';
 
-CLIENT: ${clientName}
-${clientUrl ? 'WEBSITE: '+clientUrl : ''}
-VALUE PROPOSITION: ${valueProps}
-${writingStyle ? 'WRITING STYLE: '+writingStyle : ''}
-${addCtx ? 'ADDITIONAL CONTEXT: '+addCtx : ''}
-
-TARGET AUDIENCES:
-${audSummary}
-
-MESSAGING FRAMEWORK:
-- Connection Request: 1 message, Day 0. Brief, personal, no ask.
-- Engage Phase: 3 messages. First ~3 days after acceptance, then ~5 days, then ~7 days. Goal: develop engagement, explore interest. Soft CTAs appropriate depending on audience and context.
-- Build Phase: 2 messages, ~30 days apart. Goal: reinforce connection, keep client top of mind.
-- Sustain Phase: 2 messages, ~90 days apart. Goal: quarterly refresh, evergreen tone.
-- ALL messages assume NO response has been received from the prospect.
-- Principles: trust-first, politely persistent, never spammy or pushy. Peer-level, warm, professional.
-- Forbidden phrases: 'hope this finds you well', 'just circling back', 'touching base', 'it's been a minute', 'just wanted to follow up'
-- Golden Question test: would a real person actually send this?
-
-Respond ONLY with valid JSON (no markdown fences, no preamble) in this exact structure:
-{
-  "strategy": {
-    "positioning": "2-3 paragraph analysis of how this client should position on ${chLabel}. What makes them compelling? What pain points do they solve?",
-    "icp_breakdown": "For each target audience: who they are, what motivates them, what language resonates, key objection to address.",
-    "channel_approach": "Specific tactical guidance for ${chLabel} — connection strategy, profile optimization notes, timing, cadence, volume expectations.",
-    "tone_and_voice": "Exact voice based on client style. What to avoid. 2-3 example phrases that fit and 2-3 that don't.",
-    "compliance_and_guardrails": "Compliance, legal, or reputational considerations for this client and audiences.",
-    "success_metrics": "KPIs to track, benchmarks to use, when to adjust the strategy."
-  },
-  "sequences": [
-    {
-      "audience": "exact audience name as provided",
-      "phase": "Connection Request",
-      "message_number": 1,
-      "timing": "Day 0",
-      "channel": "LinkedIn",
-      "subject": null,
-      "message": "full message text"
-    }
-  ]
-}
-
-CRITICAL: Build sequences for EVERY target audience listed. Each audience gets ALL phases:
-1 Connection Request + 3 Engage + 2 Build + 2 Sustain = 8 messages per audience minimum.
-For Email: include subject lines (not null). For LinkedIn: connection request ≤300 chars, follow-ups ≤500 chars.
-Calibrate soft CTAs based on audience receptivity and any audience-specific notes.
-Each message must pass the Golden Question test.` });
+    userContent.push({ type:'text', text: prompt });
 
     try {
-      const resp = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      var resp = await fetch(PROXY_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
-          max_tokens: 8000,
-          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services. You understand advisor and fund manager audiences deeply. You always respond with only valid JSON, no markdown, no preamble. Your JSON must be complete and valid — never truncate.',
+          model: 'claude-sonnet-4-5', max_tokens: 8000,
+          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services and HNW client acquisition. You write messages that are short, peer-level, and pass the Golden Question test. You always respond with only valid JSON, no markdown, never truncate.',
           messages: [{ role:'user', content:userContent }]
         })
       });
 
       clearInterval(intv);
-      if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error?.message || 'API error ' + resp.status); }
-      const data = await resp.json();
-      console.log('API response stop_reason:', data.stop_reason);
-      console.log('API response content blocks:', data.content?.length);
-      console.log('Full API response:', JSON.stringify(data).substring(0, 2000));
+      if (!resp.ok) { var err = await resp.json().catch(function(){return {};}); throw new Error(err.error ? err.error.message : 'API error ' + resp.status); }
+      var data = await resp.json();
 
-      // Check for stop reason — if max_tokens hit, response was truncated
       if (data.stop_reason === 'max_tokens') {
-        throw new Error('Response was too long and got cut off. Try reducing the number of target audiences, or split into two separate runs.');
+        throw new Error('Response too long - try fewer audiences or split into two runs.');
       }
 
-      const raw = (data.content||[]).map(b=>b.text||'').join('');
-      console.log('Raw text length:', raw.length);
-      console.log('Raw text preview:', raw.substring(0, 500));
-      const cleaned = raw.replace(/```json|```/g,'').trim();
+      var raw = (data.content||[]).map(function(b){return b.text||'';}).join('');
+      var cleaned = raw.replace(/```json|```/g,'').trim();
 
-      let parsed;
+      var parsed;
       try {
         parsed = JSON.parse(cleaned);
       } catch(jsonErr) {
-        console.error('JSON parse error:', jsonErr.message);
-        console.log('Full raw text:', raw);
-        // Attempt to extract just the JSON object if there's surrounding text
-        const match = cleaned.match(/\{[\s\S]*\}/);
-        if (match) {
-          parsed = JSON.parse(match[0]);
-        } else {
-          throw new Error('Could not parse response — check browser console (F12) for details. Raw: ' + raw.substring(0, 200));
-        }
+        var match = cleaned.match(/\{[\s\S]*\}/);
+        if (match) { parsed = JSON.parse(match[0]); }
+        else { throw new Error('Could not parse API response.'); }
       }
+
+      lastParsed = parsed;
+      lastClientName = clientName;
+      lastChLabel = chLabel;
+
       renderOutput(parsed, clientName, chLabel);
       document.getElementById('loadState').style.display = 'none';
       document.getElementById('outContent').style.display = 'block';
-      document.getElementById('outTitle').textContent = clientName + ' — Outreach Strategy';
-      document.getElementById('outMeta').textContent = chLabel + ' · ' + audiences.length + ' audience' + (audiences.length > 1 ? 's' : '');
+      document.getElementById('outTitle').textContent = clientName + ' \u2014 Outreach Strategy';
+      document.getElementById('outMeta').textContent = chLabel + ' \u00b7 ' + audiences.length + ' audience' + (audiences.length > 1 ? 's' : '');
+
     } catch(e) {
       clearInterval(intv);
       document.getElementById('loadState').style.display = 'none';
       outArea.classList.remove('on');
       showErr('Error: ' + e.message);
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'Generate Strategy';
+      btn.disabled = false; btn.textContent = 'Generate Strategy';
     }
   }
 
   function renderOutput(parsed, clientName, chLabel) {
-    const s = parsed.strategy || {};
-    const defs = [
-      { k:'positioning', l:'Positioning & differentiation' },
-      { k:'icp_breakdown', l:'Target audience breakdown' },
-      { k:'channel_approach', l:chLabel + ' channel approach & tactics' },
-      { k:'tone_and_voice', l:'Tone, voice & language guidelines' },
-      { k:'compliance_and_guardrails', l:'Compliance & guardrails' },
-      { k:'success_metrics', l:'Success metrics & KPIs' }
+    var s = parsed.strategy || {};
+    var defs = [
+      { k:'positioning', l:'Positioning & Differentiation' },
+      { k:'icp_breakdown', l:'Target Audience Breakdown' },
+      { k:'channel_approach', l:chLabel + ' Channel Approach & Tactics' },
+      { k:'tone_and_voice', l:'Tone, Voice & Language Guidelines' },
+      { k:'compliance_and_guardrails', l:'Compliance & Guardrails' },
+      { k:'success_metrics', l:'Success Metrics & KPIs' }
     ];
-    document.getElementById('stratContent').innerHTML = defs.filter(d=>s[d.k]).map(d =>
-      `<div class="strat-sec"><h3>${d.l}</h3><div class="strat-body">${esc(s[d.k])}</div></div>`
-    ).join('');
+    document.getElementById('stratContent').innerHTML = defs.filter(function(d){return s[d.k];}).map(function(d) {
+      return '<div class="strat-sec"><h3>' + d.l + '</h3><div class="strat-body">' + esc(s[d.k]) + '</div></div>';
+    }).join('');
 
-    const seqs = parsed.sequences || [];
+    var seqs = parsed.sequences || [];
     if (!seqs.length) { document.getElementById('seqContent').innerHTML = '<p style="color:var(--text2)">No sequences returned.</p>'; return; }
 
-    const byAud = {};
-    seqs.forEach(s => { const k = s.audience||'General'; if(!byAud[k]) byAud[k]=[]; byAud[k].push(s); });
+    var byAud = {};
+    seqs.forEach(function(s) { var k = s.audience||'General'; if(!byAud[k]) byAud[k]=[]; byAud[k].push(s); });
 
-    const phCls = p => {
-      const pl = (p||'').toLowerCase();
-      if (pl.includes('connection')) return 'ph-cr';
-      if (pl.includes('engage')) return 'ph-en';
-      if (pl.includes('build')) return 'ph-bu';
+    var phCls = function(p) {
+      var pl = (p||'').toLowerCase();
+      if (pl.indexOf('connection') >= 0) return 'ph-cr';
+      if (pl.indexOf('engage') >= 0) return 'ph-en';
+      if (pl.indexOf('build') >= 0) return 'ph-bu';
       return 'ph-su';
     };
 
-    let html = `<div class="seq-note"><strong>Note:</strong> All sequences assume no response has been received from the prospect. If a prospect replies at any point, pause the sequence and handle manually.</div>`;
-
-    Object.entries(byAud).forEach(([aud, rows]) => {
-      html += `<div class="seq-aud-block">
-        <div class="seq-aud-label">${esc(aud)}</div>
-        <table class="seq-tbl">
-          <thead><tr><th>Phase</th><th>Channel</th><th>#</th><th>Timing</th><th>Message</th></tr></thead>
-          <tbody>`;
-      rows.forEach(r => {
-        const subj = r.subject ? `<div class="msg-subject"><strong>Subject:</strong> ${esc(r.subject)}</div>` : '';
-        html += `<tr>
-          <td><span class="phase-badge ${phCls(r.phase)}">${esc(r.phase||'')}</span></td>
-          <td>${esc(r.channel||'')}</td>
-          <td>${r.message_number||''}</td>
-          <td>${esc(r.timing||'')}</td>
-          <td>${subj}<div class="msg-text">${esc(r.message||'')}</div><button class="copy-btn" onclick="copyMsg(this,\`${et(r.subject ? 'Subject: '+r.subject+'\n\n'+r.message : r.message)}\`)">Copy</button></td>
-        </tr>`;
+    var html = '<div class="seq-note"><strong>Note:</strong> All sequences assume no response has been received. If a prospect replies, pause the sequence and handle manually.</div>';
+    Object.keys(byAud).forEach(function(aud) {
+      var rows = byAud[aud];
+      html += '<div class="seq-aud-block"><div class="seq-aud-label">' + esc(aud) + '</div>' +
+        '<table class="seq-tbl"><thead><tr><th>Phase</th><th>Channel</th><th>#</th><th>Timing</th><th>Message</th></tr></thead><tbody>';
+      rows.forEach(function(r) {
+        var subj = r.subject ? '<div class="msg-subject"><strong>Subject:</strong> ' + esc(r.subject) + '</div>' : '';
+        var fullMsg = r.subject ? 'Subject: ' + r.subject + '\n\n' + (r.message||'') : (r.message||'');
+        html += '<tr>' +
+          '<td><span class="phase-badge ' + phCls(r.phase) + '">' + esc(r.phase||'') + '</span></td>' +
+          '<td>' + esc(r.channel||'') + '</td>' +
+          '<td>' + (r.message_number||'') + '</td>' +
+          '<td>' + esc(r.timing||'') + '</td>' +
+          '<td>' + subj + '<div class="msg-text">' + esc(r.message||'') + '</div>' +
+          '<button class="copy-btn" onclick="copyMsg(this,' + JSON.stringify(fullMsg) + ')">Copy</button></td>' +
+          '</tr>';
       });
-      html += `</tbody></table></div>`;
+      html += '</tbody></table></div>';
     });
     document.getElementById('seqContent').innerHTML = html;
   }
 
   function exportStrategy() {
-    let text = '';
-    document.querySelectorAll('.strat-sec').forEach(el => {
-      const h = el.querySelector('h3');
-      const b = el.querySelector('.strat-body');
+    var text = '';
+    document.querySelectorAll('.strat-sec').forEach(function(el) {
+      var h = el.querySelector('h3'); var b = el.querySelector('.strat-body');
       if (h && b) text += h.textContent.toUpperCase() + '\n\n' + b.textContent + '\n\n---\n\n';
     });
-    navigator.clipboard.writeText(text.trim()).then(() => {
-      const btn = document.querySelector('.out-header .btn');
-      btn.textContent = '✓ Copied';
-      setTimeout(() => { btn.textContent = 'Copy strategy text'; }, 2000);
+    navigator.clipboard.writeText(text.trim()).then(function() {
+      var btn = document.getElementById('copyStratBtn');
+      btn.textContent = '\u2713 Copied';
+      setTimeout(function() { btn.textContent = 'Copy strategy'; }, 2000);
     });
   }
 
   function copyMsg(btn, text) {
-    navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = '✓ Copied';
-      btn.classList.add('ok');
-      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
+    navigator.clipboard.writeText(text).then(function() {
+      btn.textContent = '\u2713 Copied'; btn.classList.add('ok');
+      setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
     });
   }
 
+  async function exportDocx() {
+    if (!lastParsed || !window.docx) { alert('Please generate a strategy first.'); return; }
+    var btn = document.getElementById('docxBtn');
+    btn.disabled = true; btn.textContent = 'Building\u2026';
+
+    try {
+      var D = window.docx;
+      var border = { style: D.BorderStyle.SINGLE, size: 1, color: 'CCCCCC' };
+      var cb = { top: border, bottom: border, left: border, right: border };
+      var cm = { top: 80, bottom: 80, left: 120, right: 120 };
+
+      function hCell(text, w) {
+        return new D.TableCell({
+          borders: cb, width: { size: w, type: D.WidthType.DXA },
+          shading: { fill: 'DDEEFF', type: D.ShadingType.CLEAR }, margins: cm,
+          children: [new D.Paragraph({ children: [new D.TextRun({ text: String(text), bold: true, size: 20, font: 'Arial' })] })]
+        });
+      }
+      function dCell(text, w) {
+        return new D.TableCell({
+          borders: cb, width: { size: w, type: D.WidthType.DXA }, margins: cm,
+          children: [new D.Paragraph({ children: [new D.TextRun({ text: String(text||''), size: 20, font: 'Arial' })] })]
+        });
+      }
+      function msgCell(text, w) {
+        var lines = String(text||'').split('\n');
+        return new D.TableCell({
+          borders: cb, width: { size: w, type: D.WidthType.DXA }, margins: cm,
+          children: lines.map(function(line) {
+            return new D.Paragraph({ children: [new D.TextRun({ text: line, size: 20, font: 'Arial' })], spacing: { after: 40 } });
+          })
+        });
+      }
+
+      var children = [];
+
+      // Title
+      children.push(new D.Paragraph({
+        heading: D.HeadingLevel.HEADING_1,
+        children: [new D.TextRun({ text: lastClientName + ' \u2014 Outreach Strategy', bold: true, size: 36, font: 'Arial' })]
+      }));
+      children.push(new D.Paragraph({
+        children: [new D.TextRun({ text: lastChLabel + '  \u00b7  Generated ' + new Date().toLocaleDateString(), size: 22, color: '666666', font: 'Arial' })],
+        spacing: { after: 240 }
+      }));
+
+      // Strategy sections
+      var s = lastParsed.strategy || {};
+      var defs = [
+        { k:'positioning', l:'Positioning & Differentiation' },
+        { k:'icp_breakdown', l:'Target Audience Breakdown' },
+        { k:'channel_approach', l:lastChLabel + ' Channel Approach & Tactics' },
+        { k:'tone_and_voice', l:'Tone, Voice & Language Guidelines' },
+        { k:'compliance_and_guardrails', l:'Compliance & Guardrails' },
+        { k:'success_metrics', l:'Success Metrics & KPIs' }
+      ];
+      defs.forEach(function(def) {
+        if (!s[def.k]) return;
+        children.push(new D.Paragraph({
+          heading: D.HeadingLevel.HEADING_2,
+          children: [new D.TextRun({ text: def.l, bold: true, size: 28, font: 'Arial' })]
+        }));
+        String(s[def.k]).split('\n').forEach(function(line) {
+          children.push(new D.Paragraph({ children: [new D.TextRun({ text: line, size: 22, font: 'Arial' })], spacing: { after: 80 } }));
+        });
+        children.push(new D.Paragraph({ children: [new D.TextRun({ text: '' })], spacing: { after: 120 } }));
+      });
+
+      // Page break
+      children.push(new D.Paragraph({ children: [new D.PageBreak()] }));
+      children.push(new D.Paragraph({
+        heading: D.HeadingLevel.HEADING_1,
+        children: [new D.TextRun({ text: 'Message Sequences', bold: true, size: 36, font: 'Arial' })]
+      }));
+      children.push(new D.Paragraph({
+        children: [new D.TextRun({ text: 'All sequences assume no response received. If a prospect replies, pause and handle manually.', size: 20, italics: true, color: '888888', font: 'Arial' })],
+        spacing: { after: 240 }
+      }));
+
+      // Tables per audience
+      var seqs = lastParsed.sequences || [];
+      var byAud = {};
+      seqs.forEach(function(s) { var k = s.audience||'General'; if(!byAud[k]) byAud[k]=[]; byAud[k].push(s); });
+
+      var cols = [1300, 900, 480, 1100, 5580];
+      var totalW = cols.reduce(function(a,b){return a+b;}, 0);
+
+      Object.keys(byAud).forEach(function(aud) {
+        var rows = byAud[aud];
+        children.push(new D.Paragraph({
+          heading: D.HeadingLevel.HEADING_2,
+          children: [new D.TextRun({ text: aud, bold: true, size: 26, font: 'Arial' })]
+        }));
+
+        var tableRows = [
+          new D.TableRow({
+            tableHeader: true,
+            children: [hCell('Phase',cols[0]), hCell('Channel',cols[1]), hCell('#',cols[2]), hCell('Timing',cols[3]), hCell('Message',cols[4])]
+          })
+        ];
+
+        rows.forEach(function(r) {
+          var msgText = r.subject ? 'Subject: ' + r.subject + '\n\n' + (r.message||'') : (r.message||'');
+          tableRows.push(new D.TableRow({
+            children: [
+              dCell(r.phase||'', cols[0]),
+              dCell(r.channel||'', cols[1]),
+              dCell(String(r.message_number||''), cols[2]),
+              dCell(r.timing||'', cols[3]),
+              msgCell(msgText, cols[4])
+            ]
+          }));
+        });
+
+        children.push(new D.Table({
+          width: { size: totalW, type: D.WidthType.DXA },
+          columnWidths: cols, rows: tableRows
+        }));
+        children.push(new D.Paragraph({ children: [new D.TextRun({text:''})], spacing: { after: 240 } }));
+      });
+
+      var doc = new D.Document({
+        styles: {
+          default: { document: { run: { font: 'Arial', size: 22 } } },
+          paragraphStyles: [
+            { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+              run: { size: 36, bold: true, font: 'Arial', color: '1a1a18' },
+              paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 0 } },
+            { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
+              run: { size: 26, bold: true, font: 'Arial', color: '1a4a80' },
+              paragraph: { spacing: { before: 200, after: 80 }, outlineLevel: 1 } }
+          ]
+        },
+        sections: [{
+          properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1080, right: 1080, bottom: 1080, left: 1080 } } },
+          children: children
+        }]
+      });
+
+      var blob = await D.Packer.toBlob(doc);
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = lastClientName.replace(/\s+/g,'_') + '_Outreach_Strategy.docx';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+    } catch(e) {
+      alert('Error generating Word doc: ' + e.message);
+      console.error(e);
+    } finally {
+      btn.disabled = false; btn.textContent = '\u2B07 Download Word doc';
+    }
+  }
+
   function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function et(s) { return String(s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
 </script>
 </body>
 </html>
