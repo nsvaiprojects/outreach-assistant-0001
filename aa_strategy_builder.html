@@ -20712,7 +20712,7 @@ var __async = (__this, __arguments, generator) => {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5', max_tokens: 8000,
-          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services and HNW client acquisition. You write messages that are short, peer-level, and pass the Golden Question test: would a real prospect think this sounds like a financial advisor pitching them? If yes, rewrite it. Personal background is always framed as pattern recognition about the prospect\'s world, never as biography. You always respond with only valid JSON, no markdown, never truncate.',
+          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services and HNW client acquisition. You write messages that are short, peer-level, and pass the Golden Question test: would a real prospect think this sounds like a financial advisor pitching them? If yes, rewrite it. Personal background is always framed as pattern recognition about the prospect\'s world, never as biography. CRITICAL: You always respond with ONLY raw valid JSON. No markdown fences, no backticks, no ```json, no preamble, no explanation. Start your response with { and end with }. Never truncate.',
           messages: [{ role:'user', content:userContent }]
         })
       });
@@ -20723,7 +20723,7 @@ var __async = (__this, __arguments, generator) => {
       if (data.stop_reason === 'max_tokens') throw new Error('Response too long — try fewer audiences or split into two runs.');
 
       var raw = (data.content||[]).map(function(b){return b.text||'';}).join('');
-      var cleaned = raw.replace(/```json|```/g,'').trim();
+      var cleaned = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
       var parsed;
       try { parsed = JSON.parse(cleaned); }
       catch(jsonErr) {
