@@ -20716,9 +20716,17 @@ var __async = (__this, __arguments, generator) => {
       var parsed;
       try { parsed = JSON.parse(cleaned); }
       catch(jsonErr) {
+        console.error('JSON parse error:', jsonErr.message);
+        console.log('Raw response length:', raw.length);
+        console.log('Stop reason:', data.stop_reason);
+        console.log('Raw preview:', raw.substring(0, 500));
         var match = cleaned.match(/\{[\s\S]*\}/);
-        if (match) { parsed = JSON.parse(match[0]); }
-        else { throw new Error('Could not parse API response.'); }
+        if (match) {
+          try { parsed = JSON.parse(match[0]); }
+          catch(e2) { throw new Error('Could not parse API response. Check console (F12) for details.'); }
+        } else {
+          throw new Error('Could not parse API response. Stop reason: ' + data.stop_reason + '. Raw length: ' + raw.length + '. Preview: ' + raw.substring(0, 200));
+        }
       }
 
       lastParsed = parsed;
