@@ -20619,8 +20619,10 @@ function hideErr() { showErr(""); }
 
 function formatBullets(text) {
   if (!text) return "";
+  // Ensure we have a string
+  var t = (typeof text === "object") ? JSON.stringify(text) : String(text);
   // Convert literal \n sequences to real newlines
-  var t = text.replace(/\\n/g, "\n");
+  t = t.replace(/\\n/g, "\n");
   // Ensure each bullet starts on its own line
   t = t.replace(/([^\n])(- )/g, "$1\n$2");
   // Clean up multiple blank lines
