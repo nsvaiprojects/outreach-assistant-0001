@@ -20619,15 +20619,25 @@ function hideErr() { showErr(""); }
 
 function formatBullets(text) {
   if (!text) return "";
-  // Ensure we have a string
-  var t = (typeof text === "object") ? JSON.stringify(text) : String(text);
+  var t;
+  // Handle arrays returned by API
+  if (Array.isArray(text)) {
+    t = text.map(function(item) {
+      var s = String(item).trim();
+      return s.startsWith("- ") ? s : "- " + s;
+    }).join("\n");
+  } else {
+    t = String(text);
+  }
   // Convert literal \n sequences to real newlines
   t = t.replace(/\\n/g, "\n");
   // Ensure each bullet starts on its own line
   t = t.replace(/([^\n])(- )/g, "$1\n$2");
   // Clean up multiple blank lines
   t = t.replace(/\n{3,}/g, "\n\n");
-  return t.trim();
+  // Remove any stray JSON punctuation
+  t = t.replace(/^[\["]|["\]]/gm, "").trim();
+  return t;
 }
 
 // ── Build API payload content array ─────────────────────────────────
