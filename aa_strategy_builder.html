@@ -20649,6 +20649,8 @@ var __async = (__this, __arguments, generator) => {
         var m = cleaned.match(/\{[\s\S]*\}/);
         if (m) { parsed = JSON.parse(m[0]); } else { throw new Error("Could not parse strategy response."); }
       }
+      console.log("Parsed strategy keys:", Object.keys(parsed));
+      console.log("Strategy object:", JSON.stringify(parsed).substring(0, 500));
       lastStrategyData = parsed;
       renderStrategy(parsed, inp.clientName, chLabel);
       document.getElementById("stratLoad").style.display = "none";
@@ -20680,9 +20682,14 @@ var __async = (__this, __arguments, generator) => {
     container.innerHTML = stratDefs.filter(function(d){return s[d.k];}).map(function(d) {
       return "<div class=\"strat-sec\">" +
         "<div class=\"strat-sec-header\"><div class=\"strat-sec-bar\"></div><span class=\"strat-sec-title\">" + d.l + "</span></div>" +
-        "<textarea id=\"strat-" + d.k + "\" rows=\"6\">" + escAttr(s[d.k]) + "</textarea>" +
+        "<textarea id=\"strat-" + d.k + "\" rows=\"6\></textarea>" +
         "</div>";
     }).join("");
+    // Set textarea values after DOM insertion to preserve line breaks
+    stratDefs.forEach(function(d) {
+      var el = document.getElementById("strat-" + d.k);
+      if (el && s[d.k]) el.value = s[d.k];
+    });
   }
 
   function getEditedStrategy() {
