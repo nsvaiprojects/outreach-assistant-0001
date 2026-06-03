@@ -20122,179 +20122,216 @@ var __async = (__this, __arguments, generator) => {
 
 </script>
 <style>
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efec;
-    --border: #e0ddd8; --border2: #c8c5bf;
-    --text: #1a1a18; --text2: #6b6860; --text3: #9a9890;
-    --blue: #1a6ab1; --blue-bg: #eef4fb; --blue-text: #144f85;
-    --green: #2a7a4a; --green-bg: #eaf5ee; --green-text: #1e5c36;
-    --amber: #b07010; --amber-bg: #fdf5e6; --amber-text: #8a5608;
-    --red: #c0392b; --red-bg: #fdf0ee; --red-text: #922b21;
-    --radius: 8px; --radius-lg: 12px; --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --bd: #e0ddd8; --bd2: #c8c5bf;
+    --t: #1a1a18; --t2: #6b6860; --t3: #9a9890;
+    --blue: #1a6ab1; --blue-bg: #eef4fb; --blue-t: #144f85;
+    --green: #2a7a4a; --green-bg: #eaf5ee; --green-t: #1e5c36;
+    --amber: #b07010; --amber-bg: #fdf5e6; --amber-t: #8a5608;
+    --red: #c0392b; --red-bg: #fdf0ee; --red-t: #922b21;
+    --r: 8px; --rl: 12px; --sh: 0 1px 3px rgba(0,0,0,0.08);
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg2); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg2); color: var(--t); font-size: 14px; line-height: 1.6; min-height: 100vh; }
   .page { max-width: 840px; margin: 0 auto; padding: 32px 24px 80px; }
-  .header { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-  .header-logo { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
-  .header h1 { font-size: 22px; font-weight: 600; color: var(--text); }
-  .header p { font-size: 13px; color: var(--text2); margin-top: 3px; }
-  .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
-  .card-title { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text2); margin-bottom: 14px; }
+
+  /* Header */
+  .hdr { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--bd); }
+  .hdr-logo { font-size: 11px; font-weight: 700; color: var(--t3); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+  .hdr h1 { font-size: 22px; font-weight: 600; }
+  .hdr p { font-size: 13px; color: var(--t2); margin-top: 3px; }
+
+  /* Cards */
+  .card { background: var(--bg); border: 1px solid var(--bd); border-radius: var(--rl); padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--sh); }
+  .card-title { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t2); margin-bottom: 14px; }
+
+  /* Grid */
   .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* Fields */
   .fld { display: flex; flex-direction: column; gap: 5px; }
-  .fld label { font-size: 13px; color: var(--text2); font-weight: 500; }
-  .fld input, .fld textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; transition: border-color .15s; }
-  .fld input:focus, .fld textarea:focus { border-color: var(--blue); }
-  .fld textarea { resize: vertical; }
-  .ch-row { display: flex; gap: 8px; }
-  .ch-btn { flex: 1; padding: 9px 0; font-size: 13px; font-weight: 500; border-radius: var(--radius); cursor: pointer; background: var(--bg2); border: 1px solid var(--border); color: var(--text2); transition: all .15s; font-family: inherit; }
-  .ch-btn[data-selected="true"] { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-text); font-weight: 600; }
-  .dz { border: 1.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 18px; text-align: center; cursor: pointer; background: var(--bg2); transition: all .15s; }
-  .dz:hover, .dz.over { background: var(--blue-bg); border-color: var(--blue); }
-  .dz-icon { font-size: 20px; color: var(--text3); margin-bottom: 5px; }
-  .dz-main { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-  .dz-sub { font-size: 12px; color: var(--text2); }
-  .dz-fn { font-size: 12px; color: var(--green); margin-top: 5px; font-weight: 600; }
-  .multi-dz { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .aud-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-  .aud-item { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-  .aud-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg2); border-bottom: 1px solid var(--border); }
-  .aud-name { font-size: 13px; font-weight: 600; color: var(--text); }
-  .aud-remove { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 18px; line-height: 1; padding: 0; font-family: inherit; }
-  .aud-remove:hover { color: var(--red); }
-  .aud-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-  .aud-body label { font-size: 12px; color: var(--text2); font-weight: 500; display: block; margin-bottom: 4px; }
-  .aud-body textarea { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 12px; font-family: inherit; background: var(--bg); color: var(--text); resize: vertical; outline: none; }
-  .aud-body textarea:focus { border-color: var(--blue); }
-  .aud-file-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1.5px dashed var(--border2); border-radius: var(--radius); cursor: pointer; background: var(--bg2); font-size: 12px; color: var(--text2); transition: all .15s; }
-  .aud-file-btn:hover { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-text); }
-  .aud-fn { font-size: 12px; color: var(--green); font-weight: 600; }
-  .add-aud-row { display: flex; gap: 8px; }
-  .add-aud-row input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
-  .add-aud-row input:focus { border-color: var(--blue); }
-  .fetch-row { display: flex; gap: 8px; }
-  .fetch-row input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
-  .fetch-row input:focus { border-color: var(--blue); }
-  .fetch-status { font-size: 12px; margin-top: 4px; }
-  .fetch-status.ok { color: var(--green); }
-  .fetch-status.err { color: var(--red); }
-  .analyze-btn-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+  .fld label { font-size: 13px; color: var(--t2); font-weight: 500; }
+  input[type=text], textarea, select { width: 100%; padding: 8px 12px; border: 1px solid var(--bd); border-radius: var(--r); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--t); outline: none; transition: border-color .15s; }
+  input[type=text]:focus, textarea:focus { border-color: var(--blue); }
+  textarea { resize: vertical; }
+
+  /* Buttons */
   button { font-family: inherit; cursor: pointer; }
-  .btn { padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg); color: var(--text); transition: all .15s; }
+  .btn { padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: var(--r); border: 1px solid var(--bd2); background: var(--bg); color: var(--t); transition: all .15s; }
   .btn:hover { background: var(--bg2); }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
   .btn-sm { padding: 5px 12px; font-size: 12px; }
-  .btn-accent { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-text); font-weight: 600; }
+  .btn-accent { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-t); font-weight: 600; }
   .btn-accent:hover { background: #dceefa; }
-  .btn-green { background: var(--green-bg); border-color: var(--green); color: var(--green-text); font-weight: 600; }
-  .btn-green:hover { background: #d4edda; }
-  .gen-btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; background: var(--text); color: #fff; border: none; border-radius: var(--radius-lg); cursor: pointer; transition: all .15s; margin-top: 8px; }
+  .gen-btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; background: var(--t); color: #fff; border: none; border-radius: var(--rl); cursor: pointer; transition: all .15s; margin-top: 8px; }
   .gen-btn:hover { background: #333; }
   .gen-btn:disabled { opacity: .5; cursor: not-allowed; }
-  .gen-btn-green { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; background: var(--green); color: #fff; border: none; border-radius: var(--radius-lg); cursor: pointer; transition: all .15s; margin-top: 8px; }
+  .gen-btn-green { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; background: var(--green); color: #fff; border: none; border-radius: var(--rl); cursor: pointer; transition: all .15s; margin-top: 8px; }
   .gen-btn-green:hover { background: #1e5c36; }
   .gen-btn-green:disabled { opacity: .5; cursor: not-allowed; }
-  .err-msg { background: var(--red-bg); color: var(--red-text); border: 1px solid #f5c0bb; border-radius: var(--radius); padding: 10px 14px; font-size: 13px; margin-top: 12px; display: none; }
-  .err-msg.on { display: block; }
+
+  /* Toggle buttons */
+  .toggle-row { display: flex; gap: 8px; }
+  .ch-btn, .type-btn { flex: 1; padding: 9px 0; font-size: 13px; font-weight: 500; border-radius: var(--r); cursor: pointer; background: var(--bg2); border: 1px solid var(--bd); color: var(--t2); transition: all .15s; font-family: inherit; }
+  .ch-btn[data-selected=true], .type-btn[data-selected=true] { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-t); font-weight: 600; }
+
+  /* Drop zones */
+  .dz { border: 1.5px dashed var(--bd2); border-radius: var(--rl); padding: 18px; text-align: center; cursor: pointer; background: var(--bg2); transition: all .15s; }
+  .dz:hover, .dz.over { background: var(--blue-bg); border-color: var(--blue); }
+  .dz-icon { font-size: 22px; color: var(--t3); margin-bottom: 5px; }
+  .dz-main { font-size: 13px; font-weight: 600; color: var(--t); margin-bottom: 2px; }
+  .dz-sub { font-size: 12px; color: var(--t2); }
+  .dz-fn { font-size: 12px; color: var(--green); margin-top: 5px; font-weight: 600; }
+  .dz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Status messages */
+  .status-msg { font-size: 12px; margin-top: 6px; }
+  .status-msg.ok { color: var(--green); }
+  .status-msg.err { color: var(--red); }
+  .err-banner { background: var(--red-bg); color: var(--red-t); border: 1px solid #f5c0bb; border-radius: var(--r); padding: 10px 14px; font-size: 13px; }
+  #errMsg { display: none; margin-top: 12px; }
+
+  /* Audiences */
+  .aud-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .aud-item { background: var(--bg); border: 1px solid var(--bd); border-radius: var(--rl); overflow: hidden; }
+  .aud-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg2); border-bottom: 1px solid var(--bd); }
+  .aud-name { font-size: 13px; font-weight: 600; }
+  .aud-remove { background: none; border: none; cursor: pointer; color: var(--t3); font-size: 18px; line-height: 1; padding: 0; }
+  .aud-remove:hover { color: var(--red); }
+  .aud-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .aud-body label { font-size: 12px; color: var(--t2); font-weight: 500; }
+  .aud-body textarea { font-size: 12px; }
+  .aud-file-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1.5px dashed var(--bd2); border-radius: var(--r); cursor: pointer; background: var(--bg2); font-size: 12px; color: var(--t2); transition: all .15s; }
+  .aud-file-btn:hover { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-t); }
+  .aud-fn { font-size: 12px; color: var(--green); font-weight: 600; }
+  .add-aud-row { display: flex; gap: 8px; }
+  .add-aud-row input { flex: 1; }
+  .btn-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+
+  /* Output area */
   .out { margin-top: 28px; display: none; }
   .out.on { display: block; }
-  .load { text-align: center; padding: 40px 0; }
-  .load p { font-size: 14px; color: var(--text2); margin-top: 14px; }
-  .spin { width: 30px; height: 30px; border: 2.5px solid var(--border); border-top-color: var(--text2); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+  .load { display: none; flex-direction: column; align-items: center; padding: 40px 0; }
+  .spin { width: 30px; height: 30px; border: 2.5px solid var(--bd); border-top-color: var(--t2); border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .out-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
-  .out-header h2 { font-size: 16px; font-weight: 600; color: var(--text); }
-  .out-header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .load p { font-size: 14px; color: var(--t2); }
+
+  /* Strategy sections */
+  .out-hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; gap: 12px; }
+  .out-hdr h2 { font-size: 16px; font-weight: 600; }
+  .out-hdr p { font-size: 13px; color: var(--t2); margin-top: 2px; }
   .out-actions { display: flex; gap: 8px; flex-shrink: 0; }
-  .strat-sections { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
-  .strat-sec { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
-  .strat-sec-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg2); border-bottom: 1px solid var(--border); }
-  .strat-sec-bar { width: 3px; height: 16px; background: var(--blue); border-radius: 2px; flex-shrink: 0; }
-  .strat-sec-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .strat-sec textarea { width: 100%; padding: 14px 16px; border: none; border-radius: 0; font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text2); resize: vertical; outline: none; line-height: 1.75; min-height: 120px; }
+  .out-hint { font-size: 13px; color: var(--t2); background: var(--blue-bg); border: 1px solid #c5ddf5; border-radius: var(--r); padding: 10px 14px; margin-bottom: 16px; }
+  .strat-secs { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+  .strat-sec { background: var(--bg); border: 1px solid var(--bd); border-radius: var(--rl); overflow: hidden; box-shadow: var(--sh); }
+  .strat-sec-hdr { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--bg2); border-bottom: 1px solid var(--bd); }
+  .strat-bar { width: 3px; height: 16px; background: var(--blue); border-radius: 2px; flex-shrink: 0; }
+  .strat-title { font-size: 13px; font-weight: 600; }
+  .strat-sec textarea { width: 100%; padding: 12px 16px; border: none; border-radius: 0; font-size: 13px; font-family: inherit; background: var(--bg); color: var(--t2); resize: vertical; outline: none; line-height: 1.8; min-height: 120px; }
   .strat-sec textarea:focus { background: #fafaf8; }
-  .msg-gen-area { margin-top: 8px; }
-  .msg-gen-hint { font-size: 13px; color: var(--text2); background: var(--blue-bg); border: 1px solid #c5ddf5; border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px; }
-  .seq-area { margin-top: 24px; display: none; }
-  .seq-area.on { display: block; }
-  .seq-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .seq-header h3 { font-size: 15px; font-weight: 600; color: var(--text); }
-  .seq-note { font-size: 13px; color: var(--amber-text); background: var(--amber-bg); border: 1px solid #f0d898; border-radius: var(--radius); padding: 10px 14px; margin-bottom: 20px; }
-  .seq-aud-block { margin-bottom: 32px; }
-  .seq-aud-label { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .seq-tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
-  .seq-tbl th { background: var(--bg2); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text2); padding: 8px 10px; border: 1px solid var(--border); text-align: left; }
-  .seq-tbl td { padding: 10px; border: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
-  .seq-tbl td:nth-child(1) { white-space: nowrap; min-width: 110px; }
-  .seq-tbl td:nth-child(2) { white-space: nowrap; width: 80px; font-size: 12px; color: var(--text2); }
-  .seq-tbl td:nth-child(3) { width: 32px; text-align: center; color: var(--text2); font-size: 12px; }
-  .seq-tbl td:nth-child(4) { white-space: nowrap; min-width: 100px; font-size: 12px; color: var(--text2); }
-  .seq-tbl td:nth-child(5) { min-width: 200px; }
+
+  /* Sequence area */
+  .seq-area { margin-top: 24px; }
+  .seq-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .seq-hdr h3 { font-size: 15px; font-weight: 600; }
+  .seq-note { font-size: 13px; color: var(--amber-t); background: var(--amber-bg); border: 1px solid #f0d898; border-radius: var(--r); padding: 10px 14px; margin-bottom: 20px; }
+  .seq-block { margin-bottom: 32px; }
+  .seq-aud { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--t2); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--bd); }
+  .seq-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .seq-tbl th { background: var(--bg2); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--t2); padding: 8px 10px; border: 1px solid var(--bd); text-align: left; }
+  .seq-tbl td { padding: 10px; border: 1px solid var(--bd); vertical-align: top; line-height: 1.6; }
+  .td-sm { white-space: nowrap; width: 80px; font-size: 12px; color: var(--t2); }
+  .td-num { width: 32px; text-align: center; color: var(--t2); font-size: 12px; }
   .phase-badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .ph-cr { background: var(--blue-bg); color: var(--blue-text); }
-  .ph-en { background: var(--green-bg); color: var(--green-text); }
-  .ph-bu { background: var(--amber-bg); color: var(--amber-text); }
-  .ph-su { background: var(--bg2); color: var(--text2); border: 1px solid var(--border); }
-  .msg-subject { font-size: 11px; color: var(--text2); margin-bottom: 5px; }
-  .msg-subject strong { color: var(--text); }
-  .msg-text { font-size: 13px; color: var(--text); line-height: 1.6; }
-  .copy-btn { margin-top: 6px; font-size: 11px; padding: 3px 9px; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; color: var(--text2); cursor: pointer; font-family: inherit; transition: all .15s; }
+  .ph-cr { background: var(--blue-bg); color: var(--blue-t); }
+  .ph-en { background: var(--green-bg); color: var(--green-t); }
+  .ph-bu { background: var(--amber-bg); color: var(--amber-t); }
+  .ph-su { background: var(--bg2); color: var(--t2); border: 1px solid var(--bd); }
+  .ab-label { display: block; font-size: 10px; color: var(--t3); font-style: italic; margin-top: 3px; }
+  .msg-subj { font-size: 11px; color: var(--t2); margin-bottom: 5px; }
+  .msg-txt { font-size: 13px; color: var(--t); line-height: 1.6; }
+  .copy-btn { margin-top: 6px; font-size: 11px; padding: 3px 9px; background: var(--bg2); border: 1px solid var(--bd); border-radius: 4px; color: var(--t2); cursor: pointer; font-family: inherit; transition: all .15s; }
   .copy-btn:hover { background: var(--bg3); }
   .copy-btn.ok { color: var(--green); border-color: #a0d4b0; }
-  .ab-label { font-size: 10px; color: var(--text3); font-style: italic; display: block; margin-top: 3px; }
-  @media (max-width: 600px) { .g2, .multi-dz { grid-template-columns: 1fr; } .page { padding: 20px 16px 60px; } .seq-tbl { display: block; overflow-x: auto; } }
+
+  @media (max-width: 600px) { .g2, .dz-grid { grid-template-columns: 1fr; } .page { padding: 20px 16px 60px; } .seq-tbl { display: block; overflow-x: auto; } }
+
 </style>
 </head>
 <body>
 <div class="page">
-  <div class="header">
-    <div class="header-logo">Advisor Appointments</div>
+  <div class="hdr">
+    <div class="hdr-logo">Advisor Appointments</div>
     <h1>LinkedIn &amp; Email Strategy Builder</h1>
     <p>Build a comprehensive outreach strategy and message sequences for a client.</p>
   </div>
 
+  <!-- 1. Channel -->
   <div class="card">
     <div class="card-title">Channel</div>
-    <div class="ch-row" id="chRow">
+    <div class="toggle-row">
       <button class="ch-btn" data-ch="linkedin" data-selected="true" onclick="setCh('linkedin')">LinkedIn only</button>
       <button class="ch-btn" data-ch="email" data-selected="false" onclick="setCh('email')">Email only</button>
       <button class="ch-btn" data-ch="both" data-selected="false" onclick="setCh('both')">LinkedIn + Email</button>
     </div>
   </div>
 
+  <!-- 2. Intake Form -->
+  <div class="card">
+    <div class="card-title">Client Intake Form (optional)</div>
+    <div class="dz" id="intakeDz" onclick="document.getElementById('intakeFile').click()">
+      <div class="dz-icon">&#8679;</div>
+      <div class="dz-main">Drop intake form PDF here</div>
+      <div class="dz-sub">Upload completed client intake form to auto-populate fields</div>
+      <div class="dz-fn" id="intakeName"></div>
+    </div>
+    <input type="file" id="intakeFile" accept=".pdf" style="display:none" onchange="handleFile(this.files[0],'intake')">
+    <div class="btn-row" style="margin-top:10px">
+      <button class="btn btn-accent" id="extractBtn" onclick="extractIntake()">&#8681; Extract &amp; populate fields</button>
+    </div>
+    <div class="status-msg" id="intakeStatus"></div>
+  </div>
+
+  <!-- 3. Client Info -->
   <div class="card">
     <div class="card-title">Client Information</div>
-    <div class="g2">
+    <div class="g2" style="margin-bottom:14px">
       <div class="fld">
         <label>Client name</label>
         <input type="text" id="cName" placeholder="e.g. Nick Rothrock">
       </div>
       <div class="fld">
-        <label>Client website URL</label>
-        <div class="fetch-row">
-          <input type="text" id="cUrl" placeholder="https://...">
-          <button class="btn" onclick="fetchSite()" id="fetchBtn">Fetch</button>
+        <label>Client type</label>
+        <div class="toggle-row" style="margin-top:2px">
+          <button class="type-btn" data-t="financial_advisor" data-selected="true" onclick="setType('financial_advisor')">Financial Advisor</button>
+          <button class="type-btn" data-t="fund_manager" data-selected="false" onclick="setType('fund_manager')">Fund Manager</button>
         </div>
-        <div class="fetch-status" id="fetchStatus"></div>
       </div>
+    </div>
+    <div class="fld">
+      <label>Client website URL</label>
+      <input type="text" id="cUrl" placeholder="https://...">
     </div>
   </div>
 
+  <!-- 4. LinkedIn Profile -->
   <div class="card">
     <div class="card-title">Client LinkedIn Profile (PDF)</div>
-    <div class="dz" id="liDz" onclick="document.getElementById('liPdf').click()">
+    <div class="dz" id="liDz" onclick="document.getElementById('liFile').click()">
       <div class="dz-icon">&#8679;</div>
       <div class="dz-main">Drop LinkedIn PDF here</div>
       <div class="dz-sub">Export from LinkedIn &rsaquo; More &rsaquo; Save to PDF</div>
       <div class="dz-fn" id="liName"></div>
     </div>
-    <input type="file" id="liPdf" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'li')">
+    <input type="file" id="liFile" accept=".pdf" style="display:none" onchange="handleFile(this.files[0],'li')">
   </div>
 
+  <!-- 5. Context Documents + Analyze -->
   <div class="card">
     <div class="card-title">Additional Context Documents (optional)</div>
-    <div class="multi-dz">
+    <div class="dz-grid">
       <div class="dz" id="ctx1Dz" onclick="document.getElementById('ctx1File').click()">
         <div class="dz-icon">&#128196;</div>
         <div class="dz-main">Context document 1</div>
@@ -20308,45 +20345,50 @@ var __async = (__this, __arguments, generator) => {
         <div class="dz-fn" id="ctx2Name"></div>
       </div>
     </div>
-    <input type="file" id="ctx1File" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'ctx1')">
-    <input type="file" id="ctx2File" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'ctx2')">
-    <div class="analyze-btn-row">
-      <button class="btn btn-accent" onclick="analyzeSources()" id="analyzeBtn">&#9881; Analyze sources &amp; pre-populate topics</button>
+    <input type="file" id="ctx1File" accept=".pdf" style="display:none" onchange="handleFile(this.files[0],'ctx1')">
+    <input type="file" id="ctx2File" accept=".pdf" style="display:none" onchange="handleFile(this.files[0],'ctx2')">
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-accent" id="analyzeBtn" onclick="analyzeSources()">&#9881; Analyze sources &amp; pre-populate topics</button>
     </div>
-    <div class="fetch-status" id="analyzeStatus" style="margin-top:8px"></div>
+    <div class="status-msg" id="analyzeStatus"></div>
   </div>
 
+  <!-- 6. Target Audiences -->
   <div class="card">
     <div class="card-title">Target Audiences</div>
     <div class="aud-list" id="audList"></div>
     <div class="add-aud-row">
-      <input type="text" id="audInput" placeholder="e.g. Executives in Nashville area with $500k+ investable assets" onkeydown="if(event.key==='Enter')addAud()">
-      <button class="btn" onclick="addAud()">+ Add audience</button>
+      <input type="text" id="audInput" placeholder="e.g. Executives in Nashville with $500k+ investable assets" onkeydown="if(event.key==='Enter')addAud()">
+      <button class="btn" onclick="addAud()">+ Add</button>
     </div>
   </div>
 
+  <!-- 7. Core Offering -->
   <div class="card">
     <div class="card-title">Core Offering &amp; Value Proposition</div>
     <div class="fld">
-      <textarea id="valueProps" rows="4" placeholder="Enter manually or click Fetch on the website URL above&hellip;"></textarea>
+      <textarea id="valueProps" rows="4" placeholder="Enter manually or use Analyze sources above to pull from website&hellip;"></textarea>
     </div>
   </div>
 
+  <!-- 8. Key Topics -->
   <div class="card">
     <div class="card-title">Key Topics &amp; Potential Resources</div>
     <div class="fld">
-      <label>Topics that resonate with prospects + resources the client can offer (guides, frameworks, books, proprietary processes, etc.)</label>
-      <textarea id="keyTopics" rows="4" placeholder="Click &ldquo;Analyze sources&rdquo; above to auto-populate, then add or edit&hellip;"></textarea>
+      <label>Topics that resonate with prospects + resources the client offers (guides, frameworks, books, proprietary processes, etc.)</label>
+      <textarea id="keyTopics" rows="4" placeholder="Use Analyze sources above to auto-populate, then edit as needed&hellip;"></textarea>
     </div>
   </div>
 
+  <!-- 9. Additional Context -->
   <div class="card">
     <div class="card-title">Additional Context Notes (optional)</div>
     <div class="fld">
-      <textarea id="addCtx" rows="3" placeholder="Compliance notes, geographic focus, seasonal timing, etc."></textarea>
+      <textarea id="addCtx" rows="3" placeholder="Compliance notes, geographic focus, pricing, seasonal timing, etc."></textarea>
     </div>
   </div>
 
+  <!-- 10. Writing Style -->
   <div class="card">
     <div class="card-title">Writing &amp; Communication Style</div>
     <div class="fld">
@@ -20354,579 +20396,620 @@ var __async = (__this, __arguments, generator) => {
     </div>
   </div>
 
-  <div class="err-msg" id="errMsg"></div>
+  <div class="err-banner status-msg err" id="errMsg"></div>
   <button class="gen-btn" id="genStratBtn" onclick="generateStrategy()">Step 1: Generate Strategy</button>
 
   <!-- Strategy Output -->
   <div class="out" id="stratOut">
     <div class="load" id="stratLoad">
       <div class="spin"></div>
-      <p id="stratLoadMsg">Analyzing profile and building strategy&hellip;</p>
+      <p id="stratLoadMsg">Analyzing profile&hellip;</p>
     </div>
     <div id="stratContent" style="display:none">
-      <div class="out-header">
+      <div class="out-hdr">
         <div>
           <h2 id="outTitle">Strategy</h2>
           <p id="outMeta"></p>
         </div>
         <div class="out-actions">
-          <button class="btn btn-sm" onclick="copyStrategy()" id="copyStratBtn">Copy strategy</button>
-          <button class="btn btn-sm" onclick="exportDocx()" id="docxBtn">&#8659; Download Word doc</button>
+          <button class="btn btn-sm" id="copyStratBtn" onclick="copyStrategy()">Copy strategy</button>
+          <button class="btn btn-sm" id="docxBtn" onclick="exportDocx()">&#8659; Download Word doc</button>
         </div>
       </div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Review and edit each section below, then generate message sequences.</p>
-      <div class="strat-sections" id="stratSections"></div>
-      <div class="msg-gen-area">
-        <div class="msg-gen-hint">&#10003; Strategy looks good? Edit any sections above, then click below to generate message sequences.</div>
-        <button class="gen-btn-green" id="genMsgBtn" onclick="generateMessages()">Step 2: Generate Message Sequences</button>
-      </div>
+      <p class="out-hint">Review and edit each section below, then generate message sequences.</p>
+      <div class="strat-secs" id="stratSections"></div>
+      <button class="gen-btn-green" id="genMsgBtn" onclick="generateMessages()">Step 2: Generate Message Sequences</button>
     </div>
   </div>
 
   <!-- Sequences Output -->
-  <div class="seq-area" id="seqArea">
-    <div class="load" id="seqLoad" style="display:none">
+  <div class="seq-area" id="seqArea" style="display:none">
+    <div class="load" id="seqLoad">
       <div class="spin"></div>
-      <p id="seqLoadMsg">Drafting message sequences&hellip;</p>
+      <p id="seqLoadMsg">Drafting sequences&hellip;</p>
     </div>
     <div id="seqContent"></div>
   </div>
-
 </div>
-
 <script>
-  const PROXY_URL = "https://advisorappointments-proxy.cold-silence-b79b.workers.dev";
-  let ch = "linkedin";
-  let files = { li: null, ctx1: null, ctx2: null };
-  let audiences = [];
-  let lastStrategyData = null;
-  let lastClientName = "";
-  let lastChLabel = "";
+const PROXY = "https://advisorappointments-proxy.cold-silence-b79b.workers.dev";
 
-  function setCh(c) {
-    ch = c;
-    document.querySelectorAll(".ch-btn").forEach(function(b) { b.dataset.selected = (b.dataset.ch === c) ? "true" : "false"; });
-  }
+let ch = "linkedin";
+let clientType = "financial_advisor";
+let files = { intake: null, li: null, ctx1: null, ctx2: null };
+let audiences = [];
+let lastStrategy = null;
+let lastClientName = "";
+let lastChLabel = "";
 
-  ["liDz","ctx1Dz","ctx2Dz"].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener("dragover", function(e) { e.preventDefault(); el.classList.add("over"); });
-    el.addEventListener("dragleave", function() { el.classList.remove("over"); });
-    el.addEventListener("drop", function(e) {
-      e.preventDefault(); el.classList.remove("over");
-      var f = e.dataTransfer.files[0]; if (!f) return;
-      handlePdf(f, id === "liDz" ? "li" : id === "ctx1Dz" ? "ctx1" : "ctx2");
-    });
+// ── Channel & Client Type ────────────────────────────────────────────
+function setCh(c) {
+  ch = c;
+  document.querySelectorAll(".ch-btn").forEach(function(b) {
+    b.dataset.selected = (b.dataset.ch === c) ? "true" : "false";
   });
+}
 
-  function handlePdf(file, key) {
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      files[key] = { name: file.name, b64: e.target.result.split(",")[1] };
-      var el = document.getElementById(key + "Name");
-      if (el) el.textContent = "\u2713 " + file.name;
-    };
-    reader.readAsDataURL(file);
-  }
+function setType(t) {
+  clientType = t;
+  document.querySelectorAll(".type-btn").forEach(function(b) {
+    b.dataset.selected = (b.dataset.t === t) ? "true" : "false";
+  });
+}
 
-  function handleAudFile(file, idx) {
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      audiences[idx].file = { name: file.name, b64: e.target.result.split(",")[1] };
-      var el = document.getElementById("aud-fn-" + idx);
-      if (el) el.textContent = "\u2713 " + file.name;
-    };
-    reader.readAsDataURL(file);
-  }
+// ── File Handling ────────────────────────────────────────────────────
+["intakeDz","liDz","ctx1Dz","ctx2Dz"].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("dragover", function(e) { e.preventDefault(); el.classList.add("over"); });
+  el.addEventListener("dragleave", function() { el.classList.remove("over"); });
+  el.addEventListener("drop", function(e) {
+    e.preventDefault(); el.classList.remove("over");
+    var f = e.dataTransfer.files[0]; if (!f) return;
+    var key = id === "intakeDz" ? "intake" : id === "liDz" ? "li" : id === "ctx1Dz" ? "ctx1" : "ctx2";
+    handleFile(f, key);
+  });
+});
 
-  function addAud() {
-    var input = document.getElementById("audInput");
-    var val = input.value.trim();
-    if (!val) return;
-    audiences.push({ name: val, notes: "", file: null });
-    input.value = "";
-    renderAudiences();
-  }
+function handleFile(file, key) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    files[key] = { name: file.name, b64: e.target.result.split(",")[1] };
+    var nameEl = document.getElementById(key + "Name");
+    if (nameEl) nameEl.textContent = "\u2713 " + file.name;
+  };
+  reader.readAsDataURL(file);
+}
 
-  function removeAud(i) { audiences.splice(i, 1); renderAudiences(); }
+function handleAudFile(file, idx) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    audiences[idx].file = { name: file.name, b64: e.target.result.split(",")[1] };
+    var el = document.getElementById("aud-fn-" + idx);
+    if (el) el.textContent = "\u2713 " + file.name;
+  };
+  reader.readAsDataURL(file);
+}
 
-  function renderAudiences() {
-    var container = document.getElementById("audList");
-    if (!audiences.length) { container.innerHTML = ""; return; }
-    container.innerHTML = audiences.map(function(a, i) {
-      var fileId = "aud-file-" + i;
-      var fnId = "aud-fn-" + i;
-      return "<div class=\"aud-item\">" +
-        "<div class=\"aud-header\"><span class=\"aud-name\">" + esc(a.name) + "</span>" +
-        "<button class=\"aud-remove\" onclick=\"removeAud(" + i + ")\" aria-label=\"Remove\">\u00d7</button></div>" +
-        "<div class=\"aud-body\">" +
-        "<div><label>Messaging strategy notes (optional)</label>" +
-        "<textarea rows=\"2\" placeholder=\"e.g. Lead with education angle\u2026\" onchange=\"audiences[" + i + "].notes=this.value\">" + esc(a.notes) + "</textarea></div>" +
-        "<div><div class=\"aud-file-btn\" onclick=\"document.getElementById(" + JSON.stringify(fileId) + ").click()\">" +
-        "<span>&#128196;</span> <span>Upload persona file \u2014 PDF only (optional)</span></div>" +
-        "<div class=\"aud-fn\" id=\"" + fnId + "\">" + (a.file ? "\u2713 " + esc(a.file.name) : "") + "</div>" +
-        "<input type=\"file\" id=\"" + fileId + "\" accept=\".pdf\" style=\"display:none\" onchange=\"handleAudFile(this.files[0]," + i + ")\"></div>" +
-        "</div></div>";
-    }).join("");
-  }
+// ── Intake Form Extraction ───────────────────────────────────────────
+async function extractIntake() {
+  if (!files.intake) { showStatus("intakeStatus", "Please upload an intake form first.", "err"); return; }
+  var btn = document.getElementById("extractBtn");
+  btn.disabled = true; btn.textContent = "Extracting\u2026";
+  showStatus("intakeStatus", "", "");
 
-  async function fetchSite() {
-    var url = document.getElementById("cUrl").value.trim();
-    if (!url) return;
-    var btn = document.getElementById("fetchBtn");
-    var status = document.getElementById("fetchStatus");
-    btn.disabled = true; btn.textContent = "Fetching\u2026";
-    status.textContent = ""; status.className = "fetch-status";
-    try {
-      var resp = await fetch(PROXY_URL, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-5", max_tokens: 1000,
-          tools: [{ type: "web_search_20250305", name: "web_search" }],
-          system: "You extract value propositions from websites. Respond ONLY with a concise 2-4 sentence summary of what the company does and who it serves. No preamble, no headers.",
-          messages: [{ role: "user", content: "Visit this website and summarize the core offering and value proposition in 2-4 sentences: " + url }]
-        })
-      });
-      var data = await resp.json();
-      var text = (data.content || []).filter(function(b) { return b.type === "text"; }).map(function(b) { return b.text; }).join("").trim();
-      if (text) {
-        document.getElementById("valueProps").value = text;
-        status.textContent = "\u2713 Pulled from website \u2014 edit as needed";
-        status.className = "fetch-status ok";
-      } else {
-        status.textContent = "Could not extract \u2014 enter manually";
-        status.className = "fetch-status err";
-      }
-    } catch(e) {
-      status.textContent = "Fetch failed \u2014 enter manually";
-      status.className = "fetch-status err";
-    } finally {
-      btn.disabled = false; btn.textContent = "Fetch";
-    }
-  }
-
-  async function analyzeSources() {
-    var btn = document.getElementById("analyzeBtn");
-    var status = document.getElementById("analyzeStatus");
-    var url = document.getElementById("cUrl").value.trim();
-    var hasFiles = files.li || files.ctx1 || files.ctx2;
-    if (!url && !hasFiles) {
-      status.textContent = "Please enter a website URL or upload at least one document first.";
-      status.className = "fetch-status err"; return;
-    }
-    btn.disabled = true; btn.textContent = "\u9881 Analyzing\u2026";
-    status.textContent = ""; status.className = "fetch-status";
-    var userContent = [];
-    if (files.li) userContent.push({ type:"document", source:{ type:"base64", media_type:"application/pdf", data:files.li.b64 }, title:"Client LinkedIn Profile" });
-    if (files.ctx1) userContent.push({ type:"document", source:{ type:"base64", media_type:"application/pdf", data:files.ctx1.b64 }, title:"Context Document 1" });
-    if (files.ctx2) userContent.push({ type:"document", source:{ type:"base64", media_type:"application/pdf", data:files.ctx2.b64 }, title:"Context Document 2" });
-    var prompt = "Review all provided documents" + (url ? " and the website: " + url : "") + ". Extract and list:\n" +
-      "1. Key topics and themes that resonate with this advisor\'s target prospects\n" +
-      "2. Any specific resources the advisor offers (guides, frameworks, books, articles, proprietary processes, tools)\n" +
-      "3. Any recurring pain points or conversation topics the advisor addresses\n\n" +
-      "Respond with a plain text list, one item per line, starting each with a dash (-). No headers, no preamble. Just the list.";
-    userContent.push({ type:"text", text: prompt });
-    try {
-      var body = { model: "claude-sonnet-4-5", max_tokens: 1000, messages: [{ role:"user", content:userContent }] };
-      if (url) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
-      var resp = await fetch(PROXY_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
-      var data = await resp.json();
-      var text = (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("").trim();
-      if (text) {
-        document.getElementById("keyTopics").value = text;
-        status.textContent = "\u2713 Pre-populated \u2014 review and edit as needed";
-        status.className = "fetch-status ok";
-      } else {
-        status.textContent = "Could not extract \u2014 enter manually";
-        status.className = "fetch-status err";
-      }
-    } catch(e) {
-      status.textContent = "Analysis failed: " + e.message;
-      status.className = "fetch-status err";
-    } finally {
-      btn.disabled = false; btn.textContent = "\u9881 Analyze sources & pre-populate topics";
-    }
-  }
-
-  function showErr(msg) { var el = document.getElementById("errMsg"); el.textContent = msg; el.classList.add("on"); }
-  function hideErr() { document.getElementById("errMsg").classList.remove("on"); }
-
-  function getInputs() {
-    return {
-      clientName: document.getElementById("cName").value.trim(),
-      clientUrl: document.getElementById("cUrl").value.trim(),
-      valueProps: document.getElementById("valueProps").value.trim(),
-      keyTopics: document.getElementById("keyTopics").value.trim(),
-      writingStyle: document.getElementById("writingStyle").value.trim(),
-      addCtx: document.getElementById("addCtx").value.trim()
-    };
-  }
-
-  function buildUserContent(includePrompt, promptText) {
-    var content = [];
-    if (files.li) content.push({ type:"document", source:{ type:"base64", media_type:"application/pdf", data:files.li.b64 }, title:"Client LinkedIn Profile" });
-    if (files.ctx1) content.push({ type:"document", source:{ type:"base64", media_type:"application/pdf", data:files.ctx1.b64 }, title:"Context Document 1" });
-    if (files.ctx2) content.push({ type:"document", source:{ type:"base64", media_type:"application/pdf", data:files.ctx2.b64 }, title:"Context Document 2" });
-    audiences.forEach(function(a) { if (a.file) content.push({ type:"document", source:{ type:"base64", media_type:"application/pdf", data:a.file.b64 }, title:"Persona: "+a.name }); });
-    if (includePrompt) content.push({ type:"text", text: promptText });
-    return content;
-  }
-
-  async function generateStrategy() {
-    hideErr();
-    var inp = getInputs();
-    if (!inp.clientName) { showErr("Please enter the client name."); return; }
-    if (!audiences.length) { showErr("Please add at least one target audience."); return; }
-    if (!inp.valueProps) { showErr("Please describe the client\'s core offering or click Fetch."); return; }
-
-    var btn = document.getElementById("genStratBtn");
-    btn.disabled = true; btn.textContent = "Generating\u2026";
-    var stratOut = document.getElementById("stratOut");
-    stratOut.classList.add("on");
-    document.getElementById("stratLoad").style.display = "block";
-    document.getElementById("stratContent").style.display = "none";
-    document.getElementById("seqArea").classList.remove("on");
-    document.getElementById("seqContent").innerHTML = "";
-
-    var chLabel = ch === "linkedin" ? "LinkedIn" : ch === "email" ? "Email" : "LinkedIn and Email";
-    lastClientName = inp.clientName;
-    lastChLabel = chLabel;
-
-    var loadMsgs = ["Analyzing profile and building strategy\u2026","Identifying positioning angles\u2026","Building audience breakdowns\u2026","Finalizing strategy document\u2026"];
-    var mi = 0; var msgEl = document.getElementById("stratLoadMsg");
-    var intv = setInterval(function() { mi=(mi+1)%loadMsgs.length; msgEl.textContent=loadMsgs[mi]; }, 2400);
-
-    var audSummary = audiences.map(function(a,i) {
-      return "Audience " + (i+1) + ": " + a.name + (a.notes ? "\n  Notes: "+a.notes : "") + (a.file ? "\n  [Persona: "+a.file.name+"]" : "");
-    }).join("\n");
-
-    var prompt = "Build a strategy document for a " + chLabel + " outreach campaign for this client.\n\n" +
-      "CLIENT: " + inp.clientName + "\n" +
-      (inp.clientUrl ? "WEBSITE: " + inp.clientUrl + "\n" : "") +
-      "VALUE PROPOSITION: " + inp.valueProps + "\n" +
-      (inp.keyTopics ? "KEY TOPICS & RESOURCES: " + inp.keyTopics + "\n" : "") +
-      (inp.writingStyle ? "WRITING STYLE: " + inp.writingStyle + "\n" : "") +
-      (inp.addCtx ? "ADDITIONAL CONTEXT: " + inp.addCtx + "\n" : "") +
-      "\nTARGET AUDIENCES:\n" + audSummary +
-      "\n\nSTRATEGY FORMAT: Use bullet points throughout. NO prose paragraphs.\n" +
-      "- positioning: 5 bullets (start with -). One distinct angle per bullet. Max 15 words each.\n" +
-      "- icp_breakdown: Per audience bold header, then bullets: - Who, - Trigger moments, - Resonant language, - Key objection, - Avoid\n" +
-      "- channel_approach: One bullet per phase (CR, Engage, Build, Sustain) + 2-3 tactical bullets. Max 15 words each.\n" +
-      "- tone_and_voice: 3-4 principle bullets, then FITS: and AVOID: examples\n" +
-      "- compliance_and_guardrails: One rule per bullet, max 12 words\n" +
-      "- success_metrics: Bullets for primary KPI, acceptance rate benchmark, conversation rate, meeting conversion, when to adjust, red flag\n\n" +
-      "RESPOND ONLY with raw valid JSON. Start with { end with }. No markdown fences.\n" +
-      "{\n  \"strategy\": {\n    \"positioning\": \"bullet list\",\n    \"icp_breakdown\": \"per-audience bullet lists\",\n    \"channel_approach\": \"bullet list\",\n    \"tone_and_voice\": \"bullet list with FITS: and AVOID:\",\n    \"compliance_and_guardrails\": \"bullet list\",\n    \"success_metrics\": \"bullet list\"\n  }\n}";
-
-    try {
-      var resp = await fetch(PROXY_URL, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-5", max_tokens: 4000,
-          system: "You are a senior LinkedIn and email outreach strategist for financial services. Respond with ONLY raw valid JSON starting with { and ending with }. No markdown fences, no backticks, no preamble.",
-          messages: [{ role:"user", content: buildUserContent(true, prompt) }]
-        })
-      });
-      clearInterval(intv);
-      if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
-      var data = await resp.json();
-      var raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
-      var cleaned = raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/\s*```$/,"").trim();
-      var parsed;
-      try { parsed = JSON.parse(cleaned); }
-      catch(je) {
-        var m = cleaned.match(/\{[\s\S]*\}/);
-        if (m) { parsed = JSON.parse(m[0]); } else { throw new Error("Could not parse strategy response."); }
-      }
-      lastStrategyData = parsed;
-      renderStrategy(parsed, inp.clientName, chLabel);
-      document.getElementById("stratLoad").style.display = "none";
-      document.getElementById("stratContent").style.display = "block";
-      document.getElementById("outTitle").textContent = inp.clientName + " \u2014 Outreach Strategy";
-      document.getElementById("outMeta").textContent = chLabel + " \u00b7 " + audiences.length + " audience" + (audiences.length > 1 ? "s" : "");
-    } catch(e) {
-      clearInterval(intv);
-      document.getElementById("stratLoad").style.display = "none";
-      stratOut.classList.remove("on");
-      showErr("Error: " + e.message);
-    } finally {
-      btn.disabled = false; btn.textContent = "Step 1: Generate Strategy";
-    }
-  }
-
-  var stratDefs = [
-    { k:"positioning", l:"Positioning & Differentiation" },
-    { k:"icp_breakdown", l:"Target Audience Breakdown" },
-    { k:"channel_approach", l:"Channel Approach & Tactics" },
-    { k:"tone_and_voice", l:"Tone, Voice & Language Guidelines" },
-    { k:"compliance_and_guardrails", l:"Compliance & Guardrails" },
-    { k:"success_metrics", l:"Success Metrics & KPIs" }
+  var userContent = [
+    { type: "document", source: { type: "base64", media_type: "application/pdf", data: files.intake.b64 }, title: "Client Intake Form" },
+    { type: "text", text: "Extract the following fields from this intake form and return ONLY valid JSON with no markdown:\n{\n  \"client_name\": \"\",\n  \"client_type\": \"financial_advisor or fund_manager\",\n  \"website_url\": \"\",\n  \"target_audiences\": [\"audience 1\", \"audience 2\"],\n  \"additional_context\": \"\",\n  \"writing_style\": \"\"\n}\nIf a field is not present, use an empty string or empty array. For client_type, map Financial Advisor to financial_advisor and Fund Manager to fund_manager." }
   ];
 
-  function renderStrategy(parsed, clientName, chLabel) {
-    var s = parsed.strategy || {};
-    var container = document.getElementById("stratSections");
-    container.innerHTML = stratDefs.filter(function(d){return s[d.k];}).map(function(d) {
-      return "<div class=\"strat-sec\">" +
-        "<div class=\"strat-sec-header\"><div class=\"strat-sec-bar\"></div><span class=\"strat-sec-title\">" + d.l + "</span></div>" +
-        "<textarea id=\"strat-" + d.k + "\" rows=\"6\"></textarea>" +
-        "</div>";
-    }).join("");
-    // Set values via JS to preserve line breaks
-    stratDefs.forEach(function(d) {
-      var el = document.getElementById("strat-" + d.k);
-      if (el && s[d.k]) {
-        var rv = s[d.k].replace(/\\n/g, "\n");
-        el.value = rv.trim();
-      }
+  try {
+    var resp = await fetch(PROXY, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 1000, system: "You extract structured data from documents. Respond with ONLY raw valid JSON, no markdown.", messages: [{ role: "user", content: userContent }] })
     });
+    var data = await resp.json();
+    var raw = (data.content || []).filter(function(b) { return b.type === "text"; }).map(function(b) { return b.text; }).join("").trim();
+    var parsed = JSON.parse(raw.replace(/^```json\s*/, "").replace(/^```\s*/, "").replace(/\s*```$/, ""));
+
+    if (parsed.client_name) document.getElementById("cName").value = parsed.client_name;
+    if (parsed.client_type && (parsed.client_type === "financial_advisor" || parsed.client_type === "fund_manager")) setType(parsed.client_type);
+    if (parsed.website_url) document.getElementById("cUrl").value = parsed.website_url;
+    if (parsed.additional_context) document.getElementById("addCtx").value = parsed.additional_context;
+    if (parsed.writing_style) document.getElementById("writingStyle").value = parsed.writing_style;
+    if (parsed.target_audiences && parsed.target_audiences.length) {
+      audiences = parsed.target_audiences.filter(function(a) { return a.trim(); }).map(function(a) { return { name: a.trim(), notes: "", file: null }; });
+      renderAudiences();
+    }
+    showStatus("intakeStatus", "\u2713 Fields populated \u2014 review and edit as needed", "ok");
+  } catch(e) {
+    showStatus("intakeStatus", "Extraction failed: " + e.message, "err");
+  } finally {
+    btn.disabled = false; btn.textContent = "\u21e9 Extract & populate fields";
   }
+}
 
-  function getEditedStrategy() {
-    var result = {};
-    stratDefs.forEach(function(d) {
-      var el = document.getElementById("strat-" + d.k);
-      if (el) result[d.k] = el.value;
-    });
-    return result;
-  }
+// ── Analyze All Sources ──────────────────────────────────────────────
+async function analyzeSources() {
+  var btn = document.getElementById("analyzeBtn");
+  var url = document.getElementById("cUrl").value.trim();
+  var hasFiles = files.li || files.ctx1 || files.ctx2;
+  if (!url && !hasFiles) { showStatus("analyzeStatus", "Please upload documents or enter a URL first.", "err"); return; }
 
-  async function generateMessages() {
-    var inp = getInputs();
-    var editedStrategy = getEditedStrategy();
-    var chLabel = lastChLabel;
+  btn.disabled = true; btn.textContent = "\u9881 Analyzing\u2026";
+  showStatus("analyzeStatus", "", "");
 
-    var btn = document.getElementById("genMsgBtn");
-    btn.disabled = true; btn.textContent = "Generating\u2026";
-    var seqArea = document.getElementById("seqArea");
-    seqArea.classList.add("on");
-    document.getElementById("seqLoad").style.display = "block";
-    document.getElementById("seqContent").innerHTML = "";
-
-    var loadMsgs = ["Drafting message sequences\u2026","Calibrating tone and voice\u2026","Building phase sequences\u2026","Finalizing messages\u2026"];
-    var mi = 0; var msgEl = document.getElementById("seqLoadMsg");
-    var intv = setInterval(function() { mi=(mi+1)%loadMsgs.length; msgEl.textContent=loadMsgs[mi]; }, 2400);
-
-    var audSummary = audiences.map(function(a,i) {
-      return "Audience " + (i+1) + ": " + a.name + (a.notes ? "\n  Notes: "+a.notes : "");
-    }).join("\n");
-
-    var stratSummary = stratDefs.map(function(d) {
-      return d.l + ":\n" + (editedStrategy[d.k] || "");
-    }).join("\n\n");
-
-    // Channel instruction
-    var chInstruction = ch === "linkedin" ? "Generate LinkedIn messages ONLY. Do NOT generate any Email messages." :
-      ch === "email" ? "Generate Email messages ONLY. Do NOT generate any LinkedIn messages." :
-      "Generate both LinkedIn and Email messages.";
-
-    var prompt = "Generate message sequences for a " + chLabel + " outreach campaign.\n\n" +
-      "CLIENT: " + inp.clientName + "\n" +
-      (inp.clientUrl ? "WEBSITE: " + inp.clientUrl + "\n" : "") +
-      "VALUE PROPOSITION: " + inp.valueProps + "\n" +
-      (inp.keyTopics ? "KEY TOPICS & RESOURCES: " + inp.keyTopics + "\n" : "") +
-      (inp.writingStyle ? "WRITING STYLE: " + inp.writingStyle + "\n" : "") +
-      (inp.addCtx ? "ADDITIONAL CONTEXT: " + inp.addCtx + "\n" : "") +
-      "\nTARGET AUDIENCES:\n" + audSummary +
-      "\n\nAPPROVED STRATEGY (use this as the foundation for all messages):\n" + stratSummary +
-      "\n\nCHANNEL: " + chInstruction + "\n\n" +
-      "=== MESSAGING RULES ===\\n\\n" +
-      "PHASE STRUCTURE:\\n" +
-      "- Connection Request: 1 message, Day 0\\n" +
-      "- Engage: 3 messages. Day 3, Day 8, Day 15\\n" +
-      "- Build: 2 messages. Day 45, Day 75\\n" +
-      "- Sustain: 2 messages. Day 165, Day 255\\n" +
-      "- ALL messages assume NO response received\\n\\n" +
-      "LENGTH:\\n" +
-      "- Connection Request: 1-2 sentences max\\n" +
-      "- Engage: 2 sentences HARD LIMIT\\n" +
-      "- Build: 3 sentences max\\n" +
-      "- Sustain: 3 sentences max\\n\\n" +
-      "CONNECTION REQUEST: Always open with Hi [First Name] - then exactly 1 sentence referencing their role and geography only. NEVER mention specific problems, triggers, or decisions they may be facing. No ask. Max 2 sentences total.\\n\\n" +
-      "ENGAGE 1: ALWAYS include [First Name] in acknowledgment. Use: Thanks for the connection, [First Name]. OR Good to be connected, [First Name]. Then 1 sentence observation about their world. End with open-ended self-ID question: Does that match what you are thinking about? OR Is that something that is top of mind for you? Max 2 sentences after greeting.\\n\\n" +
-      "ENGAGE 2: NEVER mention personal background or career history directly. Frame ONLY as pattern recognition about the prospect world: After years of working with [audience], I have seen... The observation must be about THEIR situation, not the advisor.\\n\\n" +
-      "ENGAGE 3: End confidently with a soft CTA if logical. Never use I am available as a closer. Never grant permission to ignore.\\n\\n" +
-      "BUILD 1: Focus on helping prospect ask the right question, not find the right answer. Include [First Name] greeting.\\n\\n" +
-      "BUILD 2: Use What I have seen... not What I have learned. Offer a resource if available. Include [First Name] greeting.\\n\\n" +
-      "SUSTAIN 1: Open Hi [First Name] - it has been a while since we first connected. Introduce a topic from key topics. Pattern: [Topic] often comes up with my clients. If that is something you would like to explore, I am happy to chat.\\n\\n" +
-      "SUSTAIN 2: Vary the opening from Sustain 1. Use a DIFFERENT topic. Include [First Name].\\n\\n" +
-      "GREETING: Use Hi [First Name], selectively. Build and Sustain should generally include it.\\n\\n" +
-      "SOFT CTAs: Offer something or open a door. Never ask for time/meeting until interest expressed.\\n\\n" +
-      "ANGLE VARIATION: Each message must use a DIFFERENT angle. Never repeat positioning.\\n\\n" +
-      "FORBIDDEN: hope this finds you well, circling back, touching base, just checking in, no worries, no pressure, no pitch, I am available, I wanted to reach out\\n\\n" +
-      "GOLDEN QUESTION: Would the prospect think this sounds like a financial advisor pitching them? If yes - rewrite.\\n\\n" +
-      "NO EMOJIS.\\n\\n" +
-      "RESPOND ONLY with raw valid JSON. Start with { end with }. No markdown.\\n" +
-      "{\"sequences\": [{\"audience\": \"name\",\"phase\": \"Connection Request\",\"message_number\": 1,\"timing\": \"Day 0\",\"channel\": \"LinkedIn\",\"subject\": null,\"message\": \"text\"}]}\\n\\n" +
-      "1 CR + 3 Engage + 2 Build + 2 Sustain = 8 per audience per channel.\\n" +
-      "LinkedIn CR <=300 chars. LinkedIn follow-ups <=500 chars. Email includes subject lines.";
+  // Step 1: Fetch value prop from website
+  if (url) {
     try {
-      var resp = await fetch(PROXY_URL, {
+      var vresp = await fetch(PROXY, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-5", max_tokens: 8000,
-          system: "You are a senior LinkedIn and email outreach strategist for financial services. You write short, peer-level messages that pass the Golden Question test. CRITICAL: Respond with ONLY raw valid JSON starting with { and ending with }. No markdown, no backticks, never truncate.",
-          messages: [{ role:"user", content: buildUserContent(true, prompt) }]
-        })
+        body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 800, tools: [{ type: "web_search_20250305", name: "web_search" }], system: "Extract value propositions from websites. Respond ONLY with a 2-4 sentence summary of what the company does and who it serves. No preamble.", messages: [{ role: "user", content: "Visit " + url + " and summarize the core offering and value proposition in 2-4 sentences." }] })
       });
-      clearInterval(intv);
+      var vdata = await vresp.json();
+      var vtext = (vdata.content || []).filter(function(b) { return b.type === "text"; }).map(function(b) { return b.text; }).join("").trim();
+      if (vtext) document.getElementById("valueProps").value = vtext;
+    } catch(e) { /* continue even if fetch fails */ }
+  }
+
+  // Step 2: Analyze docs for key topics
+  if (hasFiles) {
+    var docContent = [];
+    if (files.li) docContent.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.li.b64 }, title: "LinkedIn Profile" });
+    if (files.ctx1) docContent.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.ctx1.b64 }, title: "Context Doc 1" });
+    if (files.ctx2) docContent.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.ctx2.b64 }, title: "Context Doc 2" });
+    docContent.push({ type: "text", text: "From these documents, extract and list:\n1. Key topics and themes that resonate with this advisor's target prospects\n2. Resources the advisor offers (guides, frameworks, books, articles, proprietary processes)\n3. Recurring pain points or conversation topics they address\n\nRespond with a plain list, one item per line starting with a dash (-). No headers, no preamble." });
+    try {
+      var dresp = await fetch(PROXY, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 1000, messages: [{ role: "user", content: docContent }] }) });
+      var ddata = await dresp.json();
+      var dtext = (ddata.content || []).filter(function(b) { return b.type === "text"; }).map(function(b) { return b.text; }).join("").trim();
+      if (dtext) document.getElementById("keyTopics").value = dtext;
+    } catch(e) { /* continue */ }
+  }
+
+  showStatus("analyzeStatus", "\u2713 Analysis complete \u2014 review and edit fields as needed", "ok");
+  btn.disabled = false; btn.textContent = "\u9881 Analyze sources & pre-populate topics";
+}
+
+// ── Audiences ────────────────────────────────────────────────────────
+function addAud() {
+  var input = document.getElementById("audInput");
+  var val = input.value.trim();
+  if (!val) return;
+  audiences.push({ name: val, notes: "", file: null });
+  input.value = "";
+  renderAudiences();
+}
+
+function removeAud(i) { audiences.splice(i, 1); renderAudiences(); }
+
+function renderAudiences() {
+  var container = document.getElementById("audList");
+  if (!audiences.length) { container.innerHTML = ""; return; }
+  container.innerHTML = audiences.map(function(a, i) {
+    var fid = "aud-file-" + i;
+    return "<div class='aud-item'>" +
+      "<div class='aud-header'><span class='aud-name'>" + esc(a.name) + "</span>" +
+      "<button class='aud-remove' onclick='removeAud(" + i + ")' aria-label='Remove'>\u00d7</button></div>" +
+      "<div class='aud-body'>" +
+      "<label>Messaging notes (optional)</label>" +
+      "<textarea rows='2' placeholder='e.g. Lead with education angle\u2026' onchange='audiences[" + i + "].notes=this.value'>" + esc(a.notes) + "</textarea>" +
+      "<div class='aud-file-btn' onclick='document.getElementById(" + JSON.stringify(fid) + ").click()'>" +
+      "\ud83d\udcc4 Upload persona file (PDF, optional)</div>" +
+      "<div class='aud-fn' id='aud-fn-" + i + "'>" + (a.file ? "\u2713 " + esc(a.file.name) : "") + "</div>" +
+      "<input type='file' id='" + fid + "' accept='.pdf' style='display:none' onchange='handleAudFile(this.files[0]," + i + ")'>" +
+      "</div></div>";
+  }).join("");
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────
+function esc(s) { return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function showStatus(id, msg, type) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "status-msg" + (type ? " " + type : "");
+}
+
+function showErr(msg) { showStatus("errMsg", msg, "err"); document.getElementById("errMsg").style.display = msg ? "block" : "none"; }
+function hideErr() { showErr(""); }
+
+function formatBullets(text) {
+  if (!text) return "";
+  // Convert literal \n sequences to real newlines
+  var t = text.replace(/\\n/g, "\n");
+  // Ensure each bullet starts on its own line
+  t = t.replace(/([^\n])(- )/g, "$1\n$2");
+  // Clean up multiple blank lines
+  t = t.replace(/\n{3,}/g, "\n\n");
+  return t.trim();
+}
+
+// ── Build API payload content array ─────────────────────────────────
+function buildContent(promptText) {
+  var content = [];
+  if (files.li) content.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.li.b64 }, title: "LinkedIn Profile" });
+  if (files.ctx1) content.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.ctx1.b64 }, title: "Context Doc 1" });
+  if (files.ctx2) content.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.ctx2.b64 }, title: "Context Doc 2" });
+  audiences.forEach(function(a) { if (a.file) content.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: a.file.b64 }, title: "Persona: " + a.name }); });
+  content.push({ type: "text", text: promptText });
+  return content;
+}
+
+async function callAPI(payload, maxRetries) {
+  var lastErr = null;
+  for (var attempt = 1; attempt <= (maxRetries || 3); attempt++) {
+    if (attempt > 1) await new Promise(function(r) { setTimeout(r, 2500); });
+    try {
+      var resp = await fetch(PROXY, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
       var data = await resp.json();
-      if (data.stop_reason === "max_tokens") throw new Error("Response too long \u2014 try fewer audiences.");
-      var raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
-      var cleaned = raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/\s*```$/,"").trim();
-      var parsed;
-      try { parsed = JSON.parse(cleaned); }
-      catch(je) {
-        var m = cleaned.match(/\{[\s\S]*\}/);
-        if (m) { parsed = JSON.parse(m[0]); } else { throw new Error("Could not parse message response. Try again."); }
-      }
-      renderSequences(parsed.sequences || [], inp.clientName, chLabel);
-      document.getElementById("seqLoad").style.display = "none";
-    } catch(e) {
-      clearInterval(intv);
-      document.getElementById("seqLoad").style.display = "none";
-      document.getElementById("seqContent").innerHTML = "<div class=\"err-msg on\">" + esc(e.message) + "</div>";
-    } finally {
-      btn.disabled = false; btn.textContent = "Step 2: Generate Message Sequences";
+      if (data.error) throw new Error(data.error.message || "API error");
+      var raw = (data.content || []).filter(function(b) { return b.type === "text"; }).map(function(b) { return b.text; }).join("").trim();
+      if (!raw) { lastErr = new Error("Empty response (attempt " + attempt + ")"); continue; }
+      return { raw: raw, stop_reason: data.stop_reason };
+    } catch(e) { lastErr = e; }
+  }
+  throw lastErr || new Error("API failed after retries");
+}
+
+function parseJSON(raw) {
+  var cleaned = raw.replace(/^```json\s*/m, "").replace(/^```\s*/m, "").replace(/\s*```$/m, "").trim();
+  try { return JSON.parse(cleaned); } catch(e) {
+    var m = cleaned.match(/\{[\s\S]*\}/);
+    if (m) return JSON.parse(m[0]);
+    throw new Error("Could not parse response. Try generating again.");
+  }
+}
+
+// ── Step 1: Generate Strategy ────────────────────────────────────────
+async function generateStrategy() {
+  hideErr();
+  var cname = document.getElementById("cName").value.trim();
+  var url = document.getElementById("cUrl").value.trim();
+  var vp = document.getElementById("valueProps").value.trim();
+  var kt = document.getElementById("keyTopics").value.trim();
+  var ws = document.getElementById("writingStyle").value.trim();
+  var ac = document.getElementById("addCtx").value.trim();
+
+  if (!cname) { showErr("Please enter the client name."); return; }
+  if (!audiences.length) { showErr("Please add at least one target audience."); return; }
+  if (!vp) { showErr("Please describe the core offering or use Analyze sources."); return; }
+
+  var btn = document.getElementById("genStratBtn");
+  btn.disabled = true; btn.textContent = "Generating\u2026";
+
+  var chLabel = ch === "linkedin" ? "LinkedIn" : ch === "email" ? "Email" : "LinkedIn and Email";
+  var ctLabel = clientType === "fund_manager" ? "Fund Manager" : "Financial Advisor";
+  lastClientName = cname; lastChLabel = chLabel;
+
+  var audSummary = audiences.map(function(a, i) {
+    return "Audience " + (i+1) + ": " + a.name + (a.notes ? "\nNotes: " + a.notes : "") + (a.file ? "\n[Persona file: " + a.file.name + "]" : "");
+  }).join("\n\n");
+
+  var prompt = "Build a " + chLabel + " outreach strategy document for this client.\n\n" +
+    "CLIENT: " + cname + "\n" +
+    "CLIENT TYPE: " + ctLabel + "\n" +
+    (url ? "WEBSITE: " + url + "\n" : "") +
+    "VALUE PROPOSITION:\n" + vp + "\n" +
+    (kt ? "KEY TOPICS & RESOURCES:\n" + kt + "\n" : "") +
+    (ws ? "WRITING & COMMUNICATION STYLE: " + ws + "\n" : "") +
+    (ac ? "ADDITIONAL CONTEXT: " + ac + "\n" : "") +
+    "\nTARGET AUDIENCES:\n" + audSummary +
+    "\n\nFORMAT RULES — CRITICAL:\n" +
+    "- Use bullet points throughout. NO prose paragraphs.\n" +
+    "- Each bullet point MUST be on its own line, preceded by a dash and space: '- '\n" +
+    "- Separate each bullet with a newline character\n" +
+    "- Max 15 words per bullet\n\n" +
+    "SECTION INSTRUCTIONS:\n" +
+    "positioning: 5 bullets. One distinct positioning angle per bullet.\n" +
+    "icp_breakdown: For each audience, bold name as header then bullets: Who (age/role/assets), Trigger moments, Resonant language, Key objection, Avoid\n" +
+    "channel_approach: One bullet per phase (Connection Request, Engage, Build, Sustain) plus 2-3 tactical bullets\n" +
+    "tone_and_voice: 3-4 voice principle bullets. Then label examples FITS: and AVOID:\n" +
+    "compliance_and_guardrails: One rule per bullet, max 12 words each\n" +
+    "success_metrics: Bullets for primary KPI, acceptance rate benchmark, conversation rate, meeting conversion, when to adjust, red flag signal\n\n" +
+    "Respond ONLY with raw valid JSON. Start response with { and end with }. No markdown fences.\n" +
+    "{\"strategy\":{\"positioning\":\"\",\"icp_breakdown\":\"\",\"channel_approach\":\"\",\"tone_and_voice\":\"\",\"compliance_and_guardrails\":\"\",\"success_metrics\":\"\"}}";
+
+  var outArea = document.getElementById("stratOut");
+  outArea.classList.add("on");
+  document.getElementById("stratLoad").style.display = "flex";
+  document.getElementById("stratContent").style.display = "none";
+  document.getElementById("seqArea").style.display = "none";
+  document.getElementById("seqContent").innerHTML = "";
+
+  var loadMsgs = ["Analyzing profile\u2026","Building positioning\u2026","Writing audience breakdown\u2026","Finalizing strategy\u2026"];
+  var mi = 0; var lel = document.getElementById("stratLoadMsg");
+  var intv = setInterval(function() { mi=(mi+1)%loadMsgs.length; lel.textContent=loadMsgs[mi]; }, 2400);
+
+  try {
+    var result = await callAPI({ model: "claude-sonnet-4-5", max_tokens: 4000, system: "You are a senior outreach strategist for financial services. Respond with ONLY raw valid JSON starting with { and ending with }. No markdown fences.", messages: [{ role: "user", content: buildContent(prompt) }] }, 3);
+    clearInterval(intv);
+    if (result.stop_reason === "max_tokens") throw new Error("Response too long. Try fewer audiences.");
+    var parsed = parseJSON(result.raw);
+    lastStrategy = parsed;
+    renderStrategy(parsed, cname, chLabel, ctLabel);
+    document.getElementById("stratLoad").style.display = "none";
+    document.getElementById("stratContent").style.display = "block";
+    document.getElementById("outTitle").textContent = cname + " \u2014 Outreach Strategy";
+    document.getElementById("outMeta").textContent = chLabel + " \u00b7 " + ctLabel + " \u00b7 " + audiences.length + " audience" + (audiences.length > 1 ? "s" : "");
+  } catch(e) {
+    clearInterval(intv);
+    document.getElementById("stratLoad").style.display = "none";
+    outArea.classList.remove("on");
+    showErr("Strategy error: " + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Step 1: Generate Strategy";
+  }
+}
+
+// ── Render Strategy ──────────────────────────────────────────────────
+var stratDefs = [
+  { k: "positioning", l: "Positioning & Differentiation" },
+  { k: "icp_breakdown", l: "Target Audience Breakdown" },
+  { k: "channel_approach", l: "Channel Approach & Tactics" },
+  { k: "tone_and_voice", l: "Tone, Voice & Language Guidelines" },
+  { k: "compliance_and_guardrails", l: "Compliance & Guardrails" },
+  { k: "success_metrics", l: "Success Metrics & KPIs" }
+];
+
+function renderStrategy(parsed, cname, chLabel, ctLabel) {
+  var s = parsed.strategy || {};
+  var container = document.getElementById("stratSections");
+  container.innerHTML = "";
+  stratDefs.forEach(function(d) {
+    if (!s[d.k]) return;
+    var div = document.createElement("div");
+    div.className = "strat-sec";
+    div.innerHTML = "<div class='strat-sec-hdr'><div class='strat-bar'></div><span class='strat-title'>" + esc(d.l) + "</span></div>";
+    var ta = document.createElement("textarea");
+    ta.id = "strat-" + d.k;
+    ta.rows = 7;
+    ta.value = formatBullets(s[d.k]);
+    div.appendChild(ta);
+    container.appendChild(div);
+  });
+}
+
+function getEditedStrategy() {
+  var result = {};
+  stratDefs.forEach(function(d) {
+    var el = document.getElementById("strat-" + d.k);
+    if (el) result[d.k] = el.value;
+  });
+  return result;
+}
+
+// ── Step 2: Generate Messages ────────────────────────────────────────
+async function generateMessages() {
+  var cname = document.getElementById("cName").value.trim();
+  var url = document.getElementById("cUrl").value.trim();
+  var vp = document.getElementById("valueProps").value.trim();
+  var kt = document.getElementById("keyTopics").value.trim();
+  var ws = document.getElementById("writingStyle").value.trim();
+  var ac = document.getElementById("addCtx").value.trim();
+  var edited = getEditedStrategy();
+  var chLabel = lastChLabel;
+  var ctLabel = clientType === "fund_manager" ? "Fund Manager" : "Financial Advisor";
+
+  var chRule = ch === "linkedin" ? "Generate ONLY LinkedIn messages. Do NOT generate Email messages." :
+    ch === "email" ? "Generate ONLY Email messages. Do NOT generate LinkedIn messages." :
+    "Generate both LinkedIn and Email messages.";
+
+  var stratSummary = stratDefs.map(function(d) {
+    return d.l + ":\n" + (edited[d.k] || "");
+  }).join("\n\n");
+
+  var audSummary = audiences.map(function(a, i) {
+    return "Audience " + (i+1) + ": " + a.name + (a.notes ? "\nNotes: " + a.notes : "");
+  }).join("\n\n");
+
+  var prompt = "Generate message sequences for a " + chLabel + " campaign for " + cname + " (" + ctLabel + ").\n\n" +
+    (url ? "WEBSITE: " + url + "\n" : "") +
+    "VALUE PROPOSITION:\n" + vp + "\n" +
+    (kt ? "KEY TOPICS & RESOURCES:\n" + kt + "\n" : "") +
+    (ws ? "WRITING STYLE: " + ws + "\n" : "") +
+    (ac ? "ADDITIONAL CONTEXT: " + ac + "\n" : "") +
+    "\nTARGET AUDIENCES:\n" + audSummary +
+    "\n\nAPPROVED STRATEGY:\n" + stratSummary +
+    "\n\nCHANNEL RULE: " + chRule +
+    "\n\n=== MESSAGE RULES ===\n\n" +
+    "PHASES: Connection Request (Day 0), Engage x3 (Day 3, 8, 15 after acceptance), Build x2 (Day 45, 75), Sustain x2 (Day 165, 255). All assume NO response received.\n\n" +
+    "LENGTH HARD LIMITS:\n" +
+    "- Connection Request: 2 sentences MAX\n" +
+    "- Engage: 2 sentences HARD LIMIT (after greeting)\n" +
+    "- Build: 3 sentences MAX\n" +
+    "- Sustain: 3 sentences MAX\n\n" +
+    "CONNECTION REQUEST: Open with 'Hi [First Name] -' then exactly 1 sentence about their role and geography ONLY. Never list specific problems, triggers or decisions. No ask. 2 sentences total.\n\n" +
+    "ENGAGE 1: Open with varied [First Name] acknowledgment: 'Thanks for the connection, [First Name].' OR 'Good to be connected, [First Name].' OR 'Glad we are connected, [First Name].' Then 1 observation about their world. End with self-ID question: 'Does that match what you are thinking about?' OR 'Is that something that is top of mind for you?' The [First Name] placeholder is REQUIRED.\n\n" +
+    "ENGAGE 2: Frame as pattern recognition ONLY. Use 'After years of working with [audience], I have seen...' Never mention personal background, credentials or career history directly.\n\n" +
+    "ENGAGE 3: Confident soft CTA if logical. Never 'I am available' as closer. Never grant permission to ignore.\n\n" +
+    "BUILD 1: Include 'Hi [First Name]' greeting. Focus on helping prospect ask the right question before making irreversible decisions.\n\n" +
+    "BUILD 2: Include 'Hi [First Name]' greeting. Use 'What I have seen...' framing. Offer a specific resource from key topics if available.\n\n" +
+    "SUSTAIN 1: Open 'Hi [First Name] - it has been a while since we first connected.' Introduce a topic from key topics. Use pattern: '[Topic] often comes up in conversations with my clients. If that is something you would like to explore, I am happy to chat.'\n\n" +
+    "SUSTAIN 2: Vary the opening. Use a DIFFERENT topic from Sustain 1. Include [First Name].\n\n" +
+    "TONE: Peer-level, warm, professional. More 'you' than 'I'. Trust-first, politely persistent. NO emojis.\n\n" +
+    "FORBIDDEN: 'hope this finds you well', 'circling back', 'touching base', 'just checking in', 'no worries', 'no pressure', 'no pitch', 'I am available', 'just wanted to'\n\n" +
+    "GOLDEN QUESTION: Would the prospect think this sounds like a financial advisor pitching them? If yes - rewrite.\n\n" +
+    "Respond ONLY with raw valid JSON. Start with { end with }. No markdown.\n" +
+    "{\"sequences\":[{\"audience\":\"\",\"phase\":\"\",\"message_number\":1,\"timing\":\"\",\"channel\":\"\",\"subject\":null,\"message\":\"\"}]}\n\n" +
+    "Build ALL phases for EVERY audience. 1 CR + 3 Engage + 2 Build + 2 Sustain = 8 per audience per channel.\n" +
+    "LinkedIn CR: max 300 chars. LinkedIn follow-ups: max 500 chars. Email: include subject lines.";
+
+  var btn = document.getElementById("genMsgBtn");
+  btn.disabled = true; btn.textContent = "Generating\u2026";
+  document.getElementById("seqArea").style.display = "block";
+  document.getElementById("seqLoad").style.display = "flex";
+  document.getElementById("seqContent").innerHTML = "";
+
+  var loadMsgs = ["Drafting sequences\u2026","Calibrating tone\u2026","Building all phases\u2026","Finalizing messages\u2026"];
+  var mi = 0; var lel = document.getElementById("seqLoadMsg");
+  var intv = setInterval(function() { mi=(mi+1)%loadMsgs.length; lel.textContent=loadMsgs[mi]; }, 2400);
+
+  try {
+    var result = await callAPI({ model: "claude-sonnet-4-5", max_tokens: 8000, system: "You are a senior outreach strategist for financial services. Write short peer-level messages that pass the Golden Question test. Respond ONLY with raw valid JSON starting with { and ending with }. No markdown.", messages: [{ role: "user", content: buildContent(prompt) }] }, 3);
+    clearInterval(intv);
+    if (result.stop_reason === "max_tokens") throw new Error("Response too long. Try fewer audiences.");
+    var parsed = parseJSON(result.raw);
+    renderSequences(parsed.sequences || []);
+    document.getElementById("seqLoad").style.display = "none";
+  } catch(e) {
+    clearInterval(intv);
+    document.getElementById("seqLoad").style.display = "none";
+    document.getElementById("seqContent").innerHTML = "<div class='err-banner'>" + esc(e.message) + "</div>";
+  } finally {
+    btn.disabled = false; btn.textContent = "Step 2: Generate Message Sequences";
+  }
+}
+
+// ── Render Sequences ─────────────────────────────────────────────────
+function renderSequences(seqs) {
+  if (!seqs.length) { document.getElementById("seqContent").innerHTML = "<p style='color:var(--t2)'>No sequences returned.</p>"; return; }
+  var byAud = {};
+  seqs.forEach(function(s) { var k = s.audience || "General"; if (!byAud[k]) byAud[k] = []; byAud[k].push(s); });
+
+  var phCls = function(p) {
+    var pl = (p || "").toLowerCase();
+    if (pl.indexOf("connection") >= 0) return "ph-cr";
+    if (pl.indexOf("engage") >= 0) return "ph-en";
+    if (pl.indexOf("build") >= 0) return "ph-bu";
+    return "ph-su";
+  };
+
+  var html = "<div class='seq-note'><strong>Note:</strong> All sequences assume no response received. If a prospect replies, pause the sequence and handle manually.</div>";
+
+  Object.keys(byAud).forEach(function(aud) {
+    var rows = byAud[aud];
+    html += "<div class='seq-block'><div class='seq-aud'>" + esc(aud) + "</div>";
+    html += "<table class='seq-tbl'><thead><tr><th>Phase</th><th>Channel</th><th>#</th><th>Timing</th><th>Message</th></tr></thead><tbody>";
+    rows.forEach(function(r) {
+      var isCR = (r.phase || "").toLowerCase().indexOf("connection") >= 0;
+      var phLabel = "<span class='phase-badge " + phCls(r.phase) + "'>" + esc(r.phase || "") + "</span>" + (isCR ? "<span class='ab-label'>A/B Test: Note vs. No Note</span>" : "");
+      var subj = r.subject ? "<div class='msg-subj'><strong>Subject:</strong> " + esc(r.subject) + "</div>" : "";
+      var fullMsg = r.subject ? "Subject: " + r.subject + "\n\n" + (r.message || "") : (r.message || "");
+      html += "<tr><td>" + phLabel + "</td><td class='td-sm'>" + esc(r.channel || "") + "</td><td class='td-num'>" + (r.message_number || "") + "</td><td class='td-sm'>" + esc(r.timing || "") + "</td><td>" + subj + "<div class='msg-txt'>" + esc(r.message || "") + "</div><button class='copy-btn' onclick='copyMsg(this," + JSON.stringify(fullMsg) + ")'>Copy</button></td></tr>";
+    });
+    html += "</tbody></table></div>";
+  });
+  document.getElementById("seqContent").innerHTML = html;
+}
+
+// ── Copy & Export ────────────────────────────────────────────────────
+function copyMsg(btn, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = "\u2713 Copied"; btn.classList.add("ok");
+    setTimeout(function() { btn.textContent = "Copy"; btn.classList.remove("ok"); }, 2000);
+  });
+}
+
+function copyStrategy() {
+  var text = lastClientName + " \u2014 " + lastChLabel + " Strategy\n\n";
+  stratDefs.forEach(function(d) {
+    var el = document.getElementById("strat-" + d.k);
+    if (el && el.value) text += d.l.toUpperCase() + "\n\n" + el.value + "\n\n---\n\n";
+  });
+  navigator.clipboard.writeText(text.trim()).then(function() {
+    var btn = document.getElementById("copyStratBtn");
+    btn.textContent = "\u2713 Copied";
+    setTimeout(function() { btn.textContent = "Copy strategy"; }, 2000);
+  });
+}
+
+async function exportDocx() {
+  if (!lastStrategy) { alert("Please generate a strategy first."); return; }
+  if (typeof docx === "undefined") { alert("Document library not loaded. Please refresh and try again."); return; }
+  var btn = document.getElementById("docxBtn");
+  btn.disabled = true; btn.textContent = "Building\u2026";
+  try {
+    var D = docx;
+    var border = { style: D.BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
+    var cb = { top: border, bottom: border, left: border, right: border };
+    var cm = { top: 80, bottom: 80, left: 120, right: 120 };
+
+    function hCell(t, w) {
+      return new D.TableCell({ borders: cb, width: { size: w, type: D.WidthType.DXA }, shading: { fill: "DDEEFF", type: D.ShadingType.CLEAR }, margins: cm, children: [new D.Paragraph({ children: [new D.TextRun({ text: String(t), bold: true, size: 20, font: "Arial" })] })] });
     }
-  }
+    function dCell(t, w) {
+      return new D.TableCell({ borders: cb, width: { size: w, type: D.WidthType.DXA }, margins: cm, children: [new D.Paragraph({ children: [new D.TextRun({ text: String(t || ""), size: 20, font: "Arial" })] })] });
+    }
+    function msgCell(t, w) {
+      var lines = String(t || "").split("\n");
+      return new D.TableCell({ borders: cb, width: { size: w, type: D.WidthType.DXA }, margins: cm, children: lines.map(function(l) { return new D.Paragraph({ children: [new D.TextRun({ text: l, size: 20, font: "Arial" })], spacing: { after: 40 } }); }) });
+    }
 
-  function renderSequences(seqs, clientName, chLabel) {
-    if (!seqs.length) { document.getElementById("seqContent").innerHTML = "<p style=\"color:var(--text2)\">No sequences returned.</p>"; return; }
-    var byAud = {};
-    seqs.forEach(function(s) { var k = s.audience||"General"; if(!byAud[k]) byAud[k]=[]; byAud[k].push(s); });
-    var phCls = function(p) {
-      var pl = (p||"").toLowerCase();
-      if (pl.indexOf("connection") >= 0) return "ph-cr";
-      if (pl.indexOf("engage") >= 0) return "ph-en";
-      if (pl.indexOf("build") >= 0) return "ph-bu";
-      return "ph-su";
-    };
-    var html = "<div class=\"seq-header\"><h3>Message Sequences</h3>" +
-      "<div class=\"out-actions\"><button class=\"btn btn-sm\" onclick=\"copyStrategy()\">Copy strategy</button><button class=\"btn btn-sm\" onclick=\"exportDocx()\">\u2B07 Download Word doc</button></div></div>" +
-      "<div class=\"seq-note\"><strong>Note:</strong> All sequences assume no response received. If a prospect replies, pause and handle manually.</div>";
-    Object.keys(byAud).forEach(function(aud) {
-      var rows = byAud[aud];
-      html += "<div class=\"seq-aud-block\"><div class=\"seq-aud-label\">" + esc(aud) + "</div>" +
-        "<table class=\"seq-tbl\"><thead><tr><th>Phase</th><th>Channel</th><th>#</th><th>Timing</th><th>Message</th></tr></thead><tbody>";
-      rows.forEach(function(r) {
-        var isCR = (r.phase||"").toLowerCase().indexOf("connection") >= 0;
-        var phaseLabel = esc(r.phase||"") + (isCR ? "<span class=\"ab-label\">A/B Test: Note vs. No Note</span>" : "");
-        var subj = r.subject ? "<div class=\"msg-subject\"><strong>Subject:</strong> " + esc(r.subject) + "</div>" : "";
-        var fullMsg = r.subject ? "Subject: " + r.subject + "\n\n" + (r.message||"") : (r.message||"");
-        html += "<tr>" +
-          "<td><span class=\"phase-badge " + phCls(r.phase) + "\">" + phaseLabel + "</span></td>" +
-          "<td>" + esc(r.channel||"") + "</td>" +
-          "<td>" + (r.message_number||"") + "</td>" +
-          "<td>" + esc(r.timing||"") + "</td>" +
-          "<td>" + subj + "<div class=\"msg-text\">" + esc(r.message||"") + "</div>" +
-          "<button class=\"copy-btn\" onclick=\"copyMsg(this," + JSON.stringify(fullMsg) + ")\">Copy</button></td>" +
-          "</tr>";
+    var children = [];
+    children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, children: [new D.TextRun({ text: lastClientName + " \u2014 Outreach Strategy", bold: true, size: 36, font: "Arial" })] }));
+    children.push(new D.Paragraph({ children: [new D.TextRun({ text: lastChLabel + "  \u00b7  " + (clientType === "fund_manager" ? "Fund Manager" : "Financial Advisor") + "  \u00b7  Generated " + new Date().toLocaleDateString(), size: 22, color: "666666", font: "Arial" })], spacing: { after: 240 } }));
+
+    // Strategy sections from edited textareas
+    stratDefs.forEach(function(def) {
+      var el = document.getElementById("strat-" + def.k);
+      if (!el || !el.value) return;
+      children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_2, children: [new D.TextRun({ text: def.l, bold: true, size: 28, font: "Arial" })] }));
+      var lines = el.value.split("\n");
+      lines.forEach(function(line) {
+        children.push(new D.Paragraph({ children: [new D.TextRun({ text: line, size: 22, font: "Arial" })], spacing: { after: 80 } }));
       });
-      html += "</tbody></table></div>";
+      children.push(new D.Paragraph({ children: [new D.TextRun({ text: "" })], spacing: { after: 120 } }));
     });
-    document.getElementById("seqContent").innerHTML = html;
-  }
 
-  function copyStrategy() {
-    var text = lastClientName + " \u2014 Outreach Strategy\n" + lastChLabel + "\n\n";
-    stratDefs.forEach(function(d) {
-      var el = document.getElementById("strat-" + d.k);
-      if (el && el.value) text += d.l.toUpperCase() + "\n\n" + el.value + "\n\n---\n\n";
-    });
-    navigator.clipboard.writeText(text.trim()).then(function() {
-      document.querySelectorAll("#copyStratBtn").forEach(function(b) {
-        b.textContent = "\u2713 Copied";
-        setTimeout(function() { b.textContent = "Copy strategy"; }, 2000);
-      });
-    });
-  }
+    // Sequence tables
+    var seqEl = document.getElementById("seqContent");
+    if (seqEl && seqEl.querySelector("table")) {
+      children.push(new D.Paragraph({ children: [new D.PageBreak()] }));
+      children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_1, children: [new D.TextRun({ text: "Message Sequences", bold: true, size: 36, font: "Arial" })] }));
+      children.push(new D.Paragraph({ children: [new D.TextRun({ text: "All sequences assume no response received. If a prospect replies, pause the sequence and handle manually.", size: 20, italics: true, color: "888888", font: "Arial" })], spacing: { after: 240 } }));
 
-  function copyMsg(btn, text) {
-    navigator.clipboard.writeText(text).then(function() {
-      btn.textContent = "\u2713 Copied"; btn.classList.add("ok");
-      setTimeout(function() { btn.textContent = "Copy"; btn.classList.remove("ok"); }, 2000);
-    });
-  }
+      var cols = [1300, 900, 480, 1100, 5580];
+      var totalW = cols.reduce(function(a, b) { return a + b; }, 0);
+      var audBlocks = seqEl.querySelectorAll(".seq-block");
 
-  async function exportDocx() {
-    if (!lastStrategyData || typeof docx === "undefined") { alert("Please generate a strategy first."); return; }
-    var btn = document.getElementById("docxBtn");
-    btn.disabled = true; btn.textContent = "Building\u2026";
-    try {
-      var D = docx;
-      var border = { style: D.BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
-      var cb = { top: border, bottom: border, left: border, right: border };
-      var cm = { top: 80, bottom: 80, left: 120, right: 120 };
-      function hCell(t,w){return new D.TableCell({borders:cb,width:{size:w,type:D.WidthType.DXA},shading:{fill:"DDEEFF",type:D.ShadingType.CLEAR},margins:cm,children:[new D.Paragraph({children:[new D.TextRun({text:String(t),bold:true,size:20,font:"Arial"})]})]});}
-      function dCell(t,w){return new D.TableCell({borders:cb,width:{size:w,type:D.WidthType.DXA},margins:cm,children:[new D.Paragraph({children:[new D.TextRun({text:String(t||""),size:20,font:"Arial"})]})]});}
-      function msgCell(t,w){return new D.TableCell({borders:cb,width:{size:w,type:D.WidthType.DXA},margins:cm,children:String(t||"").split("\n").map(function(l){return new D.Paragraph({children:[new D.TextRun({text:l,size:20,font:"Arial"})],spacing:{after:40}});})});}
-      var children = [];
-      children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,children:[new D.TextRun({text:lastClientName+" \u2014 Outreach Strategy",bold:true,size:36,font:"Arial"})]}));
-      children.push(new D.Paragraph({children:[new D.TextRun({text:lastChLabel+"  \u00b7  Generated "+new Date().toLocaleDateString(),size:22,color:"666666",font:"Arial"})],spacing:{after:240}}));
-      // Strategy sections from edited textareas
-      stratDefs.forEach(function(def) {
-        var el = document.getElementById("strat-" + def.k);
-        if (!el || !el.value) return;
-        children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,children:[new D.TextRun({text:def.l,bold:true,size:28,font:"Arial"})]}));
-        el.value.split("\n").forEach(function(line){children.push(new D.Paragraph({children:[new D.TextRun({text:line,size:22,font:"Arial"})],spacing:{after:80}}));});
-        children.push(new D.Paragraph({children:[new D.TextRun({text:""})],spacing:{after:120}}));
-      });
-      // Sequences
-      var seqEl = document.getElementById("seqContent");
-      if (seqEl && seqEl.innerHTML) {
-        children.push(new D.Paragraph({children:[new D.PageBreak()]}));
-        children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,children:[new D.TextRun({text:"Message Sequences",bold:true,size:36,font:"Arial"})]}));
-        children.push(new D.Paragraph({children:[new D.TextRun({text:"All sequences assume no response received. If a prospect replies, pause and handle manually.",size:20,italics:true,color:"888888",font:"Arial"})],spacing:{after:240}}));
-        // Re-read from lastStrategyData sequences if available — parse from DOM
-        var tbls = seqEl.querySelectorAll("table");
-        var audLabels = seqEl.querySelectorAll(".seq-aud-label");
-        var cols = [1300,900,480,1100,5580];
-        var totalW = cols.reduce(function(a,b){return a+b;},0);
-        audLabels.forEach(function(lbl, ai) {
-          children.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,children:[new D.TextRun({text:lbl.textContent||"",bold:true,size:26,font:"Arial"})]}));
-          var tbl = tbls[ai];
-          if (!tbl) return;
-          var rows = [new D.TableRow({tableHeader:true,children:[hCell("Phase",cols[0]),hCell("Channel",cols[1]),hCell("#",cols[2]),hCell("Timing",cols[3]),hCell("Message",cols[4])]})];
-          tbl.querySelectorAll("tbody tr").forEach(function(tr) {
-            var tds = tr.querySelectorAll("td");
-            if (tds.length < 5) return;
-            var phase = tds[0].querySelector(".phase-badge") ? tds[0].querySelector(".phase-badge").childNodes[0].textContent.trim() : tds[0].textContent.trim();
-            var msgDiv = tds[4].querySelector(".msg-text");
-            var subjDiv = tds[4].querySelector(".msg-subject");
-            var msgText = (subjDiv ? "Subject: " + subjDiv.textContent.replace("Subject:","").trim() + "\n\n" : "") + (msgDiv ? msgDiv.textContent.trim() : "");
-            rows.push(new D.TableRow({children:[dCell(phase,cols[0]),dCell(tds[1].textContent.trim(),cols[1]),dCell(tds[2].textContent.trim(),cols[2]),dCell(tds[3].textContent.trim(),cols[3]),msgCell(msgText,cols[4])]}));
-          });
-          children.push(new D.Table({width:{size:totalW,type:D.WidthType.DXA},columnWidths:cols,rows:rows}));
-          children.push(new D.Paragraph({children:[new D.TextRun({text:""})],spacing:{after:240}}));
+      audBlocks.forEach(function(block) {
+        var audLabel = block.querySelector(".seq-aud");
+        children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_2, children: [new D.TextRun({ text: audLabel ? audLabel.textContent : "", bold: true, size: 26, font: "Arial" })] }));
+        var tblRows = [new D.TableRow({ tableHeader: true, children: [hCell("Phase", cols[0]), hCell("Channel", cols[1]), hCell("#", cols[2]), hCell("Timing", cols[3]), hCell("Message", cols[4])] })];
+        block.querySelectorAll("tbody tr").forEach(function(tr) {
+          var tds = tr.querySelectorAll("td");
+          if (tds.length < 5) return;
+          var badge = tds[0].querySelector(".phase-badge");
+          var phase = badge ? badge.textContent.trim() : tds[0].textContent.trim();
+          var msgDiv = tds[4].querySelector(".msg-txt");
+          var subjDiv = tds[4].querySelector(".msg-subj");
+          var msg = (subjDiv ? "Subject: " + subjDiv.textContent.replace("Subject:", "").trim() + "\n\n" : "") + (msgDiv ? msgDiv.textContent.trim() : "");
+          tblRows.push(new D.TableRow({ children: [dCell(phase, cols[0]), dCell(tds[1].textContent.trim(), cols[1]), dCell(tds[2].textContent.trim(), cols[2]), dCell(tds[3].textContent.trim(), cols[3]), msgCell(msg, cols[4])] }));
         });
-      }
-      var doc = new D.Document({
-        styles:{default:{document:{run:{font:"Arial",size:22}}},paragraphStyles:[
-          {id:"Heading1",name:"Heading 1",basedOn:"Normal",next:"Normal",quickFormat:true,run:{size:36,bold:true,font:"Arial",color:"1a1a18"},paragraph:{spacing:{before:240,after:120},outlineLevel:0}},
-          {id:"Heading2",name:"Heading 2",basedOn:"Normal",next:"Normal",quickFormat:true,run:{size:26,bold:true,font:"Arial",color:"1a4a80"},paragraph:{spacing:{before:200,after:80},outlineLevel:1}}
-        ]},
-        sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:1080,right:1080,bottom:1080,left:1080}}},children:children}]
+        children.push(new D.Table({ width: { size: totalW, type: D.WidthType.DXA }, columnWidths: cols, rows: tblRows }));
+        children.push(new D.Paragraph({ children: [new D.TextRun({ text: "" })], spacing: { after: 240 } }));
       });
-      var blob = await D.Packer.toBlob(doc);
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      a.href = url; a.download = lastClientName.replace(/\s+/g,"_") + "_Outreach_Strategy.docx";
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch(e) {
-      alert("Error generating Word doc: " + e.message); console.error(e);
-    } finally {
-      btn.disabled = false; btn.textContent = "\u2B07 Download Word doc";
     }
-  }
 
-  function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-  function escAttr(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+    var doc = new D.Document({
+      styles: {
+        default: { document: { run: { font: "Arial", size: 22 } } },
+        paragraphStyles: [
+          { id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true, run: { size: 36, bold: true, font: "Arial", color: "1a1a18" }, paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 0 } },
+          { id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true, run: { size: 26, bold: true, font: "Arial", color: "1a4a80" }, paragraph: { spacing: { before: 200, after: 80 }, outlineLevel: 1 } }
+        ]
+      },
+      sections: [{ properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1080, right: 1080, bottom: 1080, left: 1080 } } }, children: children }]
+    });
+
+    var blob = await D.Packer.toBlob(doc);
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = lastClientName.replace(/\s+/g, "_") + "_Outreach_Strategy.docx";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    alert("Word doc error: " + e.message); console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = "\u2B07 Download Word doc";
+  }
+}
+
 </script>
 </body>
 </html>
