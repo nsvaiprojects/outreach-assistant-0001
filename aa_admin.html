@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AA Admin Agent</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f7f4; color: #1a1a1a; min-height: 100vh; }
+  .header { background: #fff; border-bottom: 1px solid #e8e6e0; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .header h1 { font-size: 15px; font-weight: 600; }
+  .badge { font-size: 12px; background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .container { max-width: 780px; margin: 0 auto; padding: 24px 16px; }
+  .card { background: #fff; border: 1px solid #e8e6e0; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 14px; }
+  input[type=password], input[type=text], textarea { width: 100%; border: 1px solid #ddd; border-radius: 7px; font-family: inherit; font-size: 13px; padding: 9px 11px; color: #1a1a1a; background: #fff; }
+  input:focus, textarea:focus { outline: none; border-color: #4338ca; }
+  textarea { resize: none; line-height: 1.5; }
+  .btn { padding: 9px 18px; border: 1px solid #ddd; border-radius: 7px; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s; white-space: nowrap; }
+  .btn:hover { background: #f5f5f3; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .btn.primary:hover { background: #333; }
+  .btn.danger { border-color: #fecaca; color: #b91c1c; }
+  .btn.danger:hover { background: #fef2f2; }
+  .auth-card { max-width: 400px; margin: 60px auto; }
+  .auth-row { display: flex; gap: 8px; margin-top: 12px; }
+  .auth-error { font-size: 12px; color: #b91c1c; margin-top: 6px; display: none; }
+  .chat-wrap { display: none; }
+  .chat-wrap.visible { display: block; }
+  .messages { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; min-height: 200px; }
+  .msg { border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.6; max-width: 85%; white-space: pre-wrap; word-break: break-word; }
+  .msg.assistant { background: #f8f7f4; border: 1px solid #e8e6e0; align-self: flex-start; color: #1a1a1a; }
+  .msg.user { background: #eef2ff; border: 1px solid #c7d2fe; align-self: flex-end; color: #3730a3; }
+  .msg.system { background: #f0fdf4; border: 1px solid #bbf7d0; align-self: flex-start; color: #15803d; font-size: 13px; }
+  .msg.error { background: #fef2f2; border: 1px solid #fecaca; align-self: flex-start; color: #b91c1c; font-size: 13px; }
+  .quick-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .quick-btn { padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px; background: #fff; font-size: 12px; color: #555; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .quick-btn:hover { background: #f5f5f3; border-color: #aaa; color: #1a1a1a; }
+  .input-row { display: flex; gap: 8px; align-items: flex-end; }
+  .input-row textarea { flex: 1; min-height: 44px; max-height: 160px; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  .spinner.dark { border-color: #ddd; border-top-color: #555; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .client-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .pill { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+  .pill.fm { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+  .divider { border: none; border-top: 1px solid #e8e6e0; margin: 16px 0; }
+  .thinking { display: none; align-items: center; gap: 8px; font-size: 13px; color: #888; padding: 8px 0; }
+  .thinking.visible { display: flex; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AA Admin Agent</h1>
+  <span class="badge">Internal</span>
+</div>
+
+<div class="container">
+
+  <div class="card auth-card" id="auth-card">
+    <h2>Admin access</h2>
+    <p style="font-size:13px;color:#555;margin-bottom:4px">Enter your admin key to manage clients and audiences.</p>
+    <div class="auth-row">
+      <input type="password" id="admin-key" placeholder="Admin key..." onkeydown="if(event.key==='Enter')authenticate()" />
+      <button class="btn primary" onclick="authenticate()">Unlock</button>
+    </div>
+    <div class="auth-error" id="auth-error">Incorrect admin key. Please try again.</div>
+  </div>
+
+  <div class="chat-wrap" id="chat-wrap">
+    <div class="card">
+      <h2>Client manager</h2>
+      <div class="quick-btns" id="quick-btns">
+        <button class="quick-btn" onclick="quickSend('I want to add a new client')">+ Add new client</button>
+        <button class="quick-btn" onclick="quickSend('I want to update an existing client')">Edit client</button>
+        <button class="quick-btn" onclick="quickSend('I want to add a new audience to a client')">+ Add audience</button>
+        <button class="quick-btn" onclick="quickSend('I want to remove a client')">Remove client</button>
+        <button class="quick-btn" onclick="quickSend('Show me all current clients')">List clients</button>
+      </div>
+      <hr class="divider" />
+      <div class="messages" id="messages"></div>
+      <div class="thinking" id="thinking">
+        <span class="spinner dark"></span> Thinking...
+      </div>
+      <hr class="divider" />
+      <div class="input-row">
+        <textarea id="user-input" placeholder="Tell me what you'd like to do..." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="btn primary" id="send-btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PROXY = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
+let adminKey = '';
+let conversationHistory = [];
+let clientCache = [];
+
+async function authenticate() {
+  const key = document.getElementById('admin-key').value.trim();
+  if (!key) return;
+
+  const testResp = await fetch(PROXY + '/clients', {
+    headers: { 'X-Admin-Key': key }
+  }).catch(() => null);
+
+  if (!testResp || !testResp.ok) {
+    document.getElementById('auth-error').style.display = 'block';
+    return;
+  }
+
+  adminKey = key;
+  document.getElementById('auth-card').style.display = 'none';
+  document.getElementById('chat-wrap').classList.add('visible');
+  await initChat();
+}
+
+async function initChat() {
+  const clients = await fetchClients();
+  clientCache = clients;
+
+  let welcomeMsg = '';
+  if (clients.length === 0) {
+    welcomeMsg = 'No clients yet. Click "Add new client" or tell me what you\'d like to do and I\'ll walk you through it.';
+  } else {
+    const names = clients.map(c => `${c.name} (${c.type === 'fa' ? 'FA' : 'FM'}${c.audiences && c.audiences.length ? ', audiences: ' + c.audiences.join(', ') : ''})`).join('\n- ');
+    welcomeMsg = `You currently have ${clients.length} client${clients.length !== 1 ? 's' : ''}:\n\n- ${names}\n\nWhat would you like to do?`;
+  }
+
+  addMessage('assistant', welcomeMsg);
+  rebuildSystemPrompt(clients);
+}
+
+async function fetchClients() {
+  try {
+    const resp = await fetch(PROXY + '/clients', { headers: { 'X-Admin-Key': adminKey } });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return Array.isArray(data) ? data : [];
+  } catch(e) { return []; }
+}
+
+function rebuildSystemPrompt(clients) {
+  const clientList = clients.length > 0
+    ? clients.map(c => `- ${c.name} (id: "${c.id}", type: "${c.type}", audiences: [${(c.audiences || []).map(a => `"${a}"`).join(', ')}])`).join('\n')
+    : '(none yet)';
+
+  const sys = `You are the AA Admin Agent — an internal tool for the Advisor Appointments team to manage clients in their AI conversation assistant. Clients and their contexts are stored in Cloudflare KV via a REST API.
+
+CURRENT CLIENTS:
+${clientList}
+
+YOUR ROLE:
+Guide the user conversationally through adding, updating, or removing clients and audiences. Be concise and direct. Ask one question at a time.
+
+DATA STRUCTURE:
+Each client stored as JSON:
+{
+  "id": "nick_rothrock",
+  "name": "Nick Rothrock",
+  "type": "fa",
+  "baseContext": "Text covering: who the client is, their background/credibility, value proposition, voice/tone guidelines, compliance guardrails, and general conversation goal.",
+  "audiences": [
+    {
+      "name": "Pre-Retirees",
+      "context": "Text covering: who this audience is, their pain points, how the client's value prop lands for this group, specific objection handling for this audience."
+    }
+  ]
+}
+
+FLOWS:
+
+ADD NEW CLIENT:
+1. Ask: client name
+2. Ask: FA (financial advisor) or FM (fund manager)?
+3. Ask: paste their LinkedIn profile text (or say if not available)
+4. Ask: paste their website/bio content (or say if not available)
+5. Ask: what target audience(s) do they serve? List names, one per line.
+6. For each audience, ask for a brief description of who they are and what they need
+7. Ask: any voice/tone notes? (how they communicate, phrases to use/avoid)
+8. If FM, ask: 506(b) or 506(c)? Any compliance restrictions?
+9. Synthesize and show the FULL baseContext text for review
+10. Synthesize and show each audience context for review
+11. Ask: "Does this look right? Say 'yes' to save or tell me what to change."
+12. On approval, output ONLY this block (no other text after it):
+<<<SAVE_CLIENT>>>
+{valid JSON matching the data structure above}
+<<<END_SAVE>>>
+
+UPDATE EXISTING CLIENT (base context):
+1. Confirm which client
+2. Ask what needs updating (voice, compliance, value prop, who they are, etc.)
+3. Ask for the new information
+4. Show updated baseContext for review
+5. On approval output:
+<<<PATCH_CLIENT:client_id>>>
+{"baseContext": "updated text"}
+<<<END_PATCH>>>
+
+UPDATE EXISTING CLIENT (specific audience):
+1. Confirm which client and which audience
+2. Ask what needs updating
+3. Show updated audience context for review
+4. On approval, fetch the full client, update the audience, output full updated client:
+<<<SAVE_CLIENT>>>
+{full updated client JSON}
+<<<END_SAVE>>>
+
+ADD NEW AUDIENCE to existing client:
+1. Ask audience name and description
+2. Synthesize audience context
+3. Show for review
+4. On approval, output full updated client JSON with new audience appended:
+<<<SAVE_CLIENT>>>
+{full updated client JSON}
+<<<END_SAVE>>>
+
+REMOVE CLIENT:
+1. Confirm which client
+2. Say: "This will permanently remove [name] and all their audiences. Type 'yes, remove [name]' to confirm."
+3. On confirmation output:
+<<<DELETE_CLIENT:client_id>>>
+
+REMOVE AUDIENCE:
+1. Confirm which client and audience
+2. Ask for confirmation
+3. On confirmation, output full client JSON with that audience removed:
+<<<SAVE_CLIENT>>>
+{full updated client JSON with audience removed}
+<<<END_SAVE>>>
+
+CONTEXT WRITING GUIDELINES:
+baseContext should be written in second person ("You are writing as [name]...") and cover:
+- Who the client is (background, firm, credentials, what makes them credible)
+- Their value proposition (what they offer, what problem they solve)
+- Voice and tone (how they communicate, what to avoid, peer-level or formal, key phrases)
+- Conversation goal (book a call, low pressure, what success looks like)
+- Compliance guardrails (what can/cannot be said, especially for FM clients)
+
+audienceContext should be written in second person and cover:
+- Who this audience is (demographics, situation, mindset)
+- Their pain points and what they're looking for
+- How the client's value prop specifically resonates for this group
+- Objection handling specific to this audience
+
+IMPORTANT:
+- Always show content for review before saving
+- Never output save/patch/delete tags until explicitly approved
+- IDs are lowercase with underscores: "john_smith", "eppler_capital"
+- Be conversational, ask one question at a time
+- Keep responses concise`;
+
+  conversationHistory = [
+    { role: 'user', content: sys },
+    { role: 'assistant', content: 'Understood. Ready to help manage clients.' }
+  ];
+}
+
+function addMessage(role, text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function quickSend(text) {
+  document.getElementById('user-input').value = text;
+  sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  addMessage('user', text);
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  document.getElementById('thinking').classList.add('visible');
+
+  conversationHistory.push({ role: 'user', content: text });
+
+  try {
+    const resp = await fetch(PROXY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1500,
+        messages: conversationHistory
+      })
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const reply = data.content.map(b => b.text || '').join('');
+    conversationHistory.push({ role: 'assistant', content: reply });
+    await processReply(reply);
+  } catch(e) {
+    addMessage('error', 'Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Send';
+    document.getElementById('thinking').classList.remove('visible');
+  }
+}
+
+async function processReply(reply) {
+  const saveMatch = reply.match(/<<<SAVE_CLIENT>>>([\s\S]*?)<<<END_SAVE>>>/);
+  const patchMatch = reply.match(/<<<PATCH_CLIENT:([^>]+)>>>([\s\S]*?)<<<END_PATCH>>>/);
+  const deleteMatch = reply.match(/<<<DELETE_CLIENT:([^>]+)>>>/);
+
+  let display = reply
+    .replace(/<<<SAVE_CLIENT>>>[\s\S]*?<<<END_SAVE>>>/g, '')
+    .replace(/<<<PATCH_CLIENT:[^>]+>>>[\s\S]*?<<<END_PATCH>>>/g, '')
+    .replace(/<<<DELETE_CLIENT:[^>]+>>>/g, '')
+    .trim();
+
+  if (display) addMessage('assistant', display);
+
+  if (saveMatch) {
+    try {
+      const json = JSON.parse(saveMatch[1].trim());
+      await saveClient(json);
+    } catch(e) {
+      addMessage('error', 'Could not parse client data: ' + e.message + '\n\nRaw: ' + saveMatch[1].trim().substring(0, 200));
+    }
+  }
+
+  if (patchMatch) {
+    try {
+      const id = patchMatch[1].trim();
+      const json = JSON.parse(patchMatch[2].trim());
+      await patchClient(id, json);
+    } catch(e) {
+      addMessage('error', 'Could not parse update: ' + e.message);
+    }
+  }
+
+  if (deleteMatch) {
+    await deleteClient(deleteMatch[1].trim());
+  }
+}
+
+async function saveClient(data) {
+  try {
+    const resp = await fetch(PROXY + '/client', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+      body: JSON.stringify(data)
+    });
+    const result = await resp.json();
+    if (result.error) throw new Error(result.error);
+    addMessage('system', '✓ Client "' + data.name + '" saved successfully.');
+    clientCache = await fetchClients();
+    rebuildSystemPrompt(clientCache);
+  } catch(e) {
+    addMessage('error', 'Save failed: ' + e.message);
+  }
+}
+
+async function patchClient(id, data) {
+  try {
+    const resp = await fetch(PROXY + '/client/' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
+      body: JSON.stringify(data)
+    });
+    const result = await resp.json();
+    if (result.error) throw new Error(result.error);
+    addMessage('system', '✓ Client updated successfully.');
+    clientCache = await fetchClients();
+    rebuildSystemPrompt(clientCache);
+  } catch(e) {
+    addMessage('error', 'Update failed: ' + e.message);
+  }
+}
+
+async function deleteClient(id) {
+  try {
+    const resp = await fetch(PROXY + '/client/' + encodeURIComponent(id), {
+      method: 'DELETE',
+      headers: { 'X-Admin-Key': adminKey }
+    });
+    const result = await resp.json();
+    if (result.error) throw new Error(result.error);
+    addMessage('system', '✓ Client removed successfully.');
+    clientCache = await fetchClients();
+    rebuildSystemPrompt(clientCache);
+  } catch(e) {
+    addMessage('error', 'Delete failed: ' + e.message);
+  }
+}
+</script>
+</body>
+</html>
