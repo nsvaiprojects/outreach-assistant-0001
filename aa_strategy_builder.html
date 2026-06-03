@@ -20622,18 +20622,26 @@ var __async = (__this, __arguments, generator) => {
       "{\n  \"strategy\": {\n    \"positioning\": \"bullet list\",\n    \"icp_breakdown\": \"per-audience bullet lists\",\n    \"channel_approach\": \"bullet list\",\n    \"tone_and_voice\": \"bullet list with FITS: and AVOID:\",\n    \"compliance_and_guardrails\": \"bullet list\",\n    \"success_metrics\": \"bullet list\"\n  }\n}";
 
     try {
-      var resp = await fetch(PROXY_URL, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-5", max_tokens: 4000,
-          system: "You are a senior LinkedIn and email outreach strategist for financial services. Respond with ONLY raw valid JSON starting with { and ending with }. No markdown fences, no backticks, no preamble.",
-          messages: [{ role:"user", content: buildUserContent(true, prompt) }]
-        })
-      });
+      var stratPayload = {
+        model: "claude-sonnet-4-5", max_tokens: 4000,
+        system: "You are a senior LinkedIn and email outreach strategist for financial services. Respond with ONLY raw valid JSON starting with { and ending with }. No markdown fences, no backticks, no preamble.",
+        messages: [{ role:"user", content: buildUserContent(true, prompt) }]
+      };
+      var raw = "";
+      var maxRetries = 3;
+      for (var attempt = 1; attempt <= maxRetries; attempt++) {
+        if (attempt > 1) {
+          msgEl.textContent = "Retrying (attempt " + attempt + " of " + maxRetries + ")\u2026";
+          await new Promise(function(r){setTimeout(r, 2000);});
+        }
+        var resp = await fetch(PROXY_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(stratPayload) });
+        if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
+        var data = await resp.json();
+        raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
+        if (raw.length > 0) break;
+        if (attempt === maxRetries) throw new Error("API returned empty response after " + maxRetries + " attempts. Please wait 60 seconds and try again.");
+      }
       clearInterval(intv);
-      if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
-      var data = await resp.json();
-      var raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
       var cleaned = raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/\s*```$/,"").trim();
       var parsed;
       try { parsed = JSON.parse(cleaned); }
@@ -20756,19 +20764,27 @@ var __async = (__this, __arguments, generator) => {
       "LinkedIn CR <=300 chars. LinkedIn follow-ups <=500 chars. Email includes subject lines.";
 
     try {
-      var resp = await fetch(PROXY_URL, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-5", max_tokens: 8000,
-          system: "You are a senior LinkedIn and email outreach strategist for financial services. You write short, peer-level messages that pass the Golden Question test. CRITICAL: Respond with ONLY raw valid JSON starting with { and ending with }. No markdown, no backticks, never truncate.",
-          messages: [{ role:"user", content: buildUserContent(true, prompt) }]
-        })
-      });
+      var msgPayload = {
+        model: "claude-sonnet-4-5", max_tokens: 8000,
+        system: "You are a senior LinkedIn and email outreach strategist for financial services. You write short, peer-level messages that pass the Golden Question test. CRITICAL: Respond with ONLY raw valid JSON starting with { and ending with }. No markdown, no backticks, never truncate.",
+        messages: [{ role:"user", content: buildUserContent(true, prompt) }]
+      };
+      var raw = "";
+      var maxRetries = 3;
+      for (var attempt = 1; attempt <= maxRetries; attempt++) {
+        if (attempt > 1) {
+          msgEl.textContent = "Retrying (attempt " + attempt + " of " + maxRetries + ")\u2026";
+          await new Promise(function(r){setTimeout(r, 2000);});
+        }
+        var resp = await fetch(PROXY_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(msgPayload) });
+        if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
+        var data = await resp.json();
+        if (data.stop_reason === "max_tokens") throw new Error("Response too long \u2014 try fewer audiences.");
+        raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
+        if (raw.length > 0) break;
+        if (attempt === maxRetries) throw new Error("API returned empty response after " + maxRetries + " attempts. Please wait 60 seconds and try again.");
+      }
       clearInterval(intv);
-      if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
-      var data = await resp.json();
-      if (data.stop_reason === "max_tokens") throw new Error("Response too long \u2014 try fewer audiences.");
-      var raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
       var cleaned = raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/\s*```$/,"").trim();
       var parsed;
       try { parsed = JSON.parse(cleaned); }
