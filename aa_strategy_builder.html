@@ -20622,26 +20622,18 @@ var __async = (__this, __arguments, generator) => {
       "{\n  \"strategy\": {\n    \"positioning\": \"bullet list\",\n    \"icp_breakdown\": \"per-audience bullet lists\",\n    \"channel_approach\": \"bullet list\",\n    \"tone_and_voice\": \"bullet list with FITS: and AVOID:\",\n    \"compliance_and_guardrails\": \"bullet list\",\n    \"success_metrics\": \"bullet list\"\n  }\n}";
 
     try {
-      var stratPayload = {
-        model: "claude-sonnet-4-5", max_tokens: 4000,
-        system: "You are a senior LinkedIn and email outreach strategist for financial services. Respond with ONLY raw valid JSON starting with { and ending with }. No markdown fences, no backticks, no preamble.",
-        messages: [{ role:"user", content: buildUserContent(true, prompt) }]
-      };
-      var raw = "";
-      var maxRetries = 3;
-      for (var attempt = 1; attempt <= maxRetries; attempt++) {
-        if (attempt > 1) {
-          msgEl.textContent = "Retrying (attempt " + attempt + " of " + maxRetries + ")\u2026";
-          await new Promise(function(r){setTimeout(r, 2000);});
-        }
-        var resp = await fetch(PROXY_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(stratPayload) });
-        if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
-        var data = await resp.json();
-        raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
-        if (raw.length > 0) break;
-        if (attempt === maxRetries) throw new Error("API returned empty response after " + maxRetries + " attempts. Please wait 60 seconds and try again.");
-      }
+      var resp = await fetch(PROXY_URL, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-5", max_tokens: 4000,
+          system: "You are a senior LinkedIn and email outreach strategist for financial services. Respond with ONLY raw valid JSON starting with { and ending with }. No markdown fences, no backticks, no preamble.",
+          messages: [{ role:"user", content: buildUserContent(true, prompt) }]
+        })
+      });
       clearInterval(intv);
+      if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
+      var data = await resp.json();
+      var raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
       var cleaned = raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/\s*```$/,"").trim();
       var parsed;
       try { parsed = JSON.parse(cleaned); }
@@ -20649,8 +20641,6 @@ var __async = (__this, __arguments, generator) => {
         var m = cleaned.match(/\{[\s\S]*\}/);
         if (m) { parsed = JSON.parse(m[0]); } else { throw new Error("Could not parse strategy response."); }
       }
-      console.log("Parsed strategy keys:", Object.keys(parsed));
-      console.log("Strategy object:", JSON.stringify(parsed).substring(0, 500));
       lastStrategyData = parsed;
       renderStrategy(parsed, inp.clientName, chLabel);
       document.getElementById("stratLoad").style.display = "none";
@@ -20682,13 +20672,16 @@ var __async = (__this, __arguments, generator) => {
     container.innerHTML = stratDefs.filter(function(d){return s[d.k];}).map(function(d) {
       return "<div class=\"strat-sec\">" +
         "<div class=\"strat-sec-header\"><div class=\"strat-sec-bar\"></div><span class=\"strat-sec-title\">" + d.l + "</span></div>" +
-        "<textarea id=\"strat-" + d.k + "\" rows=\"6\></textarea>" +
+        "<textarea id=\"strat-" + d.k + "\" rows=\"6\"></textarea>" +
         "</div>";
     }).join("");
-    // Set textarea values after DOM insertion to preserve line breaks
+    // Set values via JS to preserve line breaks
     stratDefs.forEach(function(d) {
       var el = document.getElementById("strat-" + d.k);
-      if (el && s[d.k]) el.value = s[d.k].replace(/\\n/g, "\n").replace(/- /g, "\n- ").trim();
+      if (el && s[d.k]) {
+        var rv = s[d.k].replace(/\\n/g, "\n");
+        el.value = rv.trim();
+      }
     });
   }
 
@@ -20740,58 +20733,50 @@ var __async = (__this, __arguments, generator) => {
       "\nTARGET AUDIENCES:\n" + audSummary +
       "\n\nAPPROVED STRATEGY (use this as the foundation for all messages):\n" + stratSummary +
       "\n\nCHANNEL: " + chInstruction + "\n\n" +
-      "=== MESSAGING RULES ===\n\n" +
-      "PHASE STRUCTURE:\n" +
-      "- Connection Request: 1 message, Day 0\n" +
-      "- Engage: 3 messages. Day 3, Day 8, Day 15\n" +
-      "- Build: 2 messages. Day 45, Day 75\n" +
-      "- Sustain: 2 messages. Day 165, Day 255\n" +
-      "- ALL messages assume NO response received\n\n" +
-      "LENGTH:\n" +
-      "- Connection Request: 1-2 sentences max\n" +
-      "- Engage: 2 sentences HARD LIMIT\n" +
-      "- Build: 3 sentences max\n" +
-      "- Sustain: 3 sentences max\n\n" +
-      "CONNECTION REQUEST: Reference role/geography/context only. NEVER assume a specific trigger or decision. No ask.\n\n" +
-      "ENGAGE 1: Open with warm varied acknowledgment (\"Thanks for the connection, [First Name].\" / \"Good to be connected, [First Name].\"). End with open-ended self-ID question (\"Does that match what you\'re thinking about?\" / \"Is that something that\'s top of mind for you?\")\n\n" +
-      "ENGAGE 2: Frame experience as pattern recognition: \"After years of working with [audience], I\'ve seen...\" NOT biography.\n\n" +
-      "ENGAGE 3: End confidently. No softener CTAs.\n\n" +
-      "BUILD 1: Focus on helping prospect ask the right question, not find the right answer.\n\n" +
-      "BUILD 2: Use \"What I\'ve seen...\" not \"What I\'ve learned\". Offer a resource if available.\n\n" +
-      "SUSTAIN: Open \"Hi [First Name] \u2014 it\'s been a while since we first connected.\" Topic from key topics. Pattern: \"[Topic] often comes up with my clients. If that\'s something you\'d like to explore, I\'m happy to chat.\"\n\n" +
-      "GREETING: Use \"Hi [First Name],\" selectively where natural. Build and Sustain messages should generally include it.\n\n" +
-      "SOFT CTAs: Offer something or open a door. Never ask for time/meeting until interest expressed.\n\n" +
-      "ANGLE VARIATION: Each message must use a DIFFERENT angle. Never repeat positioning across messages.\n\n" +
-      "FORBIDDEN: \"hope this finds you well\", \"circling back\", \"touching base\", \"just checking in\", \"no worries\", \"no pressure\", \"no pitch\", \"I\'ll leave you alone\", \"I wanted to reach out\"\n\n" +
-      "GOLDEN QUESTION: Would the prospect think this sounds like a financial advisor pitching them? If yes \u2014 rewrite.\n\n" +
-      "NO EMOJIS.\n\n" +
-      "RESPOND ONLY with raw valid JSON. Start with { end with }. No markdown.\n" +
-      "{\n  \"sequences\": [\n    {\n      \"audience\": \"exact name\",\n      \"phase\": \"Connection Request\",\n      \"message_number\": 1,\n      \"timing\": \"Day 0\",\n      \"channel\": \"LinkedIn\",\n      \"subject\": null,\n      \"message\": \"text\"\n    }\n  ]\n}\n\n" +
-      "1 CR + 3 Engage + 2 Build + 2 Sustain = 8 per audience per channel.\n" +
+      "=== MESSAGING RULES ===\\n\\n" +
+      "PHASE STRUCTURE:\\n" +
+      "- Connection Request: 1 message, Day 0\\n" +
+      "- Engage: 3 messages. Day 3, Day 8, Day 15\\n" +
+      "- Build: 2 messages. Day 45, Day 75\\n" +
+      "- Sustain: 2 messages. Day 165, Day 255\\n" +
+      "- ALL messages assume NO response received\\n\\n" +
+      "LENGTH:\\n" +
+      "- Connection Request: 1-2 sentences max\\n" +
+      "- Engage: 2 sentences HARD LIMIT\\n" +
+      "- Build: 3 sentences max\\n" +
+      "- Sustain: 3 sentences max\\n\\n" +
+      "CONNECTION REQUEST: Always open with Hi [First Name] - then exactly 1 sentence referencing their role and geography only. NEVER mention specific problems, triggers, or decisions they may be facing. No ask. Max 2 sentences total.\\n\\n" +
+      "ENGAGE 1: ALWAYS include [First Name] in acknowledgment. Use: Thanks for the connection, [First Name]. OR Good to be connected, [First Name]. Then 1 sentence observation about their world. End with open-ended self-ID question: Does that match what you are thinking about? OR Is that something that is top of mind for you? Max 2 sentences after greeting.\\n\\n" +
+      "ENGAGE 2: NEVER mention personal background or career history directly. Frame ONLY as pattern recognition about the prospect world: After years of working with [audience], I have seen... The observation must be about THEIR situation, not the advisor.\\n\\n" +
+      "ENGAGE 3: End confidently with a soft CTA if logical. Never use I am available as a closer. Never grant permission to ignore.\\n\\n" +
+      "BUILD 1: Focus on helping prospect ask the right question, not find the right answer. Include [First Name] greeting.\\n\\n" +
+      "BUILD 2: Use What I have seen... not What I have learned. Offer a resource if available. Include [First Name] greeting.\\n\\n" +
+      "SUSTAIN 1: Open Hi [First Name] - it has been a while since we first connected. Introduce a topic from key topics. Pattern: [Topic] often comes up with my clients. If that is something you would like to explore, I am happy to chat.\\n\\n" +
+      "SUSTAIN 2: Vary the opening from Sustain 1. Use a DIFFERENT topic. Include [First Name].\\n\\n" +
+      "GREETING: Use Hi [First Name], selectively. Build and Sustain should generally include it.\\n\\n" +
+      "SOFT CTAs: Offer something or open a door. Never ask for time/meeting until interest expressed.\\n\\n" +
+      "ANGLE VARIATION: Each message must use a DIFFERENT angle. Never repeat positioning.\\n\\n" +
+      "FORBIDDEN: hope this finds you well, circling back, touching base, just checking in, no worries, no pressure, no pitch, I am available, I wanted to reach out\\n\\n" +
+      "GOLDEN QUESTION: Would the prospect think this sounds like a financial advisor pitching them? If yes - rewrite.\\n\\n" +
+      "NO EMOJIS.\\n\\n" +
+      "RESPOND ONLY with raw valid JSON. Start with { end with }. No markdown.\\n" +
+      "{\"sequences\": [{\"audience\": \"name\",\"phase\": \"Connection Request\",\"message_number\": 1,\"timing\": \"Day 0\",\"channel\": \"LinkedIn\",\"subject\": null,\"message\": \"text\"}]}\\n\\n" +
+      "1 CR + 3 Engage + 2 Build + 2 Sustain = 8 per audience per channel.\\n" +
       "LinkedIn CR <=300 chars. LinkedIn follow-ups <=500 chars. Email includes subject lines.";
-
     try {
-      var msgPayload = {
-        model: "claude-sonnet-4-5", max_tokens: 8000,
-        system: "You are a senior LinkedIn and email outreach strategist for financial services. You write short, peer-level messages that pass the Golden Question test. CRITICAL: Respond with ONLY raw valid JSON starting with { and ending with }. No markdown, no backticks, never truncate.",
-        messages: [{ role:"user", content: buildUserContent(true, prompt) }]
-      };
-      var raw = "";
-      var maxRetries = 3;
-      for (var attempt = 1; attempt <= maxRetries; attempt++) {
-        if (attempt > 1) {
-          msgEl.textContent = "Retrying (attempt " + attempt + " of " + maxRetries + ")\u2026";
-          await new Promise(function(r){setTimeout(r, 2000);});
-        }
-        var resp = await fetch(PROXY_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(msgPayload) });
-        if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
-        var data = await resp.json();
-        if (data.stop_reason === "max_tokens") throw new Error("Response too long \u2014 try fewer audiences.");
-        raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
-        if (raw.length > 0) break;
-        if (attempt === maxRetries) throw new Error("API returned empty response after " + maxRetries + " attempts. Please wait 60 seconds and try again.");
-      }
+      var resp = await fetch(PROXY_URL, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-5", max_tokens: 8000,
+          system: "You are a senior LinkedIn and email outreach strategist for financial services. You write short, peer-level messages that pass the Golden Question test. CRITICAL: Respond with ONLY raw valid JSON starting with { and ending with }. No markdown, no backticks, never truncate.",
+          messages: [{ role:"user", content: buildUserContent(true, prompt) }]
+        })
+      });
       clearInterval(intv);
+      if (!resp.ok) { var e = await resp.json().catch(function(){return {};}); throw new Error(e.error ? e.error.message : "API error " + resp.status); }
+      var data = await resp.json();
+      if (data.stop_reason === "max_tokens") throw new Error("Response too long \u2014 try fewer audiences.");
+      var raw = (data.content||[]).map(function(b){return b.text||"";}).join("");
       var cleaned = raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/\s*```$/,"").trim();
       var parsed;
       try { parsed = JSON.parse(cleaned); }
