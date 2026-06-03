@@ -20546,7 +20546,7 @@ async function analyzeSources() {
     try {
       var vresp = await fetch(PROXY, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 800, tools: [{ type: "web_search_20250305", name: "web_search" }], system: "Extract value propositions from websites. Respond ONLY with a 2-4 sentence summary of what the company does and who it serves. No preamble.", messages: [{ role: "user", content: "Visit " + url + " and summarize the core offering and value proposition in 2-4 sentences." }] })
+        body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 800, tools: [{ type: "web_search_20250305", name: "web_search" }], system: "Extract value propositions from websites. Respond ONLY with a 2-4 sentence summary of what the company does and who it serves. No preamble.", messages: [{ role: "user", content: "Search for and visit the homepage, about page, services page, and ideal client page at " + url + ". Based on all pages found, summarize the core offering, value proposition, and who they serve in 2-4 sentences." }] })
       });
       var vdata = await vresp.json();
       var vtext = (vdata.content || []).filter(function(b) { return b.type === "text"; }).map(function(b) { return b.text; }).join("").trim();
@@ -20560,7 +20560,7 @@ async function analyzeSources() {
     if (files.li) docContent.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.li.b64 }, title: "LinkedIn Profile" });
     if (files.ctx1) docContent.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.ctx1.b64 }, title: "Context Doc 1" });
     if (files.ctx2) docContent.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: files.ctx2.b64 }, title: "Context Doc 2" });
-    docContent.push({ type: "text", text: "From these documents, extract and list:\n1. Key topics and themes that resonate with this advisor's target prospects\n2. Resources the advisor offers (guides, frameworks, books, articles, proprietary processes)\n3. Recurring pain points or conversation topics they address\n\nRespond with a plain list, one item per line starting with a dash (-). No headers, no preamble." });
+    var siteNote = url ? " Also search for the about, services, and ideal client pages at " + url + " and include any additional topics or resources found there." : ""; docContent.push({ type: "text", text: "From these documents, extract and list:\n1. Key topics and themes that resonate with this advisor's target prospects\n2. Resources the advisor offers (guides, frameworks, books, articles, proprietary processes)\n3. Recurring pain points or conversation topics they address" + siteNote + "\n\nRespond with a plain list, one item per line starting with a dash (-). No headers, no preamble." });
     try {
       var dresp = await fetch(PROXY, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 1000, messages: [{ role: "user", content: docContent }] }) });
       var ddata = await dresp.json();
