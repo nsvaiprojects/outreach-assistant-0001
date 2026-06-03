@@ -20688,7 +20688,7 @@ var __async = (__this, __arguments, generator) => {
     // Set textarea values after DOM insertion to preserve line breaks
     stratDefs.forEach(function(d) {
       var el = document.getElementById("strat-" + d.k);
-      if (el && s[d.k]) el.value = s[d.k];
+      if (el && s[d.k]) el.value = s[d.k].replace(/\\n/g, "\n").replace(/- /g, "\n- ").trim();
     });
   }
 
