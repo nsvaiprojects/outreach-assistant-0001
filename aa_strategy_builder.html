@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AA Strategy Builder</title>
 <script>var docx = function(exports) {
   "use strict";var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
@@ -20119,9 +20121,6 @@ var __async = (__this, __arguments, generator) => {
 }({});
 
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AA Strategy Builder</title>
-<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -20134,7 +20133,7 @@ var __async = (__this, __arguments, generator) => {
     --red: #c0392b; --red-bg: #fdf0ee; --red-text: #922b21;
     --radius: 8px; --radius-lg: 12px; --shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg2); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
   .page { max-width: 840px; margin: 0 auto; padding: 32px 24px 80px; }
   .header { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
   .header-logo { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
@@ -20180,11 +20179,14 @@ var __async = (__this, __arguments, generator) => {
   .fetch-status { font-size: 12px; margin-top: 4px; }
   .fetch-status.ok { color: var(--green); }
   .fetch-status.err { color: var(--red); }
+  .analyze-btn-row { display: flex; justify-content: flex-end; margin-top: 12px; }
   button { font-family: inherit; cursor: pointer; }
   .btn { padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg); color: var(--text); transition: all .15s; }
   .btn:hover { background: var(--bg2); }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
   .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-accent { background: var(--blue-bg); border-color: var(--blue); color: var(--blue-text); font-weight: 600; }
+  .btn-accent:hover { background: #dceefa; }
   .gen-btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; background: var(--text); color: #fff; border: none; border-radius: var(--radius-lg); cursor: pointer; transition: all .15s; margin-top: 8px; }
   .gen-btn:hover { background: #333; }
   .gen-btn:disabled { opacity: .5; cursor: not-allowed; }
@@ -20241,6 +20243,7 @@ var __async = (__this, __arguments, generator) => {
     <p>Build a comprehensive outreach strategy and message sequences for a client.</p>
   </div>
 
+  <!-- 1. Channel -->
   <div class="card">
     <div class="card-title">Channel</div>
     <div class="ch-row" id="chRow">
@@ -20250,6 +20253,26 @@ var __async = (__this, __arguments, generator) => {
     </div>
   </div>
 
+  <!-- 2. Client name & website -->
+  <div class="card">
+    <div class="card-title">Client Information</div>
+    <div class="g2">
+      <div class="fld">
+        <label>Client name</label>
+        <input type="text" id="cName" placeholder="e.g. Nick Rothrock">
+      </div>
+      <div class="fld">
+        <label>Client website URL</label>
+        <div class="fetch-row">
+          <input type="text" id="cUrl" placeholder="https://...">
+          <button class="btn" onclick="fetchSite()" id="fetchBtn">Fetch</button>
+        </div>
+        <div class="fetch-status" id="fetchStatus"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. LinkedIn Profile -->
   <div class="card">
     <div class="card-title">Client LinkedIn Profile (PDF)</div>
     <div class="dz" id="liDz" onclick="document.getElementById('liPdf').click()">
@@ -20261,44 +20284,10 @@ var __async = (__this, __arguments, generator) => {
     <input type="file" id="liPdf" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'li')">
   </div>
 
-  <div class="card">
-    <div class="card-title">Client Information</div>
-    <div class="g2" style="margin-bottom:14px">
-      <div class="fld">
-        <label>Client name</label>
-        <input type="text" id="cName" placeholder="e.g. Sarah Chen">
-      </div>
-      <div class="fld">
-        <label>Client website URL</label>
-        <div class="fetch-row">
-          <input type="text" id="cUrl" placeholder="https://...">
-          <button class="btn" onclick="fetchSite()" id="fetchBtn">Fetch</button>
-        </div>
-        <div class="fetch-status" id="fetchStatus"></div>
-      </div>
-    </div>
-    <div class="fld" style="margin-bottom:14px">
-      <label>Core offering &amp; value proposition</label>
-      <textarea id="valueProps" rows="4" placeholder="Enter manually or click Fetch above to pull from website&hellip;"></textarea>
-    </div>
-    <div class="fld">
-      <label>Writing / communication style</label>
-      <textarea id="writingStyle" rows="3" placeholder="e.g. Conversational and warm, avoids jargon, short sentences, peer-level tone"></textarea>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Target Audiences</div>
-    <div class="aud-list" id="audList"></div>
-    <div class="add-aud-row">
-      <input type="text" id="audInput" placeholder="e.g. Executives in Nashville area with $500k+ investable assets" onkeydown="if(event.key==='Enter')addAud()">
-      <button class="btn" onclick="addAud()">+ Add audience</button>
-    </div>
-  </div>
-
+  <!-- 4. Additional Context Documents -->
   <div class="card">
     <div class="card-title">Additional Context Documents (optional)</div>
-    <div class="multi-dz" style="margin-bottom:14px">
+    <div class="multi-dz">
       <div class="dz" id="ctx1Dz" onclick="document.getElementById('ctx1File').click()">
         <div class="dz-icon">&#128196;</div>
         <div class="dz-main">Context document 1</div>
@@ -20314,9 +20303,53 @@ var __async = (__this, __arguments, generator) => {
     </div>
     <input type="file" id="ctx1File" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'ctx1')">
     <input type="file" id="ctx2File" accept=".pdf" style="display:none" onchange="handlePdf(this.files[0],'ctx2')">
+    <div class="analyze-btn-row">
+      <button class="btn btn-accent" onclick="analyzeSources()" id="analyzeBtn">&#9881; Analyze sources &amp; pre-populate topics</button>
+    </div>
+    <div class="fetch-status" id="analyzeStatus" style="margin-top:8px"></div>
+  </div>
+
+  <!-- 5. Target Audiences -->
+  <div class="card">
+    <div class="card-title">Target Audiences</div>
+    <div class="aud-list" id="audList"></div>
+    <div class="add-aud-row">
+      <input type="text" id="audInput" placeholder="e.g. Executives in Nashville area with $500k+ investable assets" onkeydown="if(event.key==='Enter')addAud()">
+      <button class="btn" onclick="addAud()">+ Add audience</button>
+    </div>
+  </div>
+
+  <!-- 6. Core Offering & Value Prop -->
+  <div class="card">
+    <div class="card-title">Core Offering &amp; Value Proposition</div>
     <div class="fld">
-      <label>Additional context notes (optional)</label>
-      <textarea id="addCtx" rows="3" placeholder="Compliance notes, geographic focus, seasonal timing, etc."></textarea>
+      <label>Describe what the client does and who they serve</label>
+      <textarea id="valueProps" rows="4" placeholder="Enter manually or click Fetch on the website URL above to pull from website&hellip;"></textarea>
+    </div>
+  </div>
+
+  <!-- 7. Key Topics & Resources -->
+  <div class="card">
+    <div class="card-title">Key Topics &amp; Potential Resources</div>
+    <div class="fld">
+      <label>Topics that resonate with prospects + any resources the client can offer (guides, frameworks, articles, etc.)</label>
+      <textarea id="keyTopics" rows="4" placeholder="Click &ldquo;Analyze sources&rdquo; above to auto-populate from website and uploaded documents, then add or edit&hellip;"></textarea>
+    </div>
+  </div>
+
+  <!-- 8. Additional Context Notes -->
+  <div class="card">
+    <div class="card-title">Additional Context Notes (optional)</div>
+    <div class="fld">
+      <textarea id="addCtx" rows="3" placeholder="Compliance notes, geographic focus, seasonal timing, pricing to mention, etc."></textarea>
+    </div>
+  </div>
+
+  <!-- 9. Writing Style -->
+  <div class="card">
+    <div class="card-title">Writing &amp; Communication Style</div>
+    <div class="fld">
+      <textarea id="writingStyle" rows="3" placeholder="e.g. Conversational and warm, avoids jargon, short sentences, peer-level tone, occasional dry humor"></textarea>
     </div>
   </div>
 
@@ -20351,7 +20384,6 @@ var __async = (__this, __arguments, generator) => {
 
 <script>
   const PROXY_URL = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
-
   let ch = 'linkedin';
   let files = { li: null, ctx1: null, ctx2: null };
   let audiences = [];
@@ -20361,8 +20393,8 @@ var __async = (__this, __arguments, generator) => {
 
   function setCh(c) {
     ch = c;
-    document.querySelectorAll('.ch-btn').forEach(b => { b.dataset.selected = (b.dataset.ch === c) ? 'true' : 'false'; });
-    const lbl = document.getElementById('seqTabLabel');
+    document.querySelectorAll('.ch-btn').forEach(function(b) { b.dataset.selected = (b.dataset.ch === c) ? 'true' : 'false'; });
+    var lbl = document.getElementById('seqTabLabel');
     if (lbl) lbl.textContent = c === 'linkedin' ? 'LinkedIn sequences' : c === 'email' ? 'Email sequences' : 'Message sequences';
   }
 
@@ -20415,16 +20447,18 @@ var __async = (__this, __arguments, generator) => {
     var container = document.getElementById('audList');
     if (!audiences.length) { container.innerHTML = ''; return; }
     container.innerHTML = audiences.map(function(a, i) {
+      var fileId = 'aud-file-' + i;
+      var fnId = 'aud-fn-' + i;
       return '<div class="aud-item">' +
         '<div class="aud-header"><span class="aud-name">' + esc(a.name) + '</span>' +
         '<button class="aud-remove" onclick="removeAud(' + i + ')" aria-label="Remove">\u00d7</button></div>' +
         '<div class="aud-body">' +
         '<div><label>Messaging strategy notes (optional)</label>' +
-        '<textarea rows="2" placeholder="e.g. Lead with education angle, avoid pricing until 3rd message\u2026" onchange="audiences[' + i + '].notes=this.value">' + esc(a.notes) + '</textarea></div>' +
-        '<div><div class="aud-file-btn" onclick="document.getElementById(\'aud-file-' + i + '\').click()">' +
+        '<textarea rows="2" placeholder="e.g. Lead with education angle\u2026" onchange="audiences[' + i + '].notes=this.value">' + esc(a.notes) + '</textarea></div>' +
+        '<div><div class="aud-file-btn" onclick="document.getElementById(' + JSON.stringify(fileId) + ').click()">' +
         '<span>&#128196;</span> <span>Upload persona file \u2014 PDF only (optional)</span></div>' +
-        '<div class="aud-fn" id="aud-fn-' + i + '">' + (a.file ? '\u2713 ' + esc(a.file.name) : '') + '</div>' +
-        '<input type="file" id="aud-file-' + i + '" accept=".pdf" style="display:none" onchange="handleAudFile(this.files[0],' + i + ')"></div>' +
+        '<div class="aud-fn" id="' + fnId + '">' + (a.file ? '\u2713 ' + esc(a.file.name) : '') + '</div>' +
+        '<input type="file" id="' + fileId + '" accept=".pdf" style="display:none" onchange="handleAudFile(this.files[0],' + i + ')"></div>' +
         '</div></div>';
     }).join('');
   }
@@ -20464,6 +20498,55 @@ var __async = (__this, __arguments, generator) => {
     }
   }
 
+  async function analyzeSources() {
+    var btn = document.getElementById('analyzeBtn');
+    var status = document.getElementById('analyzeStatus');
+    var url = document.getElementById('cUrl').value.trim();
+    var hasFiles = files.li || files.ctx1 || files.ctx2;
+    if (!url && !hasFiles) {
+      status.textContent = 'Please enter a website URL or upload at least one document first.';
+      status.className = 'fetch-status err';
+      return;
+    }
+    btn.disabled = true; btn.textContent = '\u9881 Analyzing\u2026';
+    status.textContent = ''; status.className = 'fetch-status';
+
+    var userContent = [];
+    if (files.li) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:files.li.b64 }, title:'Client LinkedIn Profile' });
+    if (files.ctx1) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:files.ctx1.b64 }, title:'Context Document 1' });
+    if (files.ctx2) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:files.ctx2.b64 }, title:'Context Document 2' });
+
+    var prompt = 'Review all provided documents and the website below. Extract and list:\n' +
+      '1. Key topics and themes that resonate with this advisor\'s target prospects\n' +
+      '2. Any specific resources the advisor offers (guides, frameworks, articles, checklists, whitepapers, tools)\n' +
+      '3. Any recurring pain points or conversation topics the advisor addresses\n\n' +
+      'Respond with a plain text list, one item per line, starting each with a dash (-). No headers, no preamble, no explanation. Just the list.\n\n' +
+      (url ? 'Website: ' + url : '');
+    userContent.push({ type:'text', text: prompt });
+
+    try {
+      var tools = url ? [{ type: 'web_search_20250305', name: 'web_search' }] : undefined;
+      var body = { model: 'claude-sonnet-4-5', max_tokens: 1000, messages: [{ role:'user', content:userContent }] };
+      if (tools) body.tools = tools;
+      var resp = await fetch(PROXY_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      var data = await resp.json();
+      var text = (data.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('').trim();
+      if (text) {
+        document.getElementById('keyTopics').value = text;
+        status.textContent = '\u2713 Pre-populated from sources \u2014 review and edit as needed';
+        status.className = 'fetch-status ok';
+      } else {
+        status.textContent = 'Could not extract topics \u2014 enter manually';
+        status.className = 'fetch-status err';
+      }
+    } catch(e) {
+      status.textContent = 'Analysis failed: ' + e.message;
+      status.className = 'fetch-status err';
+    } finally {
+      btn.disabled = false; btn.textContent = '\u9881 Analyze sources & pre-populate topics';
+    }
+  }
+
   function switchTab(tab, btn) {
     document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('on'); });
     btn.classList.add('on');
@@ -20479,6 +20562,7 @@ var __async = (__this, __arguments, generator) => {
     var clientName = document.getElementById('cName').value.trim();
     var clientUrl = document.getElementById('cUrl').value.trim();
     var valueProps = document.getElementById('valueProps').value.trim();
+    var keyTopics = document.getElementById('keyTopics').value.trim();
     var writingStyle = document.getElementById('writingStyle').value.trim();
     var addCtx = document.getElementById('addCtx').value.trim();
 
@@ -20509,54 +20593,91 @@ var __async = (__this, __arguments, generator) => {
     if (files.ctx2) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:files.ctx2.b64 }, title:'Context Document 2' });
     audiences.forEach(function(a) { if (a.file) userContent.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:a.file.b64 }, title:'Persona: '+a.name }); });
 
-    var prompt = 'Build a comprehensive ' + chLabel + ' outreach strategy for this client. These messages are sent BY THE CLIENT directly to prospects from the client\'s own LinkedIn account. Write in the client\'s voice.\n\n' +
+    var prompt = 'Build a comprehensive ' + chLabel + ' outreach strategy for this client. Messages are sent BY THE CLIENT directly to prospects from the client\'s own LinkedIn/email account. Write entirely in the client\'s voice.\n\n' +
       'CLIENT: ' + clientName + '\n' +
       (clientUrl ? 'WEBSITE: ' + clientUrl + '\n' : '') +
       'VALUE PROPOSITION: ' + valueProps + '\n' +
+      (keyTopics ? 'KEY TOPICS & RESOURCES: ' + keyTopics + '\n' : '') +
       (writingStyle ? 'WRITING STYLE: ' + writingStyle + '\n' : '') +
       (addCtx ? 'ADDITIONAL CONTEXT: ' + addCtx + '\n' : '') +
       '\nTARGET AUDIENCES:\n' + audSummary +
-      '\n\nMESSAGING FRAMEWORK & RULES:\n\n' +
+      '\n\n=== MESSAGING FRAMEWORK & RULES ===\n\n' +
+
       'PHASE STRUCTURE:\n' +
       '- Connection Request: 1 message, Day 0\n' +
       '- Engage Phase: 3 messages. Day 3 after acceptance, Day 8, Day 15\n' +
       '- Build Phase: 2 messages. Day 45, Day 75\n' +
       '- Sustain Phase: 2 messages. Day 165, Day 255\n' +
       '- ALL messages assume NO response received\n\n' +
-      'LENGTH RULES - STRICTLY ENFORCED:\n' +
-      '- Connection Request: 1-2 sentences max. Brief, personal, logical reason to connect. No ask.\n' +
-      '- Engage messages: 2 sentences HARD LIMIT. One idea. Then stop. No third sentence.\n' +
-      '- Build messages: 3 sentences max. Warmer, relationship established.\n' +
-      '- Sustain messages: 3 sentences max. Light touch, evergreen, check-in feel.\n\n' +
-      'ANGLE VARIATION - CRITICAL:\n' +
-      '- Each message must use a DIFFERENT angle than all previous messages in the sequence\n' +
-      '- Never repeat the same positioning, phrase, or value claim across messages\n' +
-      '- Build and Sustain messages must each introduce a fresh perspective or hook\n\n' +
+
+      'LENGTH RULES:\n' +
+      '- Connection Request: 1-2 sentences max\n' +
+      '- Engage: 2 sentences HARD LIMIT. One idea. Stop.\n' +
+      '- Build: 3 sentences max\n' +
+      '- Sustain: 3 sentences max\n\n' +
+
+      'CONNECTION REQUEST RULES:\n' +
+      '- Reference the prospect\'s role, geography, or professional context\n' +
+      '- NEVER assume a specific trigger moment or decision they are facing\n' +
+      '- The goal is to feel logical and personal, not presumptuous\n' +
+      '- No ask of any kind\n\n' +
+
+      'ENGAGE PHASE RULES:\n' +
+      '- Each message introduces ONE different angle (e.g. tax timing, rollover risk, business value, income strategy)\n' +
+      '- End Engage 1 with a low-friction open-ended question that invites the prospect to self-identify: e.g. "Does that match what you\'re thinking about?" or "Is that something that\'s top of mind for you?" or "Does that resonate with where you are right now?"\n' +
+      '- Engage 2: Frame the client\'s background/experience as pattern recognition about the prospect\'s world, NOT as biography. Use "After years of working with [audience type], I\'ve seen..." NOT "I spent years in X before this"\n' +
+      '- Engage 3: End confidently. No softener CTAs, no permission-granting phrases\n' +
+      '- Soft CTAs (offering a resource, asking yes/no) are appropriate in Engage 2 or 3 when logical\n\n' +
+
+      'BUILD PHASE RULES:\n' +
+      '- Build 1: Focus on helping the prospect ask the right questions, not just find the right answers. The most valuable reframe is often shifting WHAT question they should be asking\n' +
+      '- Build 2: Lead with an observation about what you\'ve seen in the prospect\'s world. Use "What I\'ve seen..." or "One pattern I notice..." NOT "What I\'ve learned" or "I\'ve found that"\n' +
+      '- Both Build messages should feel warmer than Engage — the connection is established\n' +
+      '- Soft CTAs work well here — offer a resource, a framework, or an insight\n\n' +
+
+      'SUSTAIN PHASE RULES:\n' +
+      '- Open by acknowledging the time naturally: "Hi [First Name] — it\'s been a while since we first connected."\n' +
+      '- Introduce a topic that is likely top of mind for this audience right now (draw from key topics provided)\n' +
+      '- Use the pattern: "[Topic] often comes up in conversations with my clients. If that\'s something you\'d like to explore, I\'m happy to chat."\n' +
+      '- Sustain 1 and Sustain 2 must use DIFFERENT topics/angles\n' +
+      '- End with an open door, never a push\n\n' +
+
+      'SOFT CTA GUIDANCE:\n' +
+      '- Soft CTAs offer something or open a door — they never ask for time or commitment\n' +
+      '- Good: "I put together a short framework on this — happy to share if useful." / "Worth a conversation if that\'s where you are."\n' +
+      '- Bad: "Would you be open to a 15-minute call?" / "Let\'s find time to connect"\n' +
+      '- Use key topics and resources provided to make soft CTAs specific (e.g. reference an actual guide or framework the client offers)\n\n' +
+
       'TONE & VOICE:\n' +
-      '- Peer-level, warm, professional - one human to another\n' +
+      '- Peer-level, warm, professional\n' +
       '- Use "you" more than "I"\n' +
-      '- Statement + question structure works well for Engage\n' +
-      '- Trust-first: never push, never pitch, never sell\n' +
-      '- Politely persistent: confident but not aggressive\n' +
-      '- No emojis under any circumstances\n\n' +
-      'FORBIDDEN PHRASES - never use:\n' +
-      '"hope this finds you well", "just circling back", "touching base", "it\'s been a minute",\n' +
-      '"just wanted to follow up", "I wanted to circle back", "I wanted to reach back out",\n' +
-      '"I\'ll leave you alone", "no worries" as a softener, "just checking in", "per my last message"\n\n' +
-      'MEETING ASK RULE:\n' +
-      'Never ask for a meeting unless the prospect has expressed direct interest.\n' +
-      'Soft CTAs (offer a resource, ask a yes/no question) are OK in Engage when logical.\n\n' +
-      'GOLDEN QUESTION: Before finalizing each message ask: would the prospect think this sounds\n' +
-      'like a financial advisor pitching them? If yes - rewrite it.\n\n' +
+      '- Trust-first, politely persistent, never pushy\n' +
+      '- No emojis\n\n' +
+
+      'FORBIDDEN PHRASES:\n' +
+      '"hope this finds you well", "just circling back", "touching base", "it\'s been a minute", "just wanted to follow up", "I wanted to circle back", "I wanted to reach back out", "I\'ll leave you alone", "no worries" as softener, "just checking in", "per my last message", "no pressure", "no pitch"\n\n' +
+
+      'MEETING ASK: Never ask for a meeting unless prospect expresses direct interest.\n\n' +
+
+      'GOLDEN QUESTION: Would the prospect think this sounds like a financial advisor pitching them? If yes — rewrite it.\n\n' +
+
+      'STRATEGY FORMAT — use bullet points throughout, NO prose paragraphs:\n' +
+      '- positioning: 5 bullets starting with -. One distinct angle per bullet. Max 15 words each.\n' +
+      '- icp_breakdown: Per audience bold header, then bullets: - Who, - Trigger moments, - Resonant language, - Key objection, - Avoid\n' +
+      '- channel_approach: One bullet per phase + 2-3 tactical bullets. Max 15 words each.\n' +
+      '- tone_and_voice: 3-4 principle bullets, then FITS: and AVOID: examples\n' +
+      '- compliance_and_guardrails: One rule per bullet, max 12 words\n' +
+      '- success_metrics: Bullets for primary KPI, acceptance rate, conversation rate, meeting conversion, when to adjust, red flag\n\n' +
+
       'RESPOND ONLY with valid JSON (no markdown, no preamble):\n' +
       '{\n' +
       '  "strategy": {\n' +
-      '    "positioning": "5 bullet points starting with -. One distinct positioning angle per bullet. Max 15 words each. No paragraphs.",\\n' +
-      '    "icp_breakdown": "Per audience: bold name as header, then bullets: - Who (age/role/assets), - Trigger moments, - Resonant language, - Key objection, - Avoid. Max 15 words per bullet.",\\n' +
-      '    "channel_approach": "One bullet per phase (Connection Request, Engage, Build, Sustain). Add 2-3 general tactical bullets. Max 15 words each.",\\n' +
-      '    "tone_and_voice": "3-4 voice principle bullets. Then label examples FITS: and AVOID:. No paragraphs.",\\n' +
-      '    "compliance_and_guardrails": "Bullet list only. One rule per bullet. Max 12 words per bullet.",\\n' +
-      '    "success_metrics": "Bullets: primary KPI, acceptance rate benchmark, conversation rate, meeting conversion rate, when to adjust, red flag signal."\n' +
+      '    "positioning": "bullet list",\n' +
+      '    "icp_breakdown": "per-audience bullet lists",\n' +
+      '    "channel_approach": "bullet list",\n' +
+      '    "tone_and_voice": "bullet list with FITS: and AVOID: examples",\n' +
+      '    "compliance_and_guardrails": "bullet list",\n' +
+      '    "success_metrics": "bullet list"\n' +
       '  },\n' +
       '  "sequences": [\n' +
       '    {\n' +
@@ -20570,7 +20691,7 @@ var __async = (__this, __arguments, generator) => {
       '    }\n' +
       '  ]\n' +
       '}\n\n' +
-      'Build ALL phases for EVERY audience: 1 CR + 3 Engage + 2 Build + 2 Sustain = 8 per audience.\n' +
+      'Build ALL phases for EVERY audience: 1 CR + 3 Engage + 2 Build + 2 Sustain = 8 per audience minimum.\n' +
       'For Email: include subject lines. LinkedIn CR <=300 chars. LinkedIn follow-ups <=500 chars.';
 
     userContent.push({ type:'text', text: prompt });
@@ -20580,7 +20701,7 @@ var __async = (__this, __arguments, generator) => {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5', max_tokens: 8000,
-          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services and HNW client acquisition. You write messages that are short, peer-level, and pass the Golden Question test. You always respond with only valid JSON, no markdown, never truncate.',
+          system: 'You are a senior LinkedIn and email outreach strategist specializing in financial services and HNW client acquisition. You write messages that are short, peer-level, and pass the Golden Question test: would a real prospect think this sounds like a financial advisor pitching them? If yes, rewrite it. Personal background is always framed as pattern recognition about the prospect\'s world, never as biography. You always respond with only valid JSON, no markdown, never truncate.',
           messages: [{ role:'user', content:userContent }]
         })
       });
@@ -20588,18 +20709,13 @@ var __async = (__this, __arguments, generator) => {
       clearInterval(intv);
       if (!resp.ok) { var err = await resp.json().catch(function(){return {};}); throw new Error(err.error ? err.error.message : 'API error ' + resp.status); }
       var data = await resp.json();
-
-      if (data.stop_reason === 'max_tokens') {
-        throw new Error('Response too long - try fewer audiences or split into two runs.');
-      }
+      if (data.stop_reason === 'max_tokens') throw new Error('Response too long — try fewer audiences or split into two runs.');
 
       var raw = (data.content||[]).map(function(b){return b.text||'';}).join('');
       var cleaned = raw.replace(/```json|```/g,'').trim();
-
       var parsed;
-      try {
-        parsed = JSON.parse(cleaned);
-      } catch(jsonErr) {
+      try { parsed = JSON.parse(cleaned); }
+      catch(jsonErr) {
         var match = cleaned.match(/\{[\s\S]*\}/);
         if (match) { parsed = JSON.parse(match[0]); }
         else { throw new Error('Could not parse API response.'); }
@@ -20699,7 +20815,6 @@ var __async = (__this, __arguments, generator) => {
     if (!lastParsed || typeof docx === 'undefined') { alert('Please generate a strategy first.'); return; }
     var btn = document.getElementById('docxBtn');
     btn.disabled = true; btn.textContent = 'Building\u2026';
-
     try {
       var D = docx;
       var border = { style: D.BorderStyle.SINGLE, size: 1, color: 'CCCCCC' };
@@ -20707,41 +20822,27 @@ var __async = (__this, __arguments, generator) => {
       var cm = { top: 80, bottom: 80, left: 120, right: 120 };
 
       function hCell(text, w) {
-        return new D.TableCell({
-          borders: cb, width: { size: w, type: D.WidthType.DXA },
+        return new D.TableCell({ borders: cb, width: { size: w, type: D.WidthType.DXA },
           shading: { fill: 'DDEEFF', type: D.ShadingType.CLEAR }, margins: cm,
-          children: [new D.Paragraph({ children: [new D.TextRun({ text: String(text), bold: true, size: 20, font: 'Arial' })] })]
-        });
+          children: [new D.Paragraph({ children: [new D.TextRun({ text: String(text), bold: true, size: 20, font: 'Arial' })] })] });
       }
       function dCell(text, w) {
-        return new D.TableCell({
-          borders: cb, width: { size: w, type: D.WidthType.DXA }, margins: cm,
-          children: [new D.Paragraph({ children: [new D.TextRun({ text: String(text||''), size: 20, font: 'Arial' })] })]
-        });
+        return new D.TableCell({ borders: cb, width: { size: w, type: D.WidthType.DXA }, margins: cm,
+          children: [new D.Paragraph({ children: [new D.TextRun({ text: String(text||''), size: 20, font: 'Arial' })] })] });
       }
       function msgCell(text, w) {
         var lines = String(text||'').split('\n');
-        return new D.TableCell({
-          borders: cb, width: { size: w, type: D.WidthType.DXA }, margins: cm,
+        return new D.TableCell({ borders: cb, width: { size: w, type: D.WidthType.DXA }, margins: cm,
           children: lines.map(function(line) {
             return new D.Paragraph({ children: [new D.TextRun({ text: line, size: 20, font: 'Arial' })], spacing: { after: 40 } });
-          })
-        });
+          }) });
       }
 
       var children = [];
+      children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_1,
+        children: [new D.TextRun({ text: lastClientName + ' \u2014 Outreach Strategy', bold: true, size: 36, font: 'Arial' })] }));
+      children.push(new D.Paragraph({ children: [new D.TextRun({ text: lastChLabel + '  \u00b7  Generated ' + new Date().toLocaleDateString(), size: 22, color: '666666', font: 'Arial' })], spacing: { after: 240 } }));
 
-      // Title
-      children.push(new D.Paragraph({
-        heading: D.HeadingLevel.HEADING_1,
-        children: [new D.TextRun({ text: lastClientName + ' \u2014 Outreach Strategy', bold: true, size: 36, font: 'Arial' })]
-      }));
-      children.push(new D.Paragraph({
-        children: [new D.TextRun({ text: lastChLabel + '  \u00b7  Generated ' + new Date().toLocaleDateString(), size: 22, color: '666666', font: 'Arial' })],
-        spacing: { after: 240 }
-      }));
-
-      // Strategy sections
       var s = lastParsed.strategy || {};
       var defs = [
         { k:'positioning', l:'Positioning & Differentiation' },
@@ -20753,66 +20854,40 @@ var __async = (__this, __arguments, generator) => {
       ];
       defs.forEach(function(def) {
         if (!s[def.k]) return;
-        children.push(new D.Paragraph({
-          heading: D.HeadingLevel.HEADING_2,
-          children: [new D.TextRun({ text: def.l, bold: true, size: 28, font: 'Arial' })]
-        }));
+        children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_2,
+          children: [new D.TextRun({ text: def.l, bold: true, size: 28, font: 'Arial' })] }));
         String(s[def.k]).split('\n').forEach(function(line) {
           children.push(new D.Paragraph({ children: [new D.TextRun({ text: line, size: 22, font: 'Arial' })], spacing: { after: 80 } }));
         });
         children.push(new D.Paragraph({ children: [new D.TextRun({ text: '' })], spacing: { after: 120 } }));
       });
 
-      // Page break
       children.push(new D.Paragraph({ children: [new D.PageBreak()] }));
-      children.push(new D.Paragraph({
-        heading: D.HeadingLevel.HEADING_1,
-        children: [new D.TextRun({ text: 'Message Sequences', bold: true, size: 36, font: 'Arial' })]
-      }));
-      children.push(new D.Paragraph({
-        children: [new D.TextRun({ text: 'All sequences assume no response received. If a prospect replies, pause and handle manually.', size: 20, italics: true, color: '888888', font: 'Arial' })],
-        spacing: { after: 240 }
-      }));
+      children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_1,
+        children: [new D.TextRun({ text: 'Message Sequences', bold: true, size: 36, font: 'Arial' })] }));
+      children.push(new D.Paragraph({ children: [new D.TextRun({ text: 'All sequences assume no response received. If a prospect replies, pause and handle manually.', size: 20, italics: true, color: '888888', font: 'Arial' })], spacing: { after: 240 } }));
 
-      // Tables per audience
       var seqs = lastParsed.sequences || [];
       var byAud = {};
       seqs.forEach(function(s) { var k = s.audience||'General'; if(!byAud[k]) byAud[k]=[]; byAud[k].push(s); });
-
       var cols = [1300, 900, 480, 1100, 5580];
-      var totalW = cols.reduce(function(a,b){return a+b;}, 0);
+      var totalW = cols.reduce(function(a,b){return a+b;},0);
 
       Object.keys(byAud).forEach(function(aud) {
         var rows = byAud[aud];
-        children.push(new D.Paragraph({
-          heading: D.HeadingLevel.HEADING_2,
-          children: [new D.TextRun({ text: aud, bold: true, size: 26, font: 'Arial' })]
-        }));
-
-        var tableRows = [
-          new D.TableRow({
-            tableHeader: true,
-            children: [hCell('Phase',cols[0]), hCell('Channel',cols[1]), hCell('#',cols[2]), hCell('Timing',cols[3]), hCell('Message',cols[4])]
-          })
-        ];
-
+        children.push(new D.Paragraph({ heading: D.HeadingLevel.HEADING_2,
+          children: [new D.TextRun({ text: aud, bold: true, size: 26, font: 'Arial' })] }));
+        var tableRows = [new D.TableRow({ tableHeader: true,
+          children: [hCell('Phase',cols[0]),hCell('Channel',cols[1]),hCell('#',cols[2]),hCell('Timing',cols[3]),hCell('Message',cols[4])] })];
         rows.forEach(function(r) {
           var msgText = r.subject ? 'Subject: ' + r.subject + '\n\n' + (r.message||'') : (r.message||'');
-          tableRows.push(new D.TableRow({
-            children: [
-              dCell(r.phase||'', cols[0]),
-              dCell(r.channel||'', cols[1]),
-              dCell(String(r.message_number||''), cols[2]),
-              dCell(r.timing||'', cols[3]),
-              msgCell(msgText, cols[4])
-            ]
-          }));
+          tableRows.push(new D.TableRow({ children: [
+            dCell(r.phase||'',cols[0]), dCell(r.channel||'',cols[1]),
+            dCell(String(r.message_number||''),cols[2]), dCell(r.timing||'',cols[3]),
+            msgCell(msgText,cols[4])
+          ]}));
         });
-
-        children.push(new D.Table({
-          width: { size: totalW, type: D.WidthType.DXA },
-          columnWidths: cols, rows: tableRows
-        }));
+        children.push(new D.Table({ width: { size: totalW, type: D.WidthType.DXA }, columnWidths: cols, rows: tableRows }));
         children.push(new D.Paragraph({ children: [new D.TextRun({text:''})], spacing: { after: 240 } }));
       });
 
@@ -20820,18 +20895,15 @@ var __async = (__this, __arguments, generator) => {
         styles: {
           default: { document: { run: { font: 'Arial', size: 22 } } },
           paragraphStyles: [
-            { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-              run: { size: 36, bold: true, font: 'Arial', color: '1a1a18' },
-              paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 0 } },
-            { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-              run: { size: 26, bold: true, font: 'Arial', color: '1a4a80' },
-              paragraph: { spacing: { before: 200, after: 80 }, outlineLevel: 1 } }
+            { id:'Heading1', name:'Heading 1', basedOn:'Normal', next:'Normal', quickFormat:true,
+              run:{ size:36, bold:true, font:'Arial', color:'1a1a18' },
+              paragraph:{ spacing:{ before:240, after:120 }, outlineLevel:0 } },
+            { id:'Heading2', name:'Heading 2', basedOn:'Normal', next:'Normal', quickFormat:true,
+              run:{ size:26, bold:true, font:'Arial', color:'1a4a80' },
+              paragraph:{ spacing:{ before:200, after:80 }, outlineLevel:1 } }
           ]
         },
-        sections: [{
-          properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1080, right: 1080, bottom: 1080, left: 1080 } } },
-          children: children
-        }]
+        sections: [{ properties:{ page:{ size:{ width:12240, height:15840 }, margin:{ top:1080, right:1080, bottom:1080, left:1080 } } }, children:children }]
       });
 
       var blob = await D.Packer.toBlob(doc);
@@ -20840,7 +20912,6 @@ var __async = (__this, __arguments, generator) => {
       a.href = url; a.download = lastClientName.replace(/\s+/g,'_') + '_Outreach_Strategy.docx';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       URL.revokeObjectURL(url);
-
     } catch(e) {
       alert('Error generating Word doc: ' + e.message);
       console.error(e);
