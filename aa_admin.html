@@ -43,12 +43,14 @@
   .divider { border: none; border-top: 1px solid #e8e6e0; margin: 16px 0; }
   .thinking { display: none; align-items: center; gap: 8px; font-size: 13px; color: #888; padding: 8px 0; }
   .thinking.visible { display: flex; }
-  .drop-zone { border: 1px dashed #ccc; border-radius: 7px; padding: 14px; text-align: center; cursor: pointer; background: #fafaf8; transition: all 0.15s; margin-bottom: 8px; }
+  .pdf-zone { display: none; margin-bottom: 12px; }
+  .pdf-zone.visible { display: block; }
+  .drop-zone { border: 1px dashed #ccc; border-radius: 7px; padding: 16px; text-align: center; cursor: pointer; background: #fafaf8; transition: all 0.15s; margin-bottom: 8px; }
   .drop-zone:hover, .drop-zone.dragover { background: #f0f0ec; border-color: #4338ca; }
   .drop-zone p { font-size: 13px; color: #888; }
-  .drop-zone.has-file p { color: #15803d; }
-  .pdf-zone { display: none; }
-  .pdf-zone.visible { display: block; }
+  .drop-zone.has-file p { color: #15803d; font-weight: 500; }
+  .skip-link { font-size: 12px; color: #888; cursor: pointer; text-decoration: underline; }
+  .skip-link:hover { color: #555; }
 </style>
 </head>
 <body>
@@ -86,6 +88,7 @@
         <span class="spinner dark"></span> Thinking...
       </div>
 
+      <!-- PDF drop zone — shown when agent asks for LinkedIn profile -->
       <div class="pdf-zone" id="pdf-zone">
         <div class="drop-zone" id="drop-zone"
           onclick="document.getElementById('pdf-file').click()"
@@ -95,7 +98,7 @@
           <p id="drop-label">⬆ Drop LinkedIn PDF here or click to upload</p>
         </div>
         <input type="file" id="pdf-file" accept=".pdf" style="display:none" onchange="handleFileInput(event)" />
-        <button class="btn" style="font-size:12px;padding:6px 12px" onclick="hidePdfZone()">Skip — I'll paste the text instead</button>
+        <span class="skip-link" onclick="skipPdf()">Skip — I'll paste the profile text instead</span>
       </div>
 
       <hr class="divider" />
@@ -114,7 +117,7 @@ const PROXY = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
 let adminKey = '';
 let conversationHistory = [];
 let clientCache = [];
-let awaitingLinkedIn = false;
+let pendingPdfB64 = null;
 
 async function authenticate() {
   const key = document.getElementById('admin-key').value.trim();
@@ -169,7 +172,7 @@ Guide the user conversationally through adding, updating, or removing clients an
 IMPORTANT — LINKEDIN PROFILE STEP:
 When you are ready to ask for the LinkedIn profile (step 3 of adding a new client), end your message with exactly this tag on its own line:
 <<<SHOW_PDF_ZONE>>>
-This will display a PDF upload zone in the UI. The user can drop the PDF and the text will be automatically extracted and sent to you. If they skip it, they'll paste the text manually.
+This will display a PDF upload zone in the UI. The user can drop the LinkedIn PDF directly — it will be sent to you as a base64-encoded document that you can read natively. If they skip it, they'll paste the text manually.
 
 DATA STRUCTURE:
 {
@@ -198,7 +201,7 @@ ADD NEW CLIENT:
 8. If FM: ask 506(b) or 506(c) and any compliance restrictions
 9. Synthesize and show baseContext for review
 10. Synthesize and show each audience context for review
-11. Ask for approval: "Does this look right? Say yes to save or tell me what to change."
+11. Ask: "Does this look right? Say yes to save or tell me what to change."
 12. On approval output ONLY:
 <<<SAVE_CLIENT>>>
 {valid JSON}
@@ -259,26 +262,22 @@ RULES:
   ];
 }
 
-function addMessage(role, text) {
-  const msgs = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-  div.textContent = text;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
+// ── PDF Handling ──────────────────────────────────────────────────────
 
 function showPdfZone() {
-  awaitingLinkedIn = true;
   document.getElementById('pdf-zone').classList.add('visible');
-  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
 }
 
 function hidePdfZone() {
   document.getElementById('pdf-zone').classList.remove('visible');
-  document.getElementById('drop-label').textContent = '⬆ Drop LinkedIn PDF here or click to upload';
   document.getElementById('drop-zone').classList.remove('has-file');
-  awaitingLinkedIn = false;
+  document.getElementById('drop-label').textContent = '⬆ Drop LinkedIn PDF here or click to upload';
+  document.getElementById('pdf-file').value = '';
+}
+
+function skipPdf() {
+  hidePdfZone();
+  addMessage('assistant', 'No problem — please paste the LinkedIn profile text in the input box below, or type "not available" if you don\'t have it.');
 }
 
 function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
@@ -298,35 +297,40 @@ async function processPDF(file) {
   const label = document.getElementById('drop-label');
   label.textContent = 'Reading PDF...';
   try {
-    const arrayBuffer = await file.arrayBuffer();
-    const decoder = new TextDecoder('utf-8', { fatal: false });
-    const raw = decoder.decode(new Uint8Array(arrayBuffer));
-    let text = '';
-    const streams = raw.match(/stream[\r\n]([\s\S]*?)[\r\n]endstream/g) || [];
-    for (const s of streams) {
-      const inner = s.replace(/^stream[\r\n]/, '').replace(/[\r\n]endstream$/, '');
-      const printable = inner.replace(/[^\x20-\x7E\n]/g, ' ').replace(/\s+/g, ' ').trim();
-      if (printable.length > 50) text += printable + '\n';
-    }
-    if (text.trim().length < 100) {
-      text = raw.replace(/[^\x20-\x7E\n]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 3000);
-    }
-    const extracted = text.substring(0, 4000);
+    const b64 = await fileToBase64(file);
+    pendingPdfB64 = b64;
     document.getElementById('drop-zone').classList.add('has-file');
     label.textContent = '✓ ' + file.name + ' loaded';
     hidePdfZone();
-    await submitLinkedIn(extracted, file.name);
+    addMessage('user', '📄 ' + file.name + ' uploaded');
+    await callAI([
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 }, title: 'LinkedIn Profile PDF' },
+      { type: 'text', text: 'Here is the LinkedIn profile PDF for this client.' }
+    ]);
   } catch(err) {
     label.textContent = '⬆ Drop LinkedIn PDF here or click to upload';
-    addMessage('error', 'Could not read PDF. Please paste the profile text in the input box instead.');
+    addMessage('error', 'Could not read PDF: ' + err.message + '. Please paste the profile text instead.');
   }
 }
 
-async function submitLinkedIn(text, filename) {
-  const msg = `[LinkedIn PDF uploaded: ${filename}]\n\n${text}`;
-  addMessage('user', `📄 ${filename} — profile loaded`);
-  conversationHistory.push({ role: 'user', content: msg });
-  await callAI();
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = () => reject(new Error('File read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────
+
+function addMessage(role, text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
 function quickSend(text) {
@@ -357,16 +361,26 @@ async function sendMessage() {
   await callAI();
 }
 
-async function callAI() {
+async function callAI(contentOverride) {
   const btn = document.getElementById('send-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>';
   document.getElementById('thinking').classList.add('visible');
+
   try {
+    // If contentOverride provided (PDF upload), add it to history as user message
+    if (contentOverride) {
+      conversationHistory.push({ role: 'user', content: contentOverride });
+    }
+
     const resp = await fetch(PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1500, messages: conversationHistory })
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1500,
+        messages: conversationHistory
+      })
     });
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
@@ -415,6 +429,8 @@ async function processReply(reply) {
   }
   if (deleteMatch) await deleteClient(deleteMatch[1].trim());
 }
+
+// ── KV Operations ─────────────────────────────────────────────────────
 
 async function saveClient(data) {
   try {
