@@ -20589,18 +20589,34 @@ function hideErr() { showErr(""); }
 function formatBullets(text) {
   if (!text) return "";
   var t;
+  // Handle arrays
   if (Array.isArray(text)) {
     t = text.map(function(item) {
+      if (typeof item === "object" && item !== null) {
+        // Object in array - extract values
+        return Object.values(item).map(function(v) { return String(v).trim(); }).join("\n");
+      }
       var s = String(item).trim();
       return s.startsWith("- ") ? s : "- " + s;
+    }).join("\n");
+  } else if (typeof text === "object" && text !== null) {
+    // Plain object - extract all values recursively
+    t = Object.values(text).map(function(v) {
+      if (Array.isArray(v)) return v.map(function(i) { return String(i).trim(); }).join("\n");
+      if (typeof v === "object" && v !== null) return Object.values(v).map(function(i) { return String(i).trim(); }).join("\n");
+      return String(v).trim();
     }).join("\n");
   } else {
     t = String(text);
   }
+  // Convert literal \n to real newlines
   t = t.replace(/\\n/g, "\n");
+  // Ensure each bullet on its own line
   t = t.replace(/([^\n])(- )/g, "$1\n$2");
+  // Clean up extra blank lines
   t = t.replace(/\n{3,}/g, "\n\n");
-  t = t.replace(/^[\["']|["'\]]/gm, "").trim();
+  // Strip stray JSON punctuation
+  t = t.replace(/^[\[{"]|["}\]],?$/gm, "").trim();
   return t;
 }
 
@@ -20685,6 +20701,7 @@ async function generateStrategy() {
     "tone_and_voice: 3-4 voice principle bullets then FITS: and AVOID: examples\n" +
     "compliance_and_guardrails: One rule per bullet, max 12 words each\n" +
     "success_metrics: Bullets for primary KPI, acceptance rate, conversation rate, meeting conversion, when to adjust, red flag\n\n" +
+    "CRITICAL: All strategy field values must be plain strings, not arrays or objects. Each bullet point on its own line separated by newline characters.\n" +
     "Respond ONLY with raw valid JSON. Start with { end with }. No markdown.\n" +
     "{\"strategy\":{\"positioning\":\"\",\"icp_breakdown\":\"\",\"channel_approach\":\"\",\"tone_and_voice\":\"\",\"compliance_and_guardrails\":\"\",\"success_metrics\":\"\"}}";
 
