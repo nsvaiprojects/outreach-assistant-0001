@@ -101,6 +101,16 @@
         <span class="skip-link" onclick="skipPdf()">Skip — I'll paste the profile text instead</span>
       </div>
 
+      <!-- URL input zone — shown when agent asks for website -->
+      <div class="pdf-zone" id="url-zone">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <input type="text" id="url-input" placeholder="https://example.com" style="flex:1"
+            onkeydown="if(event.key==='Enter')fetchUrl()" />
+          <button class="btn primary" onclick="fetchUrl()">Fetch site</button>
+        </div>
+        <span class="skip-link" onclick="skipUrl()">Skip — I'll paste the content instead</span>
+      </div>
+
       <hr class="divider" />
       <div class="input-row">
         <textarea id="user-input" placeholder="Tell me what you'd like to do..." rows="1"
@@ -181,6 +191,14 @@ The PDF is sent to you as a native document that you can read directly — do NO
 3. Proceed to the next question (website content)
 Never say the PDF is corrupted or unreadable — you have full native PDF reading capability. Treat it exactly like any other document you can read.
 
+IMPORTANT — WEBSITE STEP:
+When you are ready to ask for the website (step 4), end your message with exactly this tag on its own line:
+<<<SHOW_URL_INPUT>>>
+This will display a URL input field in the UI. The tool will fetch the website content automatically and pass it to you as text. You do NOT need to ask the user to paste anything.
+
+CRITICAL — WHEN YOU RECEIVE WEBSITE CONTENT:
+The message will start with "[Website content fetched from: URL]" followed by the page text. Read it directly, confirm what you found, and proceed to the next question. Do not ask the user to paste anything.
+
 DATA STRUCTURE:
 {
   "id": "nick_rothrock",
@@ -201,7 +219,8 @@ ADD NEW CLIENT:
 1. Ask: client name
 2. Ask: FA or FM?
 3. Ask for LinkedIn profile — end message with <<<SHOW_PDF_ZONE>>>
-4. Ask: paste website/bio content
+4. Ask for website URL — end message with <<<SHOW_URL_INPUT>>>
+   The tool will fetch the site automatically and pass the content to you.
 5. Ask: target audience names (one per line)
 6. For each audience, ask for a description
 7. Ask: voice/tone notes
@@ -285,6 +304,50 @@ function hidePdfZone() {
 function skipPdf() {
   hidePdfZone();
   addMessage('assistant', 'No problem — please paste the LinkedIn profile text in the input box below, or type "not available" if you don\'t have it.');
+}
+
+function showUrlZone() {
+  document.getElementById('url-zone').classList.add('visible');
+}
+
+function hideUrlZone() {
+  document.getElementById('url-zone').classList.remove('visible');
+  document.getElementById('url-input').value = '';
+}
+
+function skipUrl() {
+  hideUrlZone();
+  addMessage('assistant', 'No problem — please paste the website content in the input box below, or type "not available".');
+}
+
+async function fetchUrl() {
+  const urlVal = document.getElementById('url-input').value.trim();
+  if (!urlVal) return;
+  hideUrlZone();
+  addMessage('user', '🌐 ' + urlVal);
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  document.getElementById('thinking').classList.add('visible');
+
+  try {
+    const resp = await fetch(PROXY + '/fetch-url?url=' + encodeURIComponent(urlVal));
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+
+    const pageNote = data.pageCount ? `[Website crawled: ${data.pageCount} pages from ${urlVal}]` : `[Website content fetched from: ${urlVal}]`;
+    addMessage('system', `✓ Fetched ${data.pageCount || 1} page(s): ${(data.urls || [urlVal]).join(', ')}`);
+
+    const msg = `${pageNote}\n\n${data.text}`;
+    conversationHistory.push({ role: 'user', content: msg });
+    await callAI();
+  } catch(e) {
+    addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content instead.');
+    btn.disabled = false;
+    btn.innerHTML = 'Send';
+    document.getElementById('thinking').classList.remove('visible');
+  }
 }
 
 function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
@@ -408,16 +471,19 @@ async function processReply(reply) {
   const patchMatch = reply.match(/<<<PATCH_CLIENT:([^>]+)>>>([\s\S]*?)<<<END_PATCH>>>/);
   const deleteMatch = reply.match(/<<<DELETE_CLIENT:([^>]+)>>>/);
   const showPdf = reply.includes('<<<SHOW_PDF_ZONE>>>');
+  const showUrl = reply.includes('<<<SHOW_URL_INPUT>>>');
 
   let display = reply
     .replace(/<<<SAVE_CLIENT>>>[\s\S]*?<<<END_SAVE>>>/g, '')
     .replace(/<<<PATCH_CLIENT:[^>]+>>>[\s\S]*?<<<END_PATCH>>>/g, '')
     .replace(/<<<DELETE_CLIENT:[^>]+>>>/g, '')
     .replace(/<<<SHOW_PDF_ZONE>>>/g, '')
+    .replace(/<<<SHOW_URL_INPUT>>>/g, '')
     .trim();
 
   if (display) addMessage('assistant', display);
   if (showPdf) showPdfZone();
+  if (showUrl) showUrlZone();
 
   if (saveMatch) {
     try {
