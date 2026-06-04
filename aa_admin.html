@@ -311,8 +311,8 @@ async function processPDF(file) {
     hidePdfZone();
     addMessage('user', '📄 ' + file.name + ' uploaded');
     await callAI([
-      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 }, title: 'LinkedIn Profile PDF' },
-      { type: 'text', text: 'Here is the LinkedIn profile PDF for this client.' }
+      { type: 'text', text: 'I have uploaded the LinkedIn profile PDF. Please read the attached document and extract the key details — name, title, firm, experience, credentials, and any other relevant information. Then confirm what you found and move to the next question.' },
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 }, title: 'LinkedIn Profile PDF' }
     ]);
   } catch(err) {
     label.textContent = '⬆ Drop LinkedIn PDF here or click to upload';
@@ -384,7 +384,7 @@ async function callAI(contentOverride) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 1500,
         messages: conversationHistory
       })
