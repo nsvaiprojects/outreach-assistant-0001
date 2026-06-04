@@ -20721,6 +20721,7 @@ async function generateStrategy() {
     clearInterval(intv);
     if (result.stop_reason === "max_tokens") throw new Error("Response too long. Try fewer audiences.");
     var parsed = parseJSON(result.raw);
+    console.log("Strategy parsed:", JSON.stringify(parsed.strategy).substring(0, 1000));
     lastStrategy = parsed;
     renderStrategy(parsed, cname, chLabel, ctLabel);
     document.getElementById("stratLoad").style.display = "none";
