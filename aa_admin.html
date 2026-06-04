@@ -172,7 +172,14 @@ Guide the user conversationally through adding, updating, or removing clients an
 IMPORTANT — LINKEDIN PROFILE STEP:
 When you are ready to ask for the LinkedIn profile (step 3 of adding a new client), end your message with exactly this tag on its own line:
 <<<SHOW_PDF_ZONE>>>
-This will display a PDF upload zone in the UI. The user can drop the LinkedIn PDF directly — it will be sent to you as a base64-encoded document that you can read natively. If they skip it, they'll paste the text manually.
+This will display a PDF upload zone in the UI. The user can drop the LinkedIn PDF directly.
+
+CRITICAL — WHEN YOU RECEIVE A PDF DOCUMENT BLOCK:
+The PDF is sent to you as a native document that you can read directly — do NOT ask the user to paste text. Instead:
+1. Read the PDF document content directly
+2. Confirm what you found: "I can see [name]'s LinkedIn profile. They are [title] at [firm]..." 
+3. Proceed to the next question (website content)
+Never say the PDF is corrupted or unreadable — you have full native PDF reading capability. Treat it exactly like any other document you can read.
 
 DATA STRUCTURE:
 {
