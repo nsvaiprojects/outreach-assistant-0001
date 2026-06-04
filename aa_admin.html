@@ -21,8 +21,6 @@
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
   .btn.primary:hover { background: #333; }
-  .btn.danger { border-color: #fecaca; color: #b91c1c; }
-  .btn.danger:hover { background: #fef2f2; }
   .auth-card { max-width: 400px; margin: 60px auto; }
   .auth-row { display: flex; gap: 8px; margin-top: 12px; }
   .auth-error { font-size: 12px; color: #b91c1c; margin-top: 6px; display: none; }
@@ -42,12 +40,15 @@
   .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   .spinner.dark { border-color: #ddd; border-top-color: #555; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .client-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .pill { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
-  .pill.fm { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
   .divider { border: none; border-top: 1px solid #e8e6e0; margin: 16px 0; }
   .thinking { display: none; align-items: center; gap: 8px; font-size: 13px; color: #888; padding: 8px 0; }
   .thinking.visible { display: flex; }
+  .drop-zone { border: 1px dashed #ccc; border-radius: 7px; padding: 14px; text-align: center; cursor: pointer; background: #fafaf8; transition: all 0.15s; margin-bottom: 8px; }
+  .drop-zone:hover, .drop-zone.dragover { background: #f0f0ec; border-color: #4338ca; }
+  .drop-zone p { font-size: 13px; color: #888; }
+  .drop-zone.has-file p { color: #15803d; }
+  .pdf-zone { display: none; }
+  .pdf-zone.visible { display: block; }
 </style>
 </head>
 <body>
@@ -72,7 +73,7 @@
   <div class="chat-wrap" id="chat-wrap">
     <div class="card">
       <h2>Client manager</h2>
-      <div class="quick-btns" id="quick-btns">
+      <div class="quick-btns">
         <button class="quick-btn" onclick="quickSend('I want to add a new client')">+ Add new client</button>
         <button class="quick-btn" onclick="quickSend('I want to update an existing client')">Edit client</button>
         <button class="quick-btn" onclick="quickSend('I want to add a new audience to a client')">+ Add audience</button>
@@ -84,6 +85,19 @@
       <div class="thinking" id="thinking">
         <span class="spinner dark"></span> Thinking...
       </div>
+
+      <div class="pdf-zone" id="pdf-zone">
+        <div class="drop-zone" id="drop-zone"
+          onclick="document.getElementById('pdf-file').click()"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)">
+          <p id="drop-label">⬆ Drop LinkedIn PDF here or click to upload</p>
+        </div>
+        <input type="file" id="pdf-file" accept=".pdf" style="display:none" onchange="handleFileInput(event)" />
+        <button class="btn" style="font-size:12px;padding:6px 12px" onclick="hidePdfZone()">Skip — I'll paste the text instead</button>
+      </div>
+
       <hr class="divider" />
       <div class="input-row">
         <textarea id="user-input" placeholder="Tell me what you'd like to do..." rows="1"
@@ -100,20 +114,16 @@ const PROXY = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
 let adminKey = '';
 let conversationHistory = [];
 let clientCache = [];
+let awaitingLinkedIn = false;
 
 async function authenticate() {
   const key = document.getElementById('admin-key').value.trim();
   if (!key) return;
-
-  const testResp = await fetch(PROXY + '/clients', {
-    headers: { 'X-Admin-Key': key }
-  }).catch(() => null);
-
+  const testResp = await fetch(PROXY + '/clients', { headers: { 'X-Admin-Key': key } }).catch(() => null);
   if (!testResp || !testResp.ok) {
     document.getElementById('auth-error').style.display = 'block';
     return;
   }
-
   adminKey = key;
   document.getElementById('auth-card').style.display = 'none';
   document.getElementById('chat-wrap').classList.add('visible');
@@ -123,7 +133,6 @@ async function authenticate() {
 async function initChat() {
   const clients = await fetchClients();
   clientCache = clients;
-
   let welcomeMsg = '';
   if (clients.length === 0) {
     welcomeMsg = 'No clients yet. Click "Add new client" or tell me what you\'d like to do and I\'ll walk you through it.';
@@ -131,7 +140,6 @@ async function initChat() {
     const names = clients.map(c => `${c.name} (${c.type === 'fa' ? 'FA' : 'FM'}${c.audiences && c.audiences.length ? ', audiences: ' + c.audiences.join(', ') : ''})`).join('\n- ');
     welcomeMsg = `You currently have ${clients.length} client${clients.length !== 1 ? 's' : ''}:\n\n- ${names}\n\nWhat would you like to do?`;
   }
-
   addMessage('assistant', welcomeMsg);
   rebuildSystemPrompt(clients);
 }
@@ -158,17 +166,21 @@ ${clientList}
 YOUR ROLE:
 Guide the user conversationally through adding, updating, or removing clients and audiences. Be concise and direct. Ask one question at a time.
 
+IMPORTANT — LINKEDIN PROFILE STEP:
+When you are ready to ask for the LinkedIn profile (step 3 of adding a new client), end your message with exactly this tag on its own line:
+<<<SHOW_PDF_ZONE>>>
+This will display a PDF upload zone in the UI. The user can drop the PDF and the text will be automatically extracted and sent to you. If they skip it, they'll paste the text manually.
+
 DATA STRUCTURE:
-Each client stored as JSON:
 {
   "id": "nick_rothrock",
   "name": "Nick Rothrock",
   "type": "fa",
-  "baseContext": "Text covering: who the client is, their background/credibility, value proposition, voice/tone guidelines, compliance guardrails, and general conversation goal.",
+  "baseContext": "Second-person text covering who the client is, value proposition, voice/tone, conversation goal, compliance guardrails.",
   "audiences": [
     {
       "name": "Pre-Retirees",
-      "context": "Text covering: who this audience is, their pain points, how the client's value prop lands for this group, specific objection handling for this audience."
+      "context": "Second-person text covering who this audience is, pain points, how the value prop lands, objection handling."
     }
   ]
 }
@@ -177,82 +189,68 @@ FLOWS:
 
 ADD NEW CLIENT:
 1. Ask: client name
-2. Ask: FA (financial advisor) or FM (fund manager)?
-3. Ask: paste their LinkedIn profile text (or say if not available)
-4. Ask: paste their website/bio content (or say if not available)
-5. Ask: what target audience(s) do they serve? List names, one per line.
-6. For each audience, ask for a brief description of who they are and what they need
-7. Ask: any voice/tone notes? (how they communicate, phrases to use/avoid)
-8. If FM, ask: 506(b) or 506(c)? Any compliance restrictions?
-9. Synthesize and show the FULL baseContext text for review
+2. Ask: FA or FM?
+3. Ask for LinkedIn profile — end message with <<<SHOW_PDF_ZONE>>>
+4. Ask: paste website/bio content
+5. Ask: target audience names (one per line)
+6. For each audience, ask for a description
+7. Ask: voice/tone notes
+8. If FM: ask 506(b) or 506(c) and any compliance restrictions
+9. Synthesize and show baseContext for review
 10. Synthesize and show each audience context for review
-11. Ask: "Does this look right? Say 'yes' to save or tell me what to change."
-12. On approval, output ONLY this block (no other text after it):
+11. Ask for approval: "Does this look right? Say yes to save or tell me what to change."
+12. On approval output ONLY:
 <<<SAVE_CLIENT>>>
-{valid JSON matching the data structure above}
+{valid JSON}
 <<<END_SAVE>>>
 
-UPDATE EXISTING CLIENT (base context):
-1. Confirm which client
-2. Ask what needs updating (voice, compliance, value prop, who they are, etc.)
-3. Ask for the new information
-4. Show updated baseContext for review
-5. On approval output:
+UPDATE BASE CONTEXT:
+1. Confirm client and what to update
+2. Collect new info, show updated baseContext
+3. On approval:
 <<<PATCH_CLIENT:client_id>>>
 {"baseContext": "updated text"}
 <<<END_PATCH>>>
 
-UPDATE EXISTING CLIENT (specific audience):
-1. Confirm which client and which audience
-2. Ask what needs updating
-3. Show updated audience context for review
-4. On approval, fetch the full client, update the audience, output full updated client:
+UPDATE AUDIENCE:
+1. Confirm client and audience
+2. Collect updates, show for review
+3. On approval output full updated client:
 <<<SAVE_CLIENT>>>
-{full updated client JSON}
+{full JSON}
 <<<END_SAVE>>>
 
-ADD NEW AUDIENCE to existing client:
-1. Ask audience name and description
-2. Synthesize audience context
-3. Show for review
-4. On approval, output full updated client JSON with new audience appended:
+ADD AUDIENCE:
+1. Ask name and description
+2. Synthesize, show for review
+3. On approval output full updated client with new audience:
 <<<SAVE_CLIENT>>>
-{full updated client JSON}
+{full JSON}
 <<<END_SAVE>>>
 
 REMOVE CLIENT:
 1. Confirm which client
-2. Say: "This will permanently remove [name] and all their audiences. Type 'yes, remove [name]' to confirm."
-3. On confirmation output:
+2. "This will permanently remove [name]. Type 'yes, remove [name]' to confirm."
+3. On confirmation:
 <<<DELETE_CLIENT:client_id>>>
 
 REMOVE AUDIENCE:
-1. Confirm which client and audience
+1. Confirm client and audience
 2. Ask for confirmation
-3. On confirmation, output full client JSON with that audience removed:
+3. On confirmation output full client JSON with audience removed:
 <<<SAVE_CLIENT>>>
-{full updated client JSON with audience removed}
+{full JSON}
 <<<END_SAVE>>>
 
-CONTEXT WRITING GUIDELINES:
-baseContext should be written in second person ("You are writing as [name]...") and cover:
-- Who the client is (background, firm, credentials, what makes them credible)
-- Their value proposition (what they offer, what problem they solve)
-- Voice and tone (how they communicate, what to avoid, peer-level or formal, key phrases)
-- Conversation goal (book a call, low pressure, what success looks like)
-- Compliance guardrails (what can/cannot be said, especially for FM clients)
+CONTEXT GUIDELINES:
+baseContext (second person): who the client is, credentials, value prop, voice/tone, conversation goal, compliance
+audienceContext (second person): who this audience is, pain points, how value prop resonates, objection handling
 
-audienceContext should be written in second person and cover:
-- Who this audience is (demographics, situation, mindset)
-- Their pain points and what they're looking for
-- How the client's value prop specifically resonates for this group
-- Objection handling specific to this audience
-
-IMPORTANT:
+RULES:
 - Always show content for review before saving
-- Never output save/patch/delete tags until explicitly approved
-- IDs are lowercase with underscores: "john_smith", "eppler_capital"
-- Be conversational, ask one question at a time
+- Never output save/patch/delete tags until approved
+- IDs: lowercase underscores (nick_rothrock, eppler_capital)
+- One question at a time
 - Keep responses concise`;
 
   conversationHistory = [
@@ -268,6 +266,67 @@ function addMessage(role, text) {
   div.textContent = text;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showPdfZone() {
+  awaitingLinkedIn = true;
+  document.getElementById('pdf-zone').classList.add('visible');
+  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+function hidePdfZone() {
+  document.getElementById('pdf-zone').classList.remove('visible');
+  document.getElementById('drop-label').textContent = '⬆ Drop LinkedIn PDF here or click to upload';
+  document.getElementById('drop-zone').classList.remove('has-file');
+  awaitingLinkedIn = false;
+}
+
+function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
+function handleDragLeave() { document.getElementById('drop-zone').classList.remove('dragover'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') processPDF(file);
+}
+function handleFileInput(e) {
+  const file = e.target.files[0];
+  if (file) processPDF(file);
+}
+
+async function processPDF(file) {
+  const label = document.getElementById('drop-label');
+  label.textContent = 'Reading PDF...';
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const decoder = new TextDecoder('utf-8', { fatal: false });
+    const raw = decoder.decode(new Uint8Array(arrayBuffer));
+    let text = '';
+    const streams = raw.match(/stream[\r\n]([\s\S]*?)[\r\n]endstream/g) || [];
+    for (const s of streams) {
+      const inner = s.replace(/^stream[\r\n]/, '').replace(/[\r\n]endstream$/, '');
+      const printable = inner.replace(/[^\x20-\x7E\n]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (printable.length > 50) text += printable + '\n';
+    }
+    if (text.trim().length < 100) {
+      text = raw.replace(/[^\x20-\x7E\n]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 3000);
+    }
+    const extracted = text.substring(0, 4000);
+    document.getElementById('drop-zone').classList.add('has-file');
+    label.textContent = '✓ ' + file.name + ' loaded';
+    hidePdfZone();
+    await submitLinkedIn(extracted, file.name);
+  } catch(err) {
+    label.textContent = '⬆ Drop LinkedIn PDF here or click to upload';
+    addMessage('error', 'Could not read PDF. Please paste the profile text in the input box instead.');
+  }
+}
+
+async function submitLinkedIn(text, filename) {
+  const msg = `[LinkedIn PDF uploaded: ${filename}]\n\n${text}`;
+  addMessage('user', `📄 ${filename} — profile loaded`);
+  conversationHistory.push({ role: 'user', content: msg });
+  await callAI();
 }
 
 function quickSend(text) {
@@ -291,27 +350,23 @@ async function sendMessage() {
   const input = document.getElementById('user-input');
   const text = input.value.trim();
   if (!text) return;
-
   input.value = '';
   input.style.height = 'auto';
   addMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+  await callAI();
+}
 
+async function callAI() {
   const btn = document.getElementById('send-btn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>';
   document.getElementById('thinking').classList.add('visible');
-
-  conversationHistory.push({ role: 'user', content: text });
-
   try {
     const resp = await fetch(PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1500,
-        messages: conversationHistory
-      })
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1500, messages: conversationHistory })
     });
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
@@ -331,37 +386,34 @@ async function processReply(reply) {
   const saveMatch = reply.match(/<<<SAVE_CLIENT>>>([\s\S]*?)<<<END_SAVE>>>/);
   const patchMatch = reply.match(/<<<PATCH_CLIENT:([^>]+)>>>([\s\S]*?)<<<END_PATCH>>>/);
   const deleteMatch = reply.match(/<<<DELETE_CLIENT:([^>]+)>>>/);
+  const showPdf = reply.includes('<<<SHOW_PDF_ZONE>>>');
 
   let display = reply
     .replace(/<<<SAVE_CLIENT>>>[\s\S]*?<<<END_SAVE>>>/g, '')
     .replace(/<<<PATCH_CLIENT:[^>]+>>>[\s\S]*?<<<END_PATCH>>>/g, '')
     .replace(/<<<DELETE_CLIENT:[^>]+>>>/g, '')
+    .replace(/<<<SHOW_PDF_ZONE>>>/g, '')
     .trim();
 
   if (display) addMessage('assistant', display);
+  if (showPdf) showPdfZone();
 
   if (saveMatch) {
     try {
       const json = JSON.parse(saveMatch[1].trim());
       await saveClient(json);
     } catch(e) {
-      addMessage('error', 'Could not parse client data: ' + e.message + '\n\nRaw: ' + saveMatch[1].trim().substring(0, 200));
+      addMessage('error', 'Could not parse client data: ' + e.message);
     }
   }
-
   if (patchMatch) {
     try {
-      const id = patchMatch[1].trim();
-      const json = JSON.parse(patchMatch[2].trim());
-      await patchClient(id, json);
+      await patchClient(patchMatch[1].trim(), JSON.parse(patchMatch[2].trim()));
     } catch(e) {
       addMessage('error', 'Could not parse update: ' + e.message);
     }
   }
-
-  if (deleteMatch) {
-    await deleteClient(deleteMatch[1].trim());
-  }
+  if (deleteMatch) await deleteClient(deleteMatch[1].trim());
 }
 
 async function saveClient(data) {
