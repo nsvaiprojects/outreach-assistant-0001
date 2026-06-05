@@ -43,14 +43,17 @@
   .divider { border: none; border-top: 1px solid #e8e6e0; margin: 16px 0; }
   .thinking { display: none; align-items: center; gap: 8px; font-size: 13px; color: #888; padding: 8px 0; }
   .thinking.visible { display: flex; }
-  .pdf-zone { display: none; margin-bottom: 12px; }
-  .pdf-zone.visible { display: block; }
-  .drop-zone { border: 1px dashed #ccc; border-radius: 7px; padding: 16px; text-align: center; cursor: pointer; background: #fafaf8; transition: all 0.15s; margin-bottom: 8px; }
+  .input-zone { display: none; margin-bottom: 10px; padding: 12px; background: #f8f7f4; border: 1px solid #e8e6e0; border-radius: 8px; }
+  .input-zone.visible { display: block; }
+  .input-zone-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 8px; }
+  .drop-zone { border: 1px dashed #ccc; border-radius: 7px; padding: 16px; text-align: center; cursor: pointer; background: #fff; transition: all 0.15s; margin-bottom: 8px; }
   .drop-zone:hover, .drop-zone.dragover { background: #f0f0ec; border-color: #4338ca; }
   .drop-zone p { font-size: 13px; color: #888; }
   .drop-zone.has-file p { color: #15803d; font-weight: 500; }
-  .skip-link { font-size: 12px; color: #888; cursor: pointer; text-decoration: underline; }
+  .skip-link { font-size: 12px; color: #aaa; cursor: pointer; text-decoration: underline; }
   .skip-link:hover { color: #555; }
+  .url-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .url-row input { flex: 1; }
 </style>
 </head>
 <body>
@@ -88,8 +91,9 @@
         <span class="spinner dark"></span> Thinking...
       </div>
 
-      <!-- PDF drop zone — shown when agent asks for LinkedIn profile -->
-      <div class="pdf-zone" id="pdf-zone">
+      <!-- PDF zone — hidden until LinkedIn step -->
+      <div class="input-zone" id="pdf-zone">
+        <div class="input-zone-label">LinkedIn profile PDF</div>
         <div class="drop-zone" id="drop-zone"
           onclick="document.getElementById('pdf-file').click()"
           ondragover="handleDragOver(event)"
@@ -101,14 +105,15 @@
         <span class="skip-link" onclick="skipPdf()">Skip — I'll paste the profile text instead</span>
       </div>
 
-      <!-- URL fetch — always available -->
-      <div style="margin-bottom:10px;padding:10px 12px;background:var(--color-background-secondary,#f8f7f4);border-radius:7px;border:1px solid #e8e6e0">
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:6px">Fetch website content</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" id="url-input" placeholder="https://example.com" style="flex:1;font-size:13px"
+      <!-- URL zone — hidden until website step -->
+      <div class="input-zone" id="url-zone">
+        <div class="input-zone-label">Website URL</div>
+        <div class="url-row">
+          <input type="text" id="url-input" placeholder="https://example.com"
             onkeydown="if(event.key==='Enter')fetchUrl()" />
-          <button class="btn" onclick="fetchUrl()" id="fetch-btn" style="font-size:12px;padding:7px 12px">Fetch ↗</button>
+          <button class="btn primary" id="fetch-btn" onclick="fetchUrl()">Fetch site</button>
         </div>
+        <span class="skip-link" onclick="skipUrl()">Skip — I'll paste the content instead</span>
       </div>
 
       <hr class="divider" />
@@ -127,7 +132,6 @@ const PROXY = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
 let adminKey = '';
 let conversationHistory = [];
 let clientCache = [];
-let pendingPdfB64 = null;
 
 async function authenticate() {
   const key = document.getElementById('admin-key').value.trim();
@@ -148,9 +152,11 @@ async function initChat() {
   clientCache = clients;
   let welcomeMsg = '';
   if (clients.length === 0) {
-    welcomeMsg = 'No clients yet. Click "Add new client" or tell me what you\'d like to do and I\'ll walk you through it.';
+    welcomeMsg = 'No clients yet. Click "Add new client" or tell me what you\'d like to do.';
   } else {
-    const names = clients.map(c => `${c.name} (${c.type === 'fa' ? 'FA' : 'FM'}${c.audiences && c.audiences.length ? ', audiences: ' + c.audiences.join(', ') : ''})`).join('\n- ');
+    const names = clients.map(c =>
+      `${c.name} (${c.type === 'fa' ? 'FA' : 'FM'}${c.audiences && c.audiences.length ? ', audiences: ' + c.audiences.join(', ') : ''})`
+    ).join('\n- ');
     welcomeMsg = `You currently have ${clients.length} client${clients.length !== 1 ? 's' : ''}:\n\n- ${names}\n\nWhat would you like to do?`;
   }
   addMessage('assistant', welcomeMsg);
@@ -168,190 +174,103 @@ async function fetchClients() {
 
 function rebuildSystemPrompt(clients) {
   const clientList = clients.length > 0
-    ? clients.map(c => `- ${c.name} (id: "${c.id}", type: "${c.type}", audiences: [${(c.audiences || []).map(a => `"${a}"`).join(', ')}])`).join('\n')
+    ? clients.map(c => `- ${c.name} (id: "${c.id}", type: "${c.type}", audiences: [${(c.audiences||[]).map(a=>`"${a}"`).join(', ')}])`).join('\n')
     : '(none yet)';
 
-  const sys = `You are the AA Admin Agent — an internal tool for the Advisor Appointments team to manage clients in their AI conversation assistant. Clients and their contexts are stored in Cloudflare KV via a REST API.
+  const sys = `You are the AA Admin Agent — an internal tool for the Advisor Appointments team to manage clients in their AI conversation assistant. Clients are stored in Cloudflare KV.
 
 CURRENT CLIENTS:
 ${clientList}
 
 YOUR ROLE:
-Guide the user conversationally through adding, updating, or removing clients and audiences. Be concise and direct. Ask one question at a time.
+Guide the user through adding, updating, or removing clients and audiences. Be concise. Ask one question at a time.
 
-IMPORTANT — LINKEDIN PROFILE STEP:
-When you are ready to ask for the LinkedIn profile (step 3 of adding a new client), end your message with exactly this tag on its own line:
-<<<SHOW_PDF_ZONE>>>
-This will display a PDF upload zone in the UI. The user can drop the LinkedIn PDF directly.
+UI TRIGGERS — use these tags exactly to show special input zones:
+- When asking for LinkedIn profile: end your message with <<<SHOW_PDF_ZONE>>>
+- When asking for website URL: end your message with <<<SHOW_URL_INPUT>>>
+The UI will show the appropriate input zone automatically. Do not describe these tags to the user.
 
-CRITICAL — WHEN YOU RECEIVE A PDF DOCUMENT BLOCK:
-The PDF is sent to you as a native document that you can read directly — do NOT ask the user to paste text. Instead:
-1. Read the PDF document content directly
-2. Confirm what you found: "I can see [name]'s LinkedIn profile. They are [title] at [firm]..." 
-3. Proceed to the next question (website content)
-Never say the PDF is corrupted or unreadable — you have full native PDF reading capability. Treat it exactly like any other document you can read.
-
-IMPORTANT — WEBSITE STEP:
-When you are ready to ask for the website (step 4), end your message with exactly this tag on its own line:
-<<<SHOW_URL_INPUT>>>
-This will display a URL input field in the UI. The tool will fetch the website content automatically and pass it to you as text. You do NOT need to ask the user to paste anything.
-
-CRITICAL — WHEN YOU RECEIVE WEBSITE CONTENT:
-The message will start with "[Website content fetched from: URL]" followed by the page text. Read it directly, confirm what you found, and proceed to the next question. Do not ask the user to paste anything.
+RECEIVING INPUT:
+- When a PDF document block arrives: read it natively, summarize what you found, then ask the next question
+- When a message starts with "[Website crawled:": read the content, summarize what you found, then ask the next question
+- Never ask the user to paste content you already received
 
 DATA STRUCTURE:
 {
   "id": "nick_rothrock",
   "name": "Nick Rothrock",
   "type": "fa",
-  "baseContext": "Second-person text covering who the client is, value proposition, voice/tone, conversation goal, compliance guardrails.",
-  "audiences": [
-    {
-      "name": "Pre-Retirees",
-      "context": "Second-person text covering who this audience is, pain points, how the value prop lands, objection handling."
-    }
-  ]
+  "baseContext": "Second-person text: who client is, value prop, voice/tone, conversation goal, compliance.",
+  "audiences": [{ "name": "Pre-Retirees", "context": "Second-person text: who audience is, pain points, value prop angle, objection handling." }]
 }
 
-FLOWS:
-
-ADD NEW CLIENT:
+ADD NEW CLIENT FLOW:
 1. Ask: client name
-2. Ask: FA or FM?
-3. Ask for LinkedIn profile — end message with <<<SHOW_PDF_ZONE>>>
-4. Ask for website URL — end message with <<<SHOW_URL_INPUT>>>
-   The tool will fetch the site automatically and pass the content to you.
+2. Ask: FA or FM? <<<SHOW_PDF_ZONE>>> (at end of step 3 ask)
+3. Ask for LinkedIn profile — end with <<<SHOW_PDF_ZONE>>>
+4. Ask for website — end with <<<SHOW_URL_INPUT>>>
 5. Ask: target audience names (one per line)
-6. For each audience, ask for a description
+6. For each audience, ask for a brief description
 7. Ask: voice/tone notes
-8. If FM: ask 506(b) or 506(c) and any compliance restrictions
+8. If FM: 506(b) or 506(c)? Any compliance restrictions?
 9. Synthesize and show baseContext for review
 10. Synthesize and show each audience context for review
 11. Ask: "Does this look right? Say yes to save or tell me what to change."
-12. On approval output ONLY:
+12. On approval ONLY output:
 <<<SAVE_CLIENT>>>
 {valid JSON}
 <<<END_SAVE>>>
 
-UPDATE BASE CONTEXT:
-1. Confirm client and what to update
-2. Collect new info, show updated baseContext
-3. On approval:
-<<<PATCH_CLIENT:client_id>>>
-{"baseContext": "updated text"}
+UPDATE FLOW:
+- Confirm client + what to update → collect info → show for review → on approval:
+<<<PATCH_CLIENT:id>>>
+{"field": "updated value"}
 <<<END_PATCH>>>
 
-UPDATE AUDIENCE:
-1. Confirm client and audience
-2. Collect updates, show for review
-3. On approval output full updated client:
-<<<SAVE_CLIENT>>>
-{full JSON}
-<<<END_SAVE>>>
-
 ADD AUDIENCE:
-1. Ask name and description
-2. Synthesize, show for review
-3. On approval output full updated client with new audience:
+- Collect name + description → synthesize → show for review → on approval output full updated client JSON:
 <<<SAVE_CLIENT>>>
-{full JSON}
+{full JSON with new audience}
 <<<END_SAVE>>>
 
 REMOVE CLIENT:
-1. Confirm which client
-2. "This will permanently remove [name]. Type 'yes, remove [name]' to confirm."
-3. On confirmation:
-<<<DELETE_CLIENT:client_id>>>
+- Confirm → "Type 'yes, remove [name]' to confirm" → on confirmation:
+<<<DELETE_CLIENT:id>>>
 
 REMOVE AUDIENCE:
-1. Confirm client and audience
-2. Ask for confirmation
-3. On confirmation output full client JSON with audience removed:
+- Confirm → on confirmation output full client JSON with audience removed:
 <<<SAVE_CLIENT>>>
 {full JSON}
 <<<END_SAVE>>>
 
-CONTEXT GUIDELINES:
-baseContext (second person): who the client is, credentials, value prop, voice/tone, conversation goal, compliance
-audienceContext (second person): who this audience is, pain points, how value prop resonates, objection handling
+CONTEXT WRITING:
+baseContext (second person): who client is, credentials, value prop, voice/tone, conversation goal, compliance guardrails
+audienceContext (second person): who this audience is, pain points, value prop angle for this group, objection handling
 
 RULES:
-- Always show content for review before saving
-- Never output save/patch/delete tags until approved
-- IDs: lowercase underscores (nick_rothrock, eppler_capital)
+- Never output save/delete tags until user approves
+- IDs: lowercase_underscores
 - One question at a time
-- Keep responses concise`;
+- Be concise`;
 
   conversationHistory = [
     { role: 'user', content: sys },
-    { role: 'assistant', content: 'Understood. Ready to help manage clients.' }
+    { role: 'assistant', content: 'Understood. Ready to help.' }
   ];
 }
 
-// ── PDF Handling ──────────────────────────────────────────────────────
+// ── PDF ───────────────────────────────────────────────────────────────
 
-function showPdfZone() {
-  document.getElementById('pdf-zone').classList.add('visible');
-}
-
+function showPdfZone() { document.getElementById('pdf-zone').classList.add('visible'); }
 function hidePdfZone() {
   document.getElementById('pdf-zone').classList.remove('visible');
   document.getElementById('drop-zone').classList.remove('has-file');
   document.getElementById('drop-label').textContent = '⬆ Drop LinkedIn PDF here or click to upload';
   document.getElementById('pdf-file').value = '';
 }
-
 function skipPdf() {
   hidePdfZone();
-  addMessage('assistant', 'No problem — please paste the LinkedIn profile text in the input box below, or type "not available" if you don\'t have it.');
-}
-
-function showUrlZone() {
-  document.getElementById('url-zone').classList.add('visible');
-}
-
-function hideUrlZone() {
-  document.getElementById('url-zone').classList.remove('visible');
-  document.getElementById('url-input').value = '';
-}
-
-function skipUrl() {
-  hideUrlZone();
-  addMessage('assistant', 'No problem — please paste the website content in the input box below, or type "not available".');
-}
-
-async function fetchUrl() {
-  const urlVal = document.getElementById('url-input').value.trim();
-  if (!urlVal) return;
-  document.getElementById('url-input').value = '';
-  addMessage('user', '🌐 Fetching: ' + urlVal);
-
-  const btn = document.getElementById('send-btn');
-  const fetchBtn = document.getElementById('fetch-btn');
-  btn.disabled = true;
-  fetchBtn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
-  document.getElementById('thinking').classList.add('visible');
-
-  try {
-    const resp = await fetch(PROXY + '/fetch-url?url=' + encodeURIComponent(urlVal));
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error);
-
-    const pageNote = data.pageCount
-      ? `[Website crawled: ${data.pageCount} pages from ${urlVal}]`
-      : `[Website content fetched from: ${urlVal}]`;
-    addMessage('system', '✓ Fetched ' + (data.pageCount || 1) + ' page(s): ' + (data.urls || [urlVal]).join(', '));
-
-    conversationHistory.push({ role: 'user', content: pageNote + '\n\n' + data.text });
-    await callAI();
-  } catch(e) {
-    addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content instead.');
-    btn.disabled = false;
-    fetchBtn.disabled = false;
-    btn.innerHTML = 'Send';
-    document.getElementById('thinking').classList.remove('visible');
-  }
+  addMessage('assistant', 'No problem — paste the LinkedIn profile text in the chat box below, or type "not available".');
 }
 
 function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
@@ -362,28 +281,24 @@ function handleDrop(e) {
   const file = e.dataTransfer.files[0];
   if (file && file.type === 'application/pdf') processPDF(file);
 }
-function handleFileInput(e) {
-  const file = e.target.files[0];
-  if (file) processPDF(file);
-}
+function handleFileInput(e) { const file = e.target.files[0]; if (file) processPDF(file); }
 
 async function processPDF(file) {
   const label = document.getElementById('drop-label');
   label.textContent = 'Reading PDF...';
   try {
     const b64 = await fileToBase64(file);
-    pendingPdfB64 = b64;
     document.getElementById('drop-zone').classList.add('has-file');
     label.textContent = '✓ ' + file.name + ' loaded';
     hidePdfZone();
     addMessage('user', '📄 ' + file.name + ' uploaded');
     await callAI([
-      { type: 'text', text: 'I have uploaded the LinkedIn profile PDF. Please read the attached document and extract the key details — name, title, firm, experience, credentials, and any other relevant information. Then confirm what you found and move to the next question.' },
-      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 }, title: 'LinkedIn Profile PDF' }
+      { type: 'text', text: 'Here is the LinkedIn profile PDF. Please read it and extract the key details, then confirm what you found and move to the next question.' },
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } }
     ]);
   } catch(err) {
     label.textContent = '⬆ Drop LinkedIn PDF here or click to upload';
-    addMessage('error', 'Could not read PDF: ' + err.message + '. Please paste the profile text instead.');
+    addMessage('error', 'Could not read PDF. Please paste the profile text instead.');
   }
 }
 
@@ -391,9 +306,44 @@ function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = () => reject(new Error('File read failed'));
+    reader.onerror = () => reject(new Error('Read failed'));
     reader.readAsDataURL(file);
   });
+}
+
+// ── URL ───────────────────────────────────────────────────────────────
+
+function showUrlZone() { document.getElementById('url-zone').classList.add('visible'); }
+function hideUrlZone() {
+  document.getElementById('url-zone').classList.remove('visible');
+  document.getElementById('url-input').value = '';
+}
+function skipUrl() {
+  hideUrlZone();
+  addMessage('assistant', 'No problem — paste the website content in the chat box below, or type "not available".');
+}
+
+async function fetchUrl() {
+  const urlVal = document.getElementById('url-input').value.trim();
+  if (!urlVal) return;
+  hideUrlZone();
+  addMessage('user', '🌐 ' + urlVal);
+
+  setLoading(true);
+  try {
+    const resp = await fetch(PROXY + '/fetch-url?url=' + encodeURIComponent(urlVal));
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    if (data.urls && data.urls.length) {
+      addMessage('system', '✓ Crawled ' + data.urls.length + ' page(s): ' + data.urls.join(', '));
+    }
+    const msg = `[Website crawled: ${data.pageCount || 1} pages from ${urlVal}]\n\n${data.text}`;
+    conversationHistory.push({ role: 'user', content: msg });
+    await callAI();
+  } catch(e) {
+    addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content instead.');
+    setLoading(false);
+  }
 }
 
 // ── Chat ──────────────────────────────────────────────────────────────
@@ -413,15 +363,21 @@ function quickSend(text) {
 }
 
 function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('send-btn');
+  const fetchBtn = document.getElementById('fetch-btn');
+  btn.disabled = on;
+  if (fetchBtn) fetchBtn.disabled = on;
+  btn.innerHTML = on ? '<span class="spinner"></span>' : 'Send';
+  document.getElementById('thinking').classList.toggle('visible', on);
 }
 
 async function sendMessage() {
@@ -436,25 +392,15 @@ async function sendMessage() {
 }
 
 async function callAI(contentOverride) {
-  const btn = document.getElementById('send-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
-  document.getElementById('thinking').classList.add('visible');
-
+  setLoading(true);
   try {
-    // If contentOverride provided (PDF upload), add it to history as user message
     if (contentOverride) {
       conversationHistory.push({ role: 'user', content: contentOverride });
     }
-
     const resp = await fetch(PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1500,
-        messages: conversationHistory
-      })
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1500, messages: conversationHistory })
     });
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
@@ -464,9 +410,7 @@ async function callAI(contentOverride) {
   } catch(e) {
     addMessage('error', 'Error: ' + e.message);
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = 'Send';
-    document.getElementById('thinking').classList.remove('visible');
+    setLoading(false);
   }
 }
 
@@ -477,7 +421,7 @@ async function processReply(reply) {
   const showPdf = reply.includes('<<<SHOW_PDF_ZONE>>>');
   const showUrl = reply.includes('<<<SHOW_URL_INPUT>>>');
 
-  let display = reply
+  const display = reply
     .replace(/<<<SAVE_CLIENT>>>[\s\S]*?<<<END_SAVE>>>/g, '')
     .replace(/<<<PATCH_CLIENT:[^>]+>>>[\s\S]*?<<<END_PATCH>>>/g, '')
     .replace(/<<<DELETE_CLIENT:[^>]+>>>/g, '')
@@ -490,24 +434,17 @@ async function processReply(reply) {
   if (showUrl) showUrlZone();
 
   if (saveMatch) {
-    try {
-      const json = JSON.parse(saveMatch[1].trim());
-      await saveClient(json);
-    } catch(e) {
-      addMessage('error', 'Could not parse client data: ' + e.message);
-    }
+    try { await saveClient(JSON.parse(saveMatch[1].trim())); }
+    catch(e) { addMessage('error', 'Could not parse client data: ' + e.message); }
   }
   if (patchMatch) {
-    try {
-      await patchClient(patchMatch[1].trim(), JSON.parse(patchMatch[2].trim()));
-    } catch(e) {
-      addMessage('error', 'Could not parse update: ' + e.message);
-    }
+    try { await patchClient(patchMatch[1].trim(), JSON.parse(patchMatch[2].trim())); }
+    catch(e) { addMessage('error', 'Could not parse update: ' + e.message); }
   }
   if (deleteMatch) await deleteClient(deleteMatch[1].trim());
 }
 
-// ── KV Operations ─────────────────────────────────────────────────────
+// ── KV ────────────────────────────────────────────────────────────────
 
 async function saveClient(data) {
   try {
@@ -521,9 +458,7 @@ async function saveClient(data) {
     addMessage('system', '✓ Client "' + data.name + '" saved successfully.');
     clientCache = await fetchClients();
     rebuildSystemPrompt(clientCache);
-  } catch(e) {
-    addMessage('error', 'Save failed: ' + e.message);
-  }
+  } catch(e) { addMessage('error', 'Save failed: ' + e.message); }
 }
 
 async function patchClient(id, data) {
@@ -538,9 +473,7 @@ async function patchClient(id, data) {
     addMessage('system', '✓ Client updated successfully.');
     clientCache = await fetchClients();
     rebuildSystemPrompt(clientCache);
-  } catch(e) {
-    addMessage('error', 'Update failed: ' + e.message);
-  }
+  } catch(e) { addMessage('error', 'Update failed: ' + e.message); }
 }
 
 async function deleteClient(id) {
@@ -554,9 +487,7 @@ async function deleteClient(id) {
     addMessage('system', '✓ Client removed successfully.');
     clientCache = await fetchClients();
     rebuildSystemPrompt(clientCache);
-  } catch(e) {
-    addMessage('error', 'Delete failed: ' + e.message);
-  }
+  } catch(e) { addMessage('error', 'Delete failed: ' + e.message); }
 }
 </script>
 </body>
