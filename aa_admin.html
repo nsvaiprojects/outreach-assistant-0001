@@ -456,19 +456,33 @@ async function fetchUrl() {
   addMessage('user', '🌐 ' + urlVal);
   setLoading(true);
   try {
-    const resp = await fetch(PROXY + '/fetch-url?url=' + encodeURIComponent(urlVal));
+    // Use Anthropic web search tool to fetch the site — same approach as strategy builder
+    const resp = await fetch(PROXY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1500,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: 'You are a research assistant. Extract detailed information from websites including services offered, value proposition, target audiences, and communication style. Return a comprehensive summary.',
+        messages: [{
+          role: 'user',
+          content: 'Search for and visit the homepage, about page, services page, team page, and any other relevant pages at ' + urlVal + '. Extract and summarize: (1) who they are and their background, (2) all services they offer, (3) their value proposition, (4) who they serve / target audiences, (5) their communication style and tone. Be thorough and specific.'
+        }]
+      })
+    });
     const data = await resp.json();
-    if (data.error) throw new Error(data.error);
-    const pageCount = data.pageCount || 0;
-    if (pageCount > 0) {
-      addMessage('system', '✓ Crawled ' + pageCount + ' page(s): ' + (data.urls || []).join(', '));
+    if (data.error) throw new Error(data.error.message);
+    const content = data.content.map(b => b.text || '').join('').trim();
+    if (content.length > 50) {
+      addMessage('system', '✓ Website content retrieved from ' + urlVal);
+      await callAI('[Website content retrieved from: ' + urlVal + ']\n\n' + content);
+    } else {
+      addMessage('error', 'Could not retrieve content from ' + urlVal + '. Please paste the website text in the chat box instead.');
+      setLoading(false);
     }
-    const content = data.text && data.text.trim().length > 50
-      ? data.text
-      : '(No readable content found — please paste the website text in the chat box)';
-    await callAI('[Website crawled: ' + pageCount + ' pages from ' + urlVal + ']\n\n' + content);
   } catch(e) {
-    addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content in the chat box instead.');
+    addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content instead.');
     setLoading(false);
   }
 }
