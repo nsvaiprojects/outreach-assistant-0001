@@ -31,6 +31,7 @@
   .msg.assistant { background: #f8f7f4; border: 1px solid #e8e6e0; align-self: flex-start; color: #1a1a1a; }
   .msg.user { background: #eef2ff; border: 1px solid #c7d2fe; align-self: flex-end; color: #3730a3; }
   .msg.system { background: #f0fdf4; border: 1px solid #bbf7d0; align-self: flex-start; color: #15803d; font-size: 13px; }
+  .msg.warning { background: #fffbeb; border: 1px solid #fde68a; align-self: flex-start; color: #92400e; font-size: 13px; }
   .msg.error { background: #fef2f2; border: 1px solid #fecaca; align-self: flex-start; color: #b91c1c; font-size: 13px; }
   .quick-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
   .quick-btn { padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px; background: #fff; font-size: 12px; color: #555; cursor: pointer; font-family: inherit; transition: all 0.15s; }
@@ -55,7 +56,7 @@
   .url-row { display: flex; gap: 8px; margin-bottom: 8px; }
   .url-row input { flex: 1; }
   .tog-row { display: flex; gap: 8px; margin-bottom: 8px; }
-  .tog { flex: 1; padding: 9px; border: 1.5px solid #ccc; border-radius: 7px; background: #f5f5f3; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; transition: none; text-align: center; }
+  .tog { flex: 1; padding: 9px; border: 1.5px solid #ccc; border-radius: 7px; background: #f5f5f3; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; text-align: center; }
   .tog.sel { border: 2px solid #4338ca !important; background: #eef2ff !important; color: #3730a3 !important; font-weight: 600 !important; }
 </style>
 </head>
@@ -81,20 +82,18 @@
   <div class="chat-wrap" id="chat-wrap">
     <div class="card">
       <h2>Client manager</h2>
-
-      <div class="quick-btns" id="quick-btns">
+      <div class="quick-btns">
         <button class="quick-btn" onclick="quickSend('I want to add a new client')">+ Add new client</button>
         <button class="quick-btn" onclick="quickSend('I want to update an existing client')">Edit client</button>
         <button class="quick-btn" onclick="quickSend('I want to add a new audience to a client')">+ Add audience</button>
         <button class="quick-btn" onclick="quickSend('I want to remove a client')">Remove client</button>
         <button class="quick-btn" onclick="quickSend('Show me all current clients')">List clients</button>
       </div>
-
       <hr class="divider" />
       <div class="messages" id="messages"></div>
       <div class="thinking" id="thinking"><span class="spinner dark"></span> Thinking...</div>
 
-      <!-- Client type toggle — shown at step 2 -->
+      <!-- Client type toggle -->
       <div class="input-zone" id="type-zone">
         <div class="input-zone-label">Client type</div>
         <div class="tog-row">
@@ -103,7 +102,7 @@
         </div>
       </div>
 
-      <!-- PDF zone — shown at step 3 -->
+      <!-- PDF zone -->
       <div class="input-zone" id="pdf-zone">
         <div class="input-zone-label">LinkedIn profile PDF</div>
         <div class="drop-zone" id="drop-zone"
@@ -117,7 +116,7 @@
         <span class="skip-link" onclick="skipPdf()">Skip — I'll paste the profile text instead</span>
       </div>
 
-      <!-- URL zone — shown at step 4 -->
+      <!-- URL zone -->
       <div class="input-zone" id="url-zone">
         <div class="input-zone-label">Website URL</div>
         <div class="url-row">
@@ -143,7 +142,6 @@ const PROXY = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
 let adminKey = '';
 let conversationHistory = [];
 let clientCache = [];
-let selectedType = null;
 
 // ── Auth ──────────────────────────────────────────────────────────────
 
@@ -193,47 +191,46 @@ function rebuildSystemPrompt(clients) {
     ? clients.map(c => `- ${c.name} (id: "${c.id}", type: "${c.type}", audiences: [${(c.audiences||[]).map(a=>`"${a}"`).join(', ')}])`).join('\n')
     : '(none yet)';
 
-  const sys = `You are the AA Admin Agent — an internal tool for the Advisor Appointments (AA) team to manage client records in their AI conversation assistant system. Records are stored in Cloudflare KV.
+  const sys = `You are the AA Admin Agent — an internal tool for the Advisor Appointments (AA) team to manage client records in their AI conversation assistant. Records are stored in Cloudflare KV.
 
 CURRENT CLIENTS:
 ${clientList}
 
 YOUR ROLE:
-Guide the AA team through managing client records conversationally. Be concise and direct. Ask one question at a time. Never ask for information the user has already provided.
+Guide the AA team through managing client records conversationally. Be concise. Ask one question at a time. Never ask for information already provided.
 
 ═══════════════════════════════════════
 UI TRIGGER TAGS
 ═══════════════════════════════════════
-Use these tags to show special input UI. Place them at the very end of your message on their own line. Never describe or explain these tags to the user.
-
-<<<SHOW_TYPE_SELECTOR>>> — show FA/FM toggle buttons (use when asking client type)
-<<<SHOW_PDF_ZONE>>> — show LinkedIn PDF drop zone (use when asking for LinkedIn profile)
-<<<SHOW_URL_INPUT>>> — show website URL input field (use when asking for website)
+Place these at the very end of your message. Never describe them to the user.
+<<<SHOW_TYPE_SELECTOR>>> — show FA/FM toggle (use when asking client type)
+<<<SHOW_PDF_ZONE>>> — show LinkedIn PDF drop zone (use when asking for LinkedIn)
+<<<SHOW_URL_INPUT>>> — show website URL input (use when asking for website)
 
 ═══════════════════════════════════════
 INPUT HANDLING
 ═══════════════════════════════════════
-- "[Client type selected: FA]" or "[Client type selected: FM]" — user selected client type via toggle
-- "[LinkedIn PDF uploaded: filename]" followed by a document block — read the PDF natively, extract name/title/firm/background/credentials/services. Do NOT ask for text.
-- "[Website crawled: N pages from URL]" followed by content — read it directly, extract services/value prop/approach. Do NOT ask for text.
-- If crawl returns empty or minimal content, note it and continue without it.
+- "[Client type selected: FA]" or "[Client type selected: FM]" — user picked client type
+- "[LinkedIn PDF uploaded: filename]" + document block — read PDF natively, extract name/title/firm/background/credentials/services. NEVER ask for text.
+- "[Website content retrieved from: URL]" — read content directly, extract services/value prop/approach. NEVER ask to paste.
+- "[Website fetch failed]" — no website content available, proceed with LinkedIn only and note this in the summary
 
 ═══════════════════════════════════════
-DEFAULT VALUES
+DEFAULTS
 ═══════════════════════════════════════
-Voice & tone default (use if not clear from profile/website):
+Voice & tone default (use if not clear from sources):
 - Conversational, professional, low pressure
 
-Financial Advisor default audiences:
-1. Business Owners — minimum investable assets of $500k
-2. Executives & Professionals — investable assets of $250k+
-3. Professionals who have recently changed jobs — investable assets of $250k+
+FINANCIAL ADVISOR — fixed audience names (always use these exactly):
+1. "Business Owners" — minimum investable assets of $500k
+2. "Executives & Professionals" — investable assets of $250k+
+3. "Recently Changed Jobs" — professionals who have recently changed jobs, investable assets of $250k+
 
-Fund Manager default audiences:
-1. COIs including RIAs of small firms
-2. Individual high net worth investors
+FUND MANAGER — fixed audience names (always use these exactly):
+1. "COIs & RIAs" — Centers of Influence including RIAs of small firms
+2. "High Net Worth Individuals" — individual high net worth investors
 
-Override defaults if the profile/website provides clearer signals about the client's communication style or target audiences.
+These audience names are FIXED. Always use them. Tailor the context for each audience based on what you learn from the LinkedIn profile and website. Only add a new audience name if the client clearly serves a completely different group not covered by the defaults.
 
 ═══════════════════════════════════════
 ADD NEW CLIENT FLOW
@@ -242,98 +239,104 @@ Step 1: Ask for client name
 Step 2: Ask for client type <<<SHOW_TYPE_SELECTOR>>>
 Step 3: Ask for LinkedIn profile <<<SHOW_PDF_ZONE>>>
 Step 4: Ask for website <<<SHOW_URL_INPUT>>>
-Step 5: Synthesize and present a summary in this exact format:
+
+Step 5: Synthesize and present summary.
+- If website content was retrieved: use both sources
+- If website fetch failed: open with "I wasn't able to retrieve content from the website. The summary below is based on the LinkedIn profile only — please review and add anything that's missing before we save."
+- Always use the fixed audience names for the client type
+
+Present summary in this exact format:
 
 ---
 Here's what I have for [Name]:
 
-**Voice & Tone**
+Voice & Tone
 • [bullet]
 • [bullet]
 
-**Services**
-• [bullet]
-• [bullet]
+Services
+• [service]
+• [service]
 
-**Target Audiences**
-• [Audience Name]
+Target Audiences
+• [Fixed Audience Name]
   - Relevant services: [list]
-  - Key context: [1 sentence]
+  - Key context: [1 sentence tailored to this client]
 
-• [Audience Name]
+• [Fixed Audience Name]
   - Relevant services: [list]
-  - Key context: [1 sentence]
+  - Key context: [1 sentence tailored to this client]
 ---
 
 Then ask: "Does this look right? Say yes to save, or tell me what to change."
 
-Step 6: On approval, output ONLY:
+Step 6: On user approval, output ONLY the save tag — no other text before or after:
 <<<SAVE_CLIENT>>>
 {
-  "id": "client_id",
-  "name": "Client Name",
+  "id": "lowercase_underscore_id",
+  "name": "Full Name",
   "type": "fa",
-  "baseContext": "You are writing as [Name]...[full second-person context covering who they are, credentials, value prop, voice/tone, conversation goal, compliance if FM]",
+  "baseContext": "You are writing as [Name], [title] at [firm]...[full second-person context: who they are, credentials, value prop, services, voice/tone, conversation goal, compliance if FM]",
   "services": ["service1", "service2"],
   "voiceTone": ["conversational", "professional", "low pressure"],
   "audiences": [
     {
-      "name": "Audience Name",
-      "services": ["service1"],
-      "context": "Second-person context covering who this audience is, pain points, how value prop lands, relevant services, objection handling."
+      "name": "Business Owners",
+      "services": ["relevant service"],
+      "context": "Second-person context: who this audience is, pain points, how this client's value prop lands for them, relevant services, objection handling."
     }
   ]
 }
 <<<END_SAVE>>>
 
-Then confirm: "✓ [Name] has been saved. Their client ID is [id] — use this to reference them for future updates."
+CRITICAL: After outputting the save tag, output NOTHING else. No confirmation text. The UI handles the confirmation automatically.
 
 ═══════════════════════════════════════
 UPDATE CLIENT FLOW
 ═══════════════════════════════════════
-1. Ask which client (show current list)
-2. Ask what to update:
-   - Base context / who they are
-   - Voice & tone
-   - Services
-   - A specific audience
-   - Add a new audience
+1. Ask which client
+2. Ask what to update (base context, voice/tone, services, specific audience, add audience)
 3. Show current value
 4. Collect new info
 5. Show updated value for review
-6. On approval:
+6. On approval — output ONLY:
 <<<PATCH_CLIENT:client_id>>>
 {"field": "updated value"}
 <<<END_PATCH>>>
+No text after the tag.
 
 ═══════════════════════════════════════
 ADD AUDIENCE FLOW
 ═══════════════════════════════════════
 1. Ask which client
-2. Ask audience name and description
-3. Ask which services are relevant for this audience
-4. Synthesize audience context, show for review
-5. On approval, output full updated client JSON:
+2. Ask audience name and who they are
+3. Ask which services are relevant
+4. Synthesize and show audience context for review
+5. On approval — output full updated client JSON:
 <<<SAVE_CLIENT>>>
-{full updated client JSON with new audience appended}
+{full JSON with new audience added}
 <<<END_SAVE>>>
+No text after the tag.
 
 ═══════════════════════════════════════
 REMOVE CLIENT FLOW
 ═══════════════════════════════════════
 1. Ask which client
 2. "This will permanently remove [Name] and all their data. Type 'yes, remove [Name]' to confirm."
-3. On confirmation:
+3. On confirmation — output ONLY:
 <<<DELETE_CLIENT:client_id>>>
+No text after the tag.
 
 ═══════════════════════════════════════
 REMOVE AUDIENCE FLOW
 ═══════════════════════════════════════
-1. Ask which client and which audience
-2. Confirm, then output full client JSON with that audience removed:
+1. Confirm client and audience
+2. Ask for confirmation
+3. On confirmation — output full client JSON with audience removed:
 <<<SAVE_CLIENT>>>
 {full JSON with audience removed}
 <<<END_SAVE>>>
+No text after the tag.
 
 ═══════════════════════════════════════
 CONTEXT WRITING GUIDELINES
@@ -341,28 +344,28 @@ CONTEXT WRITING GUIDELINES
 baseContext (second person "You are writing as [Name]..."):
 - Who they are: background, firm, credentials, what makes them credible
 - Value proposition: what they offer, problem they solve
-- Services: what they provide
-- Voice & tone: how to write as them, phrases to use/avoid, peer-level vs formal
-- Conversation goal: book an introductory call, low pressure, what success looks like
+- Services: complete list
+- Voice & tone: how to write as them, phrases to use/avoid
+- Conversation goal: book an introductory call, low pressure
 - Compliance (FM only): 506(b) or 506(c), what can/cannot be said
 
 audienceContext (second person):
-- Who this audience is: demographics, situation, mindset
-- Pain points: what keeps them up at night, what they're looking for
-- Value prop angle: how THIS client's services specifically help THIS audience
-- Relevant services: which of the client's services matter most to this audience
-- Objection handling: how to respond to "not interested", "already have someone", "not the right time", "tell me more"
+- Who this audience is: situation, mindset
+- Pain points: what they need
+- Value prop angle: how THIS client specifically helps THIS audience
+- Relevant services: which services matter most to this audience
+- Objection handling: "not interested", "already have someone", "not the right time", "tell me more"
 
 ═══════════════════════════════════════
 RULES
 ═══════════════════════════════════════
-- Never output save/patch/delete tags until the user explicitly approves
-- Never ask for information already provided
-- IDs: lowercase_underscores only (nick_rothrock, eppler_capital)
+- NEVER output save/patch/delete tags until user explicitly approves
+- NEVER output any text after a save/patch/delete tag
+- NEVER ask for info already provided
+- Always use fixed audience names for the client type
+- IDs: lowercase_underscores only
 - One question at a time
-- Keep responses concise
-- Always show content for review before saving
-- After saving, always confirm with the client ID`;
+- Always show content for review before saving`;
 
   conversationHistory = [
     { role: 'user', content: sys },
@@ -376,12 +379,10 @@ function showTypeZone() { document.getElementById('type-zone').classList.add('vi
 function hideTypeZone() { document.getElementById('type-zone').classList.remove('visible'); }
 
 function selectType(type) {
-  selectedType = type;
   document.getElementById('tog-fa').className = 'tog' + (type === 'fa' ? ' sel' : '');
   document.getElementById('tog-fm').className = 'tog' + (type === 'fm' ? ' sel' : '');
   hideTypeZone();
-  const label = type === 'fa' ? 'Financial Advisor' : 'Fund Manager';
-  addMessage('user', label);
+  addMessage('user', type === 'fa' ? 'Financial Advisor' : 'Fund Manager');
   callAI('[Client type selected: ' + (type === 'fa' ? 'FA' : 'FM') + ']');
 }
 
@@ -398,7 +399,6 @@ function skipPdf() {
   hidePdfZone();
   addMessage('assistant', 'No problem — paste the LinkedIn profile text in the chat box, or type "not available" to skip.');
 }
-
 function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
 function handleDragLeave() { document.getElementById('drop-zone').classList.remove('dragover'); }
 function handleDrop(e) {
@@ -419,7 +419,7 @@ async function processPDF(file) {
     hidePdfZone();
     addMessage('user', '📄 ' + file.name);
     await callAI([
-      { type: 'text', text: '[LinkedIn PDF uploaded: ' + file.name + ']\n\nPlease read this PDF and extract the key details including name, title, firm, background, credentials, and services offered. Confirm what you found and move to the next step.' },
+      { type: 'text', text: '[LinkedIn PDF uploaded: ' + file.name + ']\n\nRead this PDF and extract: name, title, firm, background, credentials, services offered, and communication style. Confirm what you found and move to the next step.' },
       { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } }
     ]);
   } catch(err) {
@@ -456,7 +456,6 @@ async function fetchUrl() {
   addMessage('user', '🌐 ' + urlVal);
   setLoading(true);
   try {
-    // Use Anthropic web search tool to fetch the site — same approach as strategy builder
     const resp = await fetch(PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -464,26 +463,42 @@ async function fetchUrl() {
         model: 'claude-sonnet-4-5',
         max_tokens: 1500,
         tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        system: 'You are a research assistant. Extract detailed information from websites including services offered, value proposition, target audiences, and communication style. Return a comprehensive summary.',
+        system: 'You are a research assistant extracting information from financial advisor and fund manager websites. Be thorough and specific. Return only the extracted content — no preamble.',
         messages: [{
           role: 'user',
-          content: 'Search for and visit the homepage, about page, services page, team page, and any other relevant pages at ' + urlVal + '. Extract and summarize: (1) who they are and their background, (2) all services they offer, (3) their value proposition, (4) who they serve / target audiences, (5) their communication style and tone. Be thorough and specific.'
+          content: 'Search for and visit the homepage, about page, services page, team page, and any other relevant pages at ' + urlVal + '. Extract and summarize in detail: (1) who they are and their background, (2) all services they offer, (3) their value proposition, (4) who they serve and target audiences, (5) their communication style and tone. Be specific and thorough.'
         }]
       })
     });
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
-    const content = data.content.map(b => b.text || '').join('').trim();
-    if (content.length > 50) {
+
+    // Extract text from all content blocks including tool results
+    let content = '';
+    if (data.content && Array.isArray(data.content)) {
+      for (const block of data.content) {
+        if (block.type === 'text' && block.text) {
+          content += block.text + '\n';
+        } else if (block.type === 'tool_result') {
+          const inner = Array.isArray(block.content) ? block.content : [];
+          for (const b of inner) {
+            if (b.type === 'text' && b.text) content += b.text + '\n';
+          }
+        }
+      }
+    }
+    content = content.trim();
+
+    if (content.length > 100) {
       addMessage('system', '✓ Website content retrieved from ' + urlVal);
       await callAI('[Website content retrieved from: ' + urlVal + ']\n\n' + content);
     } else {
-      addMessage('error', 'Could not retrieve content from ' + urlVal + '. Please paste the website text in the chat box instead.');
-      setLoading(false);
+      addMessage('warning', 'Couldn\'t retrieve content from ' + urlVal + '. Proceeding with LinkedIn profile only.');
+      await callAI('[Website fetch failed for: ' + urlVal + ']');
     }
   } catch(e) {
-    addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content instead.');
-    setLoading(false);
+    addMessage('warning', 'Couldn\'t retrieve content from ' + urlVal + '. Proceeding with LinkedIn profile only.');
+    await callAI('[Website fetch failed for: ' + urlVal + ']');
   }
 }
 
