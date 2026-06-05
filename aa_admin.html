@@ -102,11 +102,12 @@
       </div>
 
       <!-- URL fetch — always available -->
-      <div id="url-zone" style="margin-bottom:10px">
+      <div style="margin-bottom:10px;padding:10px 12px;background:var(--color-background-secondary,#f8f7f4);border-radius:7px;border:1px solid #e8e6e0">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#888;margin-bottom:6px">Fetch website content</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" id="url-input" placeholder="Paste a URL to fetch site content..." style="flex:1"
+          <input type="text" id="url-input" placeholder="https://example.com" style="flex:1;font-size:13px"
             onkeydown="if(event.key==='Enter')fetchUrl()" />
-          <button class="btn" onclick="fetchUrl()" id="fetch-btn">Fetch ↗</button>
+          <button class="btn" onclick="fetchUrl()" id="fetch-btn" style="font-size:12px;padding:7px 12px">Fetch ↗</button>
         </div>
       </div>
 
