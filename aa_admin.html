@@ -26,8 +26,8 @@
   .auth-error { font-size: 12px; color: #b91c1c; margin-top: 6px; display: none; }
   .chat-wrap { display: none; }
   .chat-wrap.visible { display: block; }
-  .messages { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; min-height: 200px; }
-  .msg { border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.6; max-width: 85%; white-space: pre-wrap; word-break: break-word; }
+  .messages { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; min-height: 100px; }
+  .msg { border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.6; max-width: 88%; white-space: pre-wrap; word-break: break-word; }
   .msg.assistant { background: #f8f7f4; border: 1px solid #e8e6e0; align-self: flex-start; color: #1a1a1a; }
   .msg.user { background: #eef2ff; border: 1px solid #c7d2fe; align-self: flex-end; color: #3730a3; }
   .msg.system { background: #f0fdf4; border: 1px solid #bbf7d0; align-self: flex-start; color: #15803d; font-size: 13px; }
@@ -41,7 +41,7 @@
   .spinner.dark { border-color: #ddd; border-top-color: #555; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .divider { border: none; border-top: 1px solid #e8e6e0; margin: 16px 0; }
-  .thinking { display: none; align-items: center; gap: 8px; font-size: 13px; color: #888; padding: 8px 0; }
+  .thinking { display: none; align-items: center; gap: 8px; font-size: 13px; color: #888; padding: 6px 0; }
   .thinking.visible { display: flex; }
   .input-zone { display: none; margin-bottom: 10px; padding: 12px; background: #f8f7f4; border: 1px solid #e8e6e0; border-radius: 8px; }
   .input-zone.visible { display: block; }
@@ -52,8 +52,11 @@
   .drop-zone.has-file p { color: #15803d; font-weight: 500; }
   .skip-link { font-size: 12px; color: #aaa; cursor: pointer; text-decoration: underline; }
   .skip-link:hover { color: #555; }
-  .url-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .url-row { display: flex; gap: 8px; margin-bottom: 8px; }
   .url-row input { flex: 1; }
+  .tog-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .tog { flex: 1; padding: 9px; border: 1.5px solid #ccc; border-radius: 7px; background: #f5f5f3; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; transition: none; text-align: center; }
+  .tog.sel { border: 2px solid #4338ca !important; background: #eef2ff !important; color: #3730a3 !important; font-weight: 600 !important; }
 </style>
 </head>
 <body>
@@ -67,7 +70,7 @@
 
   <div class="card auth-card" id="auth-card">
     <h2>Admin access</h2>
-    <p style="font-size:13px;color:#555;margin-bottom:4px">Enter your admin key to manage clients and audiences.</p>
+    <p style="font-size:13px;color:#555;margin-bottom:4px">Enter your admin key to manage clients.</p>
     <div class="auth-row">
       <input type="password" id="admin-key" placeholder="Admin key..." onkeydown="if(event.key==='Enter')authenticate()" />
       <button class="btn primary" onclick="authenticate()">Unlock</button>
@@ -78,20 +81,29 @@
   <div class="chat-wrap" id="chat-wrap">
     <div class="card">
       <h2>Client manager</h2>
-      <div class="quick-btns">
+
+      <div class="quick-btns" id="quick-btns">
         <button class="quick-btn" onclick="quickSend('I want to add a new client')">+ Add new client</button>
         <button class="quick-btn" onclick="quickSend('I want to update an existing client')">Edit client</button>
         <button class="quick-btn" onclick="quickSend('I want to add a new audience to a client')">+ Add audience</button>
         <button class="quick-btn" onclick="quickSend('I want to remove a client')">Remove client</button>
         <button class="quick-btn" onclick="quickSend('Show me all current clients')">List clients</button>
       </div>
+
       <hr class="divider" />
       <div class="messages" id="messages"></div>
-      <div class="thinking" id="thinking">
-        <span class="spinner dark"></span> Thinking...
+      <div class="thinking" id="thinking"><span class="spinner dark"></span> Thinking...</div>
+
+      <!-- Client type toggle — shown at step 2 -->
+      <div class="input-zone" id="type-zone">
+        <div class="input-zone-label">Client type</div>
+        <div class="tog-row">
+          <button class="tog" id="tog-fa" onclick="selectType('fa')">Financial Advisor</button>
+          <button class="tog" id="tog-fm" onclick="selectType('fm')">Fund Manager</button>
+        </div>
       </div>
 
-      <!-- PDF zone — hidden until LinkedIn step -->
+      <!-- PDF zone — shown at step 3 -->
       <div class="input-zone" id="pdf-zone">
         <div class="input-zone-label">LinkedIn profile PDF</div>
         <div class="drop-zone" id="drop-zone"
@@ -105,12 +117,11 @@
         <span class="skip-link" onclick="skipPdf()">Skip — I'll paste the profile text instead</span>
       </div>
 
-      <!-- URL zone — hidden until website step -->
+      <!-- URL zone — shown at step 4 -->
       <div class="input-zone" id="url-zone">
         <div class="input-zone-label">Website URL</div>
         <div class="url-row">
-          <input type="text" id="url-input" placeholder="https://example.com"
-            onkeydown="if(event.key==='Enter')fetchUrl()" />
+          <input type="text" id="url-input" placeholder="https://example.com" onkeydown="if(event.key==='Enter')fetchUrl()" />
           <button class="btn primary" id="fetch-btn" onclick="fetchUrl()">Fetch site</button>
         </div>
         <span class="skip-link" onclick="skipUrl()">Skip — I'll paste the content instead</span>
@@ -132,6 +143,9 @@ const PROXY = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
 let adminKey = '';
 let conversationHistory = [];
 let clientCache = [];
+let selectedType = null;
+
+// ── Auth ──────────────────────────────────────────────────────────────
 
 async function authenticate() {
   const key = document.getElementById('admin-key').value.trim();
@@ -152,12 +166,12 @@ async function initChat() {
   clientCache = clients;
   let welcomeMsg = '';
   if (clients.length === 0) {
-    welcomeMsg = 'No clients yet. Click "Add new client" or tell me what you\'d like to do.';
+    welcomeMsg = 'No clients yet. Click "Add new client" to get started.';
   } else {
     const names = clients.map(c =>
-      `${c.name} (${c.type === 'fa' ? 'FA' : 'FM'}${c.audiences && c.audiences.length ? ', audiences: ' + c.audiences.join(', ') : ''})`
+      `${c.name} (${c.type === 'fa' ? 'Financial Advisor' : 'Fund Manager'}${c.audiences && c.audiences.length ? ' · ' + c.audiences.join(', ') : ''})`
     ).join('\n- ');
-    welcomeMsg = `You currently have ${clients.length} client${clients.length !== 1 ? 's' : ''}:\n\n- ${names}\n\nWhat would you like to do?`;
+    welcomeMsg = `Current clients:\n\n- ${names}\n\nWhat would you like to do?`;
   }
   addMessage('assistant', welcomeMsg);
   rebuildSystemPrompt(clients);
@@ -172,91 +186,203 @@ async function fetchClients() {
   } catch(e) { return []; }
 }
 
+// ── System prompt ─────────────────────────────────────────────────────
+
 function rebuildSystemPrompt(clients) {
   const clientList = clients.length > 0
     ? clients.map(c => `- ${c.name} (id: "${c.id}", type: "${c.type}", audiences: [${(c.audiences||[]).map(a=>`"${a}"`).join(', ')}])`).join('\n')
     : '(none yet)';
 
-  const sys = `You are the AA Admin Agent — an internal tool for the Advisor Appointments team to manage clients in their AI conversation assistant. Clients are stored in Cloudflare KV.
+  const sys = `You are the AA Admin Agent — an internal tool for the Advisor Appointments (AA) team to manage client records in their AI conversation assistant system. Records are stored in Cloudflare KV.
 
 CURRENT CLIENTS:
 ${clientList}
 
 YOUR ROLE:
-Guide the user through adding, updating, or removing clients and audiences. Be concise. Ask one question at a time.
+Guide the AA team through managing client records conversationally. Be concise and direct. Ask one question at a time. Never ask for information the user has already provided.
 
-UI TRIGGERS — use these tags exactly to show special input zones:
-- When asking for LinkedIn profile: end your message with <<<SHOW_PDF_ZONE>>>
-- When asking for website URL: end your message with <<<SHOW_URL_INPUT>>>
-The UI will show the appropriate input zone automatically. Do not describe these tags to the user.
+═══════════════════════════════════════
+UI TRIGGER TAGS
+═══════════════════════════════════════
+Use these tags to show special input UI. Place them at the very end of your message on their own line. Never describe or explain these tags to the user.
 
-RECEIVING INPUT:
-- When a PDF document block arrives: read it natively, summarize what you found, then ask the next question
-- When a message starts with "[Website crawled:": read the content, summarize what you found, then ask the next question
-- Never ask the user to paste content you already received
+<<<SHOW_TYPE_SELECTOR>>> — show FA/FM toggle buttons (use when asking client type)
+<<<SHOW_PDF_ZONE>>> — show LinkedIn PDF drop zone (use when asking for LinkedIn profile)
+<<<SHOW_URL_INPUT>>> — show website URL input field (use when asking for website)
 
-DATA STRUCTURE:
-{
-  "id": "nick_rothrock",
-  "name": "Nick Rothrock",
-  "type": "fa",
-  "baseContext": "Second-person text: who client is, value prop, voice/tone, conversation goal, compliance.",
-  "audiences": [{ "name": "Pre-Retirees", "context": "Second-person text: who audience is, pain points, value prop angle, objection handling." }]
-}
+═══════════════════════════════════════
+INPUT HANDLING
+═══════════════════════════════════════
+- "[Client type selected: FA]" or "[Client type selected: FM]" — user selected client type via toggle
+- "[LinkedIn PDF uploaded: filename]" followed by a document block — read the PDF natively, extract name/title/firm/background/credentials/services. Do NOT ask for text.
+- "[Website crawled: N pages from URL]" followed by content — read it directly, extract services/value prop/approach. Do NOT ask for text.
+- If crawl returns empty or minimal content, note it and continue without it.
 
-ADD NEW CLIENT FLOW:
-1. Ask: client name
-2. Ask: FA or FM? <<<SHOW_PDF_ZONE>>> (at end of step 3 ask)
-3. Ask for LinkedIn profile — end with <<<SHOW_PDF_ZONE>>>
-4. Ask for website — end with <<<SHOW_URL_INPUT>>>
-5. Ask: target audience names (one per line)
-6. For each audience, ask for a brief description
-7. Ask: voice/tone notes
-8. If FM: 506(b) or 506(c)? Any compliance restrictions?
-9. Synthesize and show baseContext for review
-10. Synthesize and show each audience context for review
-11. Ask: "Does this look right? Say yes to save or tell me what to change."
-12. On approval ONLY output:
+═══════════════════════════════════════
+DEFAULT VALUES
+═══════════════════════════════════════
+Voice & tone default (use if not clear from profile/website):
+- Conversational, professional, low pressure
+
+Financial Advisor default audiences:
+1. Business Owners — minimum investable assets of $500k
+2. Executives & Professionals — investable assets of $250k+
+3. Professionals who have recently changed jobs — investable assets of $250k+
+
+Fund Manager default audiences:
+1. COIs including RIAs of small firms
+2. Individual high net worth investors
+
+Override defaults if the profile/website provides clearer signals about the client's communication style or target audiences.
+
+═══════════════════════════════════════
+ADD NEW CLIENT FLOW
+═══════════════════════════════════════
+Step 1: Ask for client name
+Step 2: Ask for client type <<<SHOW_TYPE_SELECTOR>>>
+Step 3: Ask for LinkedIn profile <<<SHOW_PDF_ZONE>>>
+Step 4: Ask for website <<<SHOW_URL_INPUT>>>
+Step 5: Synthesize and present a summary in this exact format:
+
+---
+Here's what I have for [Name]:
+
+**Voice & Tone**
+• [bullet]
+• [bullet]
+
+**Services**
+• [bullet]
+• [bullet]
+
+**Target Audiences**
+• [Audience Name]
+  - Relevant services: [list]
+  - Key context: [1 sentence]
+
+• [Audience Name]
+  - Relevant services: [list]
+  - Key context: [1 sentence]
+---
+
+Then ask: "Does this look right? Say yes to save, or tell me what to change."
+
+Step 6: On approval, output ONLY:
 <<<SAVE_CLIENT>>>
-{valid JSON}
+{
+  "id": "client_id",
+  "name": "Client Name",
+  "type": "fa",
+  "baseContext": "You are writing as [Name]...[full second-person context covering who they are, credentials, value prop, voice/tone, conversation goal, compliance if FM]",
+  "services": ["service1", "service2"],
+  "voiceTone": ["conversational", "professional", "low pressure"],
+  "audiences": [
+    {
+      "name": "Audience Name",
+      "services": ["service1"],
+      "context": "Second-person context covering who this audience is, pain points, how value prop lands, relevant services, objection handling."
+    }
+  ]
+}
 <<<END_SAVE>>>
 
-UPDATE FLOW:
-- Confirm client + what to update → collect info → show for review → on approval:
-<<<PATCH_CLIENT:id>>>
+Then confirm: "✓ [Name] has been saved. Their client ID is [id] — use this to reference them for future updates."
+
+═══════════════════════════════════════
+UPDATE CLIENT FLOW
+═══════════════════════════════════════
+1. Ask which client (show current list)
+2. Ask what to update:
+   - Base context / who they are
+   - Voice & tone
+   - Services
+   - A specific audience
+   - Add a new audience
+3. Show current value
+4. Collect new info
+5. Show updated value for review
+6. On approval:
+<<<PATCH_CLIENT:client_id>>>
 {"field": "updated value"}
 <<<END_PATCH>>>
 
-ADD AUDIENCE:
-- Collect name + description → synthesize → show for review → on approval output full updated client JSON:
+═══════════════════════════════════════
+ADD AUDIENCE FLOW
+═══════════════════════════════════════
+1. Ask which client
+2. Ask audience name and description
+3. Ask which services are relevant for this audience
+4. Synthesize audience context, show for review
+5. On approval, output full updated client JSON:
 <<<SAVE_CLIENT>>>
-{full JSON with new audience}
+{full updated client JSON with new audience appended}
 <<<END_SAVE>>>
 
-REMOVE CLIENT:
-- Confirm → "Type 'yes, remove [name]' to confirm" → on confirmation:
-<<<DELETE_CLIENT:id>>>
+═══════════════════════════════════════
+REMOVE CLIENT FLOW
+═══════════════════════════════════════
+1. Ask which client
+2. "This will permanently remove [Name] and all their data. Type 'yes, remove [Name]' to confirm."
+3. On confirmation:
+<<<DELETE_CLIENT:client_id>>>
 
-REMOVE AUDIENCE:
-- Confirm → on confirmation output full client JSON with audience removed:
+═══════════════════════════════════════
+REMOVE AUDIENCE FLOW
+═══════════════════════════════════════
+1. Ask which client and which audience
+2. Confirm, then output full client JSON with that audience removed:
 <<<SAVE_CLIENT>>>
-{full JSON}
+{full JSON with audience removed}
 <<<END_SAVE>>>
 
-CONTEXT WRITING:
-baseContext (second person): who client is, credentials, value prop, voice/tone, conversation goal, compliance guardrails
-audienceContext (second person): who this audience is, pain points, value prop angle for this group, objection handling
+═══════════════════════════════════════
+CONTEXT WRITING GUIDELINES
+═══════════════════════════════════════
+baseContext (second person "You are writing as [Name]..."):
+- Who they are: background, firm, credentials, what makes them credible
+- Value proposition: what they offer, problem they solve
+- Services: what they provide
+- Voice & tone: how to write as them, phrases to use/avoid, peer-level vs formal
+- Conversation goal: book an introductory call, low pressure, what success looks like
+- Compliance (FM only): 506(b) or 506(c), what can/cannot be said
 
-RULES:
-- Never output save/delete tags until user approves
-- IDs: lowercase_underscores
+audienceContext (second person):
+- Who this audience is: demographics, situation, mindset
+- Pain points: what keeps them up at night, what they're looking for
+- Value prop angle: how THIS client's services specifically help THIS audience
+- Relevant services: which of the client's services matter most to this audience
+- Objection handling: how to respond to "not interested", "already have someone", "not the right time", "tell me more"
+
+═══════════════════════════════════════
+RULES
+═══════════════════════════════════════
+- Never output save/patch/delete tags until the user explicitly approves
+- Never ask for information already provided
+- IDs: lowercase_underscores only (nick_rothrock, eppler_capital)
 - One question at a time
-- Be concise`;
+- Keep responses concise
+- Always show content for review before saving
+- After saving, always confirm with the client ID`;
 
   conversationHistory = [
     { role: 'user', content: sys },
-    { role: 'assistant', content: 'Understood. Ready to help.' }
+    { role: 'assistant', content: 'Understood. Ready to help manage clients.' }
   ];
+}
+
+// ── Type selector ─────────────────────────────────────────────────────
+
+function showTypeZone() { document.getElementById('type-zone').classList.add('visible'); }
+function hideTypeZone() { document.getElementById('type-zone').classList.remove('visible'); }
+
+function selectType(type) {
+  selectedType = type;
+  document.getElementById('tog-fa').className = 'tog' + (type === 'fa' ? ' sel' : '');
+  document.getElementById('tog-fm').className = 'tog' + (type === 'fm' ? ' sel' : '');
+  hideTypeZone();
+  const label = type === 'fa' ? 'Financial Advisor' : 'Fund Manager';
+  addMessage('user', label);
+  callAI('[Client type selected: ' + (type === 'fa' ? 'FA' : 'FM') + ']');
 }
 
 // ── PDF ───────────────────────────────────────────────────────────────
@@ -270,7 +396,7 @@ function hidePdfZone() {
 }
 function skipPdf() {
   hidePdfZone();
-  addMessage('assistant', 'No problem — paste the LinkedIn profile text in the chat box below, or type "not available".');
+  addMessage('assistant', 'No problem — paste the LinkedIn profile text in the chat box, or type "not available" to skip.');
 }
 
 function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('dragover'); }
@@ -291,14 +417,14 @@ async function processPDF(file) {
     document.getElementById('drop-zone').classList.add('has-file');
     label.textContent = '✓ ' + file.name + ' loaded';
     hidePdfZone();
-    addMessage('user', '📄 ' + file.name + ' uploaded');
+    addMessage('user', '📄 ' + file.name);
     await callAI([
-      { type: 'text', text: 'Here is the LinkedIn profile PDF. Please read it and extract the key details, then confirm what you found and move to the next question.' },
+      { type: 'text', text: '[LinkedIn PDF uploaded: ' + file.name + ']\n\nPlease read this PDF and extract the key details including name, title, firm, background, credentials, and services offered. Confirm what you found and move to the next step.' },
       { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } }
     ]);
   } catch(err) {
     label.textContent = '⬆ Drop LinkedIn PDF here or click to upload';
-    addMessage('error', 'Could not read PDF. Please paste the profile text instead.');
+    addMessage('error', 'Could not read PDF. Please paste the profile text in the chat box instead.');
   }
 }
 
@@ -320,7 +446,7 @@ function hideUrlZone() {
 }
 function skipUrl() {
   hideUrlZone();
-  addMessage('assistant', 'No problem — paste the website content in the chat box below, or type "not available".');
+  addMessage('assistant', 'No problem — paste the website content in the chat box, or type "not available" to skip.');
 }
 
 async function fetchUrl() {
@@ -328,20 +454,21 @@ async function fetchUrl() {
   if (!urlVal) return;
   hideUrlZone();
   addMessage('user', '🌐 ' + urlVal);
-
   setLoading(true);
   try {
     const resp = await fetch(PROXY + '/fetch-url?url=' + encodeURIComponent(urlVal));
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
-    if (data.urls && data.urls.length) {
-      addMessage('system', '✓ Crawled ' + data.urls.length + ' page(s): ' + data.urls.join(', '));
+    const pageCount = data.pageCount || 0;
+    if (pageCount > 0) {
+      addMessage('system', '✓ Crawled ' + pageCount + ' page(s): ' + (data.urls || []).join(', '));
     }
-    const msg = `[Website crawled: ${data.pageCount || 1} pages from ${urlVal}]\n\n${data.text}`;
-    conversationHistory.push({ role: 'user', content: msg });
-    await callAI();
+    const content = data.text && data.text.trim().length > 50
+      ? data.text
+      : '(No readable content found — please paste the website text in the chat box)';
+    await callAI('[Website crawled: ' + pageCount + ' pages from ' + urlVal + ']\n\n' + content);
   } catch(e) {
-    addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content instead.');
+    addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content in the chat box instead.');
     setLoading(false);
   }
 }
@@ -387,20 +514,21 @@ async function sendMessage() {
   input.value = '';
   input.style.height = 'auto';
   addMessage('user', text);
-  conversationHistory.push({ role: 'user', content: text });
-  await callAI();
+  await callAI(text);
 }
 
-async function callAI(contentOverride) {
+async function callAI(userContent) {
   setLoading(true);
   try {
-    if (contentOverride) {
-      conversationHistory.push({ role: 'user', content: contentOverride });
-    }
+    conversationHistory.push({ role: 'user', content: userContent });
     const resp = await fetch(PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1500, messages: conversationHistory })
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2000,
+        messages: conversationHistory
+      })
     });
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
@@ -418,6 +546,7 @@ async function processReply(reply) {
   const saveMatch = reply.match(/<<<SAVE_CLIENT>>>([\s\S]*?)<<<END_SAVE>>>/);
   const patchMatch = reply.match(/<<<PATCH_CLIENT:([^>]+)>>>([\s\S]*?)<<<END_PATCH>>>/);
   const deleteMatch = reply.match(/<<<DELETE_CLIENT:([^>]+)>>>/);
+  const showType = reply.includes('<<<SHOW_TYPE_SELECTOR>>>');
   const showPdf = reply.includes('<<<SHOW_PDF_ZONE>>>');
   const showUrl = reply.includes('<<<SHOW_URL_INPUT>>>');
 
@@ -425,11 +554,13 @@ async function processReply(reply) {
     .replace(/<<<SAVE_CLIENT>>>[\s\S]*?<<<END_SAVE>>>/g, '')
     .replace(/<<<PATCH_CLIENT:[^>]+>>>[\s\S]*?<<<END_PATCH>>>/g, '')
     .replace(/<<<DELETE_CLIENT:[^>]+>>>/g, '')
+    .replace(/<<<SHOW_TYPE_SELECTOR>>>/g, '')
     .replace(/<<<SHOW_PDF_ZONE>>>/g, '')
     .replace(/<<<SHOW_URL_INPUT>>>/g, '')
     .trim();
 
   if (display) addMessage('assistant', display);
+  if (showType) showTypeZone();
   if (showPdf) showPdfZone();
   if (showUrl) showUrlZone();
 
@@ -444,7 +575,7 @@ async function processReply(reply) {
   if (deleteMatch) await deleteClient(deleteMatch[1].trim());
 }
 
-// ── KV ────────────────────────────────────────────────────────────────
+// ── KV Operations ─────────────────────────────────────────────────────
 
 async function saveClient(data) {
   try {
@@ -455,7 +586,7 @@ async function saveClient(data) {
     });
     const result = await resp.json();
     if (result.error) throw new Error(result.error);
-    addMessage('system', '✓ Client "' + data.name + '" saved successfully.');
+    addMessage('system', '✓ ' + data.name + ' saved. Client ID: ' + data.id);
     clientCache = await fetchClients();
     rebuildSystemPrompt(clientCache);
   } catch(e) { addMessage('error', 'Save failed: ' + e.message); }
@@ -484,7 +615,7 @@ async function deleteClient(id) {
     });
     const result = await resp.json();
     if (result.error) throw new Error(result.error);
-    addMessage('system', '✓ Client removed successfully.');
+    addMessage('system', '✓ Client removed.');
     clientCache = await fetchClients();
     rebuildSystemPrompt(clientCache);
   } catch(e) { addMessage('error', 'Delete failed: ' + e.message); }
