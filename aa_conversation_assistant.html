@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AA Conversation Assistant</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f7f4; color: #1a1a1a; min-height: 100vh; }
+
+  /* Header */
+  .header { background: #fff; border-bottom: 1px solid #e8e6e0; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .header h1 { font-size: 15px; font-weight: 600; flex: 1; }
+  .header .badge { font-size: 12px; background: #eef2ff; color: #4338ca; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+
+  /* Layout */
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: 340px 1fr; gap: 16px; }
+  @media (max-width: 700px) { .container { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .card { background: #fff; border: 1px solid #e8e6e0; border-radius: 10px; padding: 20px; }
+  .card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 14px; }
+
+  /* Form elements */
+  label { font-size: 12px; font-weight: 500; color: #555; display: block; margin-bottom: 5px; margin-top: 12px; }
+  label:first-child { margin-top: 0; }
+  textarea, select { width: 100%; border: 1px solid #ddd; border-radius: 7px; font-family: inherit; font-size: 13px; padding: 9px 11px; color: #1a1a1a; background: #fff; resize: vertical; }
+  textarea:focus, select:focus { outline: none; border-color: #4338ca; }
+
+  /* Toggles */
+  .tog-row { display: flex; gap: 6px; margin-bottom: 4px; }
+  .tog { flex: 1; padding: 8px; border: 1.5px solid #ccc; border-radius: 7px; background: #f5f5f3; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; text-align: center; transition: none; }
+  .tog.sel { border: 2px solid #4338ca !important; background: #eef2ff !important; color: #3730a3 !important; font-weight: 600 !important; }
+
+  /* Drop zone */
+  .drop-zone-wrap { margin-bottom: 4px; }
+  .drop-zone { border: 1px dashed #ccc; border-radius: 7px; padding: 14px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: #fafaf8; transition: all 0.15s; }
+  .drop-zone:hover, .drop-zone.dragover { background: #f0f0ec; border-color: #4338ca; }
+  .drop-zone.loaded { border-color: #16a34a; background: #f0fdf4; }
+  .drop-icon { font-size: 18px; color: #aaa; flex-shrink: 0; }
+  .drop-zone.loaded .drop-icon { color: #16a34a; }
+  .drop-text { flex: 1; min-width: 0; }
+  #dropLabel { font-size: 13px; color: #888; display: block; }
+  .drop-zone.loaded #dropLabel { color: #15803d; font-weight: 500; }
+  #dropFilename { font-size: 11px; color: #aaa; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #dropClear { font-size: 11px; color: #b91c1c; cursor: pointer; text-decoration: underline; display: none; margin-top: 4px; background: none; border: none; font-family: inherit; padding: 0; }
+
+  /* Buttons */
+  .btn { padding: 10px 18px; border: 1px solid #ddd; border-radius: 7px; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s; white-space: nowrap; }
+  .btn:hover { background: #f5f5f3; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; width: 100%; padding: 12px; font-size: 14px; margin-top: 14px; }
+  .btn.primary:hover { background: #333; }
+  .btn.copy { font-size: 12px; padding: 6px 12px; }
+
+  /* Output panel */
+  .output-panel { display: flex; flex-direction: column; gap: 12px; }
+  .output-empty { display: flex; align-items: center; justify-content: center; min-height: 300px; color: #aaa; font-size: 14px; text-align: center; line-height: 1.6; }
+  .stage-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; margin-bottom: 10px; }
+  .rationale-box { padding: 12px 14px; background: #f8f7f4; border-radius: 7px; border-left: 3px solid #d1d5db; font-size: 13px; color: #555; line-height: 1.6; }
+  .draft-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+  .draft-area { width: 100%; min-height: 180px; font-size: 14px; line-height: 1.7; border: 1px solid #ddd; border-radius: 7px; padding: 12px; background: #fff; resize: vertical; font-family: inherit; color: #1a1a1a; }
+  .draft-area:focus { outline: none; border-color: #4338ca; }
+  .feedback-row { display: flex; gap: 8px; margin-top: 8px; }
+  .feedback-row input { flex: 1; border: 1px solid #ddd; border-radius: 7px; padding: 9px 11px; font-size: 13px; font-family: inherit; color: #1a1a1a; }
+  .feedback-row input:focus { outline: none; border-color: #4338ca; }
+
+  /* Loading */
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  .spinner.dark { border-color: #ddd; border-top-color: #555; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Status */
+  .status { padding: 10px 12px; border-radius: 7px; font-size: 13px; margin-top: 10px; display: none; }
+  .status.error { display: block; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .status.info { display: block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+  /* Loading overlay for output */
+  .loading-row { display: none; align-items: center; gap: 8px; font-size: 13px; color: #888; padding: 20px 0; justify-content: center; }
+  .loading-row.visible { display: flex; }
+
+  /* Client/audience selectors */
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  .select-loading { font-size: 12px; color: #aaa; margin-top: 4px; display: none; }
+  .select-loading.visible { display: block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AA Conversation Assistant</h1>
+  <span class="badge" id="client-badge">No client selected</span>
+</div>
+
+<div class="container">
+
+  <!-- LEFT: Inputs -->
+  <div>
+    <div class="card">
+      <div class="card-title">Session setup</div>
+
+      <label>Client</label>
+      <select id="client-select" onchange="onClientChange()">
+        <option value="">Loading clients...</option>
+      </select>
+      <div class="select-loading" id="client-loading">Loading...</div>
+
+      <label>Target audience</label>
+      <select id="audience-select" disabled>
+        <option value="">Select a client first</option>
+      </select>
+
+      <label>Channel</label>
+      <div class="tog-row">
+        <button class="tog sel" id="tog-li" onclick="setChannel('linkedin')">LinkedIn</button>
+        <button class="tog" id="tog-em" onclick="setChannel('email')">Email</button>
+      </div>
+
+      <label>Prospect LinkedIn profile</label>
+      <div class="drop-zone-wrap">
+        <div class="drop-zone" id="dropZone"
+          onclick="document.getElementById('pdfInput').click()"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)">
+          <i class="ti ti-upload drop-icon" id="dropIcon"></i>
+          <div class="drop-text">
+            <span id="dropLabel">Drop LinkedIn PDF or click to upload</span>
+            <span id="dropFilename"></span>
+            <button id="dropClear" onclick="clearProfile(event)">Clear</button>
+          </div>
+        </div>
+        <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="handleFileInput(event)" />
+      </div>
+      <textarea id="prospect-text" rows="3" placeholder="Or paste profile text here..."></textarea>
+
+      <label>Conversation so far</label>
+      <textarea id="conversation" rows="5" placeholder="Paste the full conversation thread in order..."></textarea>
+
+      <label>Additional context <span style="color:#bbb;font-weight:400">(optional)</span></label>
+      <textarea id="extra-context" rows="2" placeholder="Shared connections, recent posts, anything relevant..."></textarea>
+
+      <button class="btn primary" id="analyze-btn" onclick="analyze()">Analyze &amp; draft reply</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="output-panel">
+    <div class="card" id="output-empty-card">
+      <div class="output-empty">Fill in the session setup and hit<br>"Analyze & draft reply" to get started.</div>
+    </div>
+
+    <div class="loading-row" id="loading-row">
+      <span class="spinner dark"></span> Analyzing conversation and drafting reply...
+    </div>
+
+    <div class="card" id="output-card" style="display:none">
+      <div id="stage-display"></div>
+      <div class="rationale-box" id="rationale-display" style="display:none"></div>
+      <div style="margin-top:14px">
+        <div class="draft-label">
+          <span>Draft reply</span>
+          <button class="btn copy" id="copy-btn" onclick="copyDraft()">Copy</button>
+        </div>
+        <textarea class="draft-area" id="draft-output"></textarea>
+        <div class="feedback-row">
+          <input type="text" id="feedback-input" placeholder="Feedback to refine (e.g. shorter, warmer, more direct...)">
+          <button class="btn" id="regen-btn" onclick="regenerate()">Regenerate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PROXY = 'https://advisorappointments-proxy.cold-silence-b79b.workers.dev';
+let channel = 'linkedin';
+let profileText = '';
+let profilePdfBase64 = '';
+let clientData = null;
+let replyHistory = [];
+
+// ── Init ──────────────────────────────────────────────────────────────
+
+async function init() {
+  await loadClients();
+  loadProfileFromUrl();
+}
+
+async function loadClients() {
+  const select = document.getElementById('client-select');
+  try {
+    const resp = await fetch(PROXY + '/clients');
+    if (!resp.ok) throw new Error('Could not load clients');
+    const clients = await resp.json();
+    if (!clients || clients.length === 0) {
+      select.innerHTML = '<option value="">No clients configured yet</option>';
+      return;
+    }
+    select.innerHTML = '<option value="">Select a client...</option>' +
+      clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  } catch(e) {
+    select.innerHTML = '<option value="">Could not load clients</option>';
+  }
+}
+
+async function onClientChange() {
+  const id = document.getElementById('client-select').value;
+  const badge = document.getElementById('client-badge');
+  const audienceSelect = document.getElementById('audience-select');
+
+  if (!id) {
+    badge.textContent = 'No client selected';
+    audienceSelect.innerHTML = '<option value="">Select a client first</option>';
+    audienceSelect.disabled = true;
+    clientData = null;
+    return;
+  }
+
+  document.getElementById('client-loading').classList.add('visible');
+  try {
+    const resp = await fetch(PROXY + '/client/' + encodeURIComponent(id));
+    if (!resp.ok) throw new Error('Could not load client');
+    clientData = await resp.json();
+    badge.textContent = clientData.name;
+
+    const audiences = clientData.audiences || [];
+    if (audiences.length === 0) {
+      audienceSelect.innerHTML = '<option value="">No audiences configured</option>';
+      audienceSelect.disabled = true;
+    } else {
+      audienceSelect.innerHTML = '<option value="">Select an audience...</option>' +
+        audiences.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+      audienceSelect.disabled = false;
+    }
+  } catch(e) {
+    badge.textContent = 'Error loading client';
+  } finally {
+    document.getElementById('client-loading').classList.remove('visible');
+  }
+}
+
+// ── Chrome extension URL param handler ───────────────────────────────
+
+function loadProfileFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const profileParam = params.get('profile');
+  const encoding = params.get('encoding');
+  if (profileParam) {
+    try {
+      profileText = encoding === 'base64'
+        ? decodeURIComponent(escape(atob(profileParam)))
+        : decodeURIComponent(profileParam);
+    } catch(e) {
+      profileText = profileParam;
+    }
+    profilePdfBase64 = '';
+    const dz = document.getElementById('dropZone');
+    dz.classList.add('loaded');
+    document.getElementById('dropLabel').textContent = 'Profile loaded from LinkedIn';
+    document.getElementById('dropFilename').textContent = 'Via Chrome extension';
+    document.getElementById('dropClear').style.display = 'inline';
+    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', init);
+
+// ── Channel toggle ────────────────────────────────────────────────────
+
+function setChannel(c) {
+  channel = c;
+  document.getElementById('tog-li').className = 'tog' + (c === 'linkedin' ? ' sel' : '');
+  document.getElementById('tog-em').className = 'tog' + (c === 'email' ? ' sel' : '');
+}
+
+// ── PDF handling ──────────────────────────────────────────────────────
+
+function handleDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('dragover'); }
+function handleDragLeave() { document.getElementById('dropZone').classList.remove('dragover'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') processPDF(file);
+}
+function handleFileInput(e) { const file = e.target.files[0]; if (file) processPDF(file); }
+
+async function processPDF(file) {
+  document.getElementById('dropLabel').textContent = 'Reading PDF...';
+  try {
+    const b64 = await fileToBase64(file);
+    profilePdfBase64 = b64;
+    profileText = '';
+    const dz = document.getElementById('dropZone');
+    dz.classList.add('loaded');
+    document.getElementById('dropLabel').textContent = file.name;
+    document.getElementById('dropFilename').textContent = 'PDF loaded';
+    document.getElementById('dropClear').style.display = 'inline';
+    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+  } catch(err) {
+    document.getElementById('dropLabel').textContent = 'Drop LinkedIn PDF or click to upload';
+    showStatus('error', 'Could not read PDF. Try pasting the profile text instead.');
+  }
+}
+
+function clearProfile(e) {
+  e.stopPropagation();
+  profileText = '';
+  profilePdfBase64 = '';
+  const dz = document.getElementById('dropZone');
+  dz.classList.remove('loaded');
+  document.getElementById('dropLabel').textContent = 'Drop LinkedIn PDF or click to upload';
+  document.getElementById('dropFilename').textContent = '';
+  document.getElementById('dropClear').style.display = 'none';
+  document.getElementById('dropIcon').className = 'ti ti-upload drop-icon';
+  document.getElementById('pdfInput').value = '';
+  document.getElementById('prospect-text').value = '';
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = () => reject(new Error('Read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── Analyze ───────────────────────────────────────────────────────────
+
+function showStatus(type, msg) {
+  const el = document.getElementById('status');
+  el.className = 'status ' + type;
+  el.textContent = msg;
+}
+
+function clearStatus() {
+  document.getElementById('status').className = 'status';
+}
+
+async function analyze() {
+  const conversation = document.getElementById('conversation').value.trim();
+  const extraContext = document.getElementById('extra-context').value.trim();
+  const pastedProfile = document.getElementById('prospect-text').value.trim();
+  const selectedAudience = document.getElementById('audience-select').value;
+
+  if (!clientData) { showStatus('error', 'Please select a client.'); return; }
+  if (!selectedAudience) { showStatus('error', 'Please select a target audience.'); return; }
+  if (!conversation) { showStatus('error', 'Please paste the conversation thread.'); return; }
+  if (!profilePdfBase64 && !profileText && !pastedProfile) {
+    showStatus('error', 'Please provide the prospect\'s LinkedIn profile.'); return;
+  }
+
+  clearStatus();
+  setLoading(true);
+  replyHistory = [];
+
+  // Build system prompt from client data
+  const audience = clientData.audiences.find(a => a.name === selectedAudience);
+  const systemPrompt = buildSystemPrompt(clientData, audience, channel);
+
+  // Build user message content
+  const userText = buildUserMessage(conversation, extraContext, pastedProfile, selectedAudience);
+
+  try {
+    let messages;
+    if (profilePdfBase64) {
+      messages = [{
+        role: 'user',
+        content: [
+          { type: 'text', text: userText },
+          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: profilePdfBase64 } }
+        ]
+      }];
+    } else {
+      messages = [{ role: 'user', content: userText }];
+    }
+
+    const resp = await fetch(PROXY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages
+      })
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const reply = data.content.map(b => b.text || '').join('');
+    replyHistory = [...messages, { role: 'assistant', content: reply }];
+    displayOutput(reply);
+  } catch(e) {
+    showStatus('error', 'Error: ' + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function buildSystemPrompt(client, audience, channel) {
+  const audienceContext = audience ? audience.context : '';
+  const services = (client.services || []).join(', ');
+  const audienceServices = audience && audience.services ? audience.services.join(', ') : services;
+
+  return `You are a conversation assistant for the Advisor Appointments (AA) team. You write replies on behalf of the client to their prospects on ${channel === 'linkedin' ? 'LinkedIn' : 'email'}.
+
+CLIENT CONTEXT:
+${client.baseContext || ''}
+
+TARGET AUDIENCE: ${audience ? audience.name : 'General'}
+${audienceContext}
+
+SERVICES RELEVANT TO THIS AUDIENCE: ${audienceServices}
+
+YOUR TASK:
+1. STAGE READ — 1-2 sentences: assess where this conversation is (cold/warming/engaged/objecting/ready to convert). What signals are you reading from the prospect?
+2. RATIONALE — 2-3 sentences: explain your approach for this reply and why.
+3. DRAFT — Write the reply as the client. Match their voice. Advance toward booking a call without being pushy. ${channel === 'linkedin' ? 'Keep it under 150 words.' : 'Up to 200 words. Include a subject line if this is a new email thread.'}
+
+Format your response exactly as:
+STAGE: [your stage read]
+RATIONALE: [your rationale]
+DRAFT:
+[the message]`;
+}
+
+function buildUserMessage(conversation, extraContext, pastedProfile, audience) {
+  const profile = profileText || pastedProfile;
+  let msg = '';
+  if (profile) msg += `Prospect LinkedIn profile:\n${profile}\n\n`;
+  if (!profilePdfBase64 && !profile) msg += `Prospect LinkedIn profile: Not provided\n\n`;
+  if (profilePdfBase64 && !profile) msg += `Prospect LinkedIn profile: See attached PDF\n\n`;
+  msg += `Target audience: ${audience}\n\n`;
+  msg += `Conversation so far:\n${conversation}`;
+  if (extraContext) msg += `\n\nAdditional context: ${extraContext}`;
+  return msg;
+}
+
+// ── Output ────────────────────────────────────────────────────────────
+
+function displayOutput(text) {
+  const stageM = text.match(/STAGE:\s*(.+?)(?=\nRATIONALE|$)/s);
+  const rationaleM = text.match(/RATIONALE:\s*(.+?)(?=\nDRAFT|$)/s);
+  const draftM = text.match(/DRAFT:\s*([\s\S]+)/);
+
+  document.getElementById('output-empty-card').style.display = 'none';
+  document.getElementById('output-card').style.display = 'block';
+
+  const stageEl = document.getElementById('stage-display');
+  stageEl.innerHTML = stageM
+    ? `<span class="stage-badge">${stageM[1].trim()}</span>`
+    : '';
+
+  const rationaleEl = document.getElementById('rationale-display');
+  if (rationaleM) {
+    rationaleEl.textContent = rationaleM[1].trim();
+    rationaleEl.style.display = 'block';
+  } else {
+    rationaleEl.style.display = 'none';
+  }
+
+  document.getElementById('draft-output').value = draftM ? draftM[1].trim() : text;
+}
+
+async function regenerate() {
+  const feedback = document.getElementById('feedback-input').value.trim();
+  if (!feedback || replyHistory.length === 0) return;
+
+  const btn = document.getElementById('regen-btn');
+  btn.textContent = 'Working...';
+  btn.disabled = true;
+
+  const audience = document.getElementById('audience-select').value;
+  const audienceData = clientData && clientData.audiences ? clientData.audiences.find(a => a.name === audience) : null;
+  const systemPrompt = buildSystemPrompt(clientData, audienceData, channel);
+
+  const newHistory = [
+    ...replyHistory,
+    { role: 'user', content: 'Please revise the draft based on this feedback: ' + feedback }
+  ];
+
+  try {
+    const resp = await fetch(PROXY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: newHistory
+      })
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    const reply = data.content.map(b => b.text || '').join('');
+    replyHistory = [...newHistory, { role: 'assistant', content: reply }];
+    displayOutput(reply);
+    document.getElementById('feedback-input').value = '';
+  } catch(e) {
+    showStatus('error', 'Error: ' + e.message);
+  } finally {
+    btn.textContent = 'Regenerate';
+    btn.disabled = false;
+  }
+}
+
+function copyDraft() {
+  const text = document.getElementById('draft-output').value;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function setLoading(on) {
+  document.getElementById('analyze-btn').disabled = on;
+  document.getElementById('analyze-btn').innerHTML = on
+    ? '<span class="spinner"></span> Analyzing...'
+    : 'Analyze &amp; draft reply';
+  document.getElementById('loading-row').classList.toggle('visible', on);
+  if (on) {
+    document.getElementById('output-card').style.display = 'none';
+    document.getElementById('output-empty-card').style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>
