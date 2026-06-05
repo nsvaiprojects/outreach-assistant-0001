@@ -101,14 +101,13 @@
         <span class="skip-link" onclick="skipPdf()">Skip — I'll paste the profile text instead</span>
       </div>
 
-      <!-- URL input zone — shown when agent asks for website -->
-      <div class="pdf-zone" id="url-zone">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-          <input type="text" id="url-input" placeholder="https://example.com" style="flex:1"
+      <!-- URL fetch — always available -->
+      <div id="url-zone" style="margin-bottom:10px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="url-input" placeholder="Paste a URL to fetch site content..." style="flex:1"
             onkeydown="if(event.key==='Enter')fetchUrl()" />
-          <button class="btn primary" onclick="fetchUrl()">Fetch site</button>
+          <button class="btn" onclick="fetchUrl()" id="fetch-btn">Fetch ↗</button>
         </div>
-        <span class="skip-link" onclick="skipUrl()">Skip — I'll paste the content instead</span>
       </div>
 
       <hr class="divider" />
@@ -323,11 +322,13 @@ function skipUrl() {
 async function fetchUrl() {
   const urlVal = document.getElementById('url-input').value.trim();
   if (!urlVal) return;
-  hideUrlZone();
-  addMessage('user', '🌐 ' + urlVal);
+  document.getElementById('url-input').value = '';
+  addMessage('user', '🌐 Fetching: ' + urlVal);
 
   const btn = document.getElementById('send-btn');
+  const fetchBtn = document.getElementById('fetch-btn');
   btn.disabled = true;
+  fetchBtn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>';
   document.getElementById('thinking').classList.add('visible');
 
@@ -336,15 +337,17 @@ async function fetchUrl() {
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
 
-    const pageNote = data.pageCount ? `[Website crawled: ${data.pageCount} pages from ${urlVal}]` : `[Website content fetched from: ${urlVal}]`;
-    addMessage('system', `✓ Fetched ${data.pageCount || 1} page(s): ${(data.urls || [urlVal]).join(', ')}`);
+    const pageNote = data.pageCount
+      ? `[Website crawled: ${data.pageCount} pages from ${urlVal}]`
+      : `[Website content fetched from: ${urlVal}]`;
+    addMessage('system', '✓ Fetched ' + (data.pageCount || 1) + ' page(s): ' + (data.urls || [urlVal]).join(', '));
 
-    const msg = `${pageNote}\n\n${data.text}`;
-    conversationHistory.push({ role: 'user', content: msg });
+    conversationHistory.push({ role: 'user', content: pageNote + '\n\n' + data.text });
     await callAI();
   } catch(e) {
     addMessage('error', 'Could not fetch URL: ' + e.message + '. Please paste the content instead.');
     btn.disabled = false;
+    fetchBtn.disabled = false;
     btn.innerHTML = 'Send';
     document.getElementById('thinking').classList.remove('visible');
   }
