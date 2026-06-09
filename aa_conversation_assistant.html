@@ -8,33 +8,26 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f7f4; color: #1a1a1a; min-height: 100vh; }
 
-  /* Header */
   .header { background: #fff; border-bottom: 1px solid #e8e6e0; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
   .header h1 { font-size: 15px; font-weight: 600; flex: 1; }
-  .header .badge { font-size: 12px; background: #eef2ff; color: #4338ca; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .badge { font-size: 12px; background: #eef2ff; color: #4338ca; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
 
-  /* Layout */
-  .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: 340px 1fr; gap: 16px; }
+  .container { max-width: 960px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
   @media (max-width: 700px) { .container { grid-template-columns: 1fr; } }
 
-  /* Cards */
   .card { background: #fff; border: 1px solid #e8e6e0; border-radius: 10px; padding: 20px; }
   .card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 14px; }
 
-  /* Form elements */
   label { font-size: 12px; font-weight: 500; color: #555; display: block; margin-bottom: 5px; margin-top: 12px; }
   label:first-child { margin-top: 0; }
   textarea, select { width: 100%; border: 1px solid #ddd; border-radius: 7px; font-family: inherit; font-size: 13px; padding: 9px 11px; color: #1a1a1a; background: #fff; resize: vertical; }
   textarea:focus, select:focus { outline: none; border-color: #4338ca; }
 
-  /* Toggles */
-  .tog-row { display: flex; gap: 6px; margin-bottom: 4px; }
-  .tog { flex: 1; padding: 8px; border: 1.5px solid #ccc; border-radius: 7px; background: #f5f5f3; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; text-align: center; transition: none; }
+  .tog-row { display: flex; gap: 6px; }
+  .tog { flex: 1; padding: 8px; border: 1.5px solid #ccc; border-radius: 7px; background: #f5f5f3; font-size: 13px; color: #666; cursor: pointer; font-family: inherit; text-align: center; }
   .tog.sel { border: 2px solid #4338ca !important; background: #eef2ff !important; color: #3730a3 !important; font-weight: 600 !important; }
 
-  /* Drop zone */
-  .drop-zone-wrap { margin-bottom: 4px; }
-  .drop-zone { border: 1px dashed #ccc; border-radius: 7px; padding: 14px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: #fafaf8; transition: all 0.15s; }
+  .drop-zone { border: 1px dashed #ccc; border-radius: 7px; padding: 14px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; background: #fafaf8; transition: all 0.15s; margin-bottom: 4px; }
   .drop-zone:hover, .drop-zone.dragover { background: #f0f0ec; border-color: #4338ca; }
   .drop-zone.loaded { border-color: #16a34a; background: #f0fdf4; }
   .drop-icon { font-size: 18px; color: #aaa; flex-shrink: 0; }
@@ -42,44 +35,57 @@
   .drop-text { flex: 1; min-width: 0; }
   #dropLabel { font-size: 13px; color: #888; display: block; }
   .drop-zone.loaded #dropLabel { color: #15803d; font-weight: 500; }
-  #dropFilename { font-size: 11px; color: #aaa; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #dropFilename { font-size: 11px; color: #aaa; display: block; margin-top: 2px; }
   #dropClear { font-size: 11px; color: #b91c1c; cursor: pointer; text-decoration: underline; display: none; margin-top: 4px; background: none; border: none; font-family: inherit; padding: 0; }
 
-  /* Buttons */
   .btn { padding: 10px 18px; border: 1px solid #ddd; border-radius: 7px; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s; white-space: nowrap; }
   .btn:hover { background: #f5f5f3; }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; width: 100%; padding: 12px; font-size: 14px; margin-top: 14px; }
   .btn.primary:hover { background: #333; }
-  .btn.copy { font-size: 12px; padding: 6px 12px; }
+  .btn.copy { font-size: 12px; padding: 5px 10px; }
 
-  /* Output panel */
   .output-panel { display: flex; flex-direction: column; gap: 12px; }
   .output-empty { display: flex; align-items: center; justify-content: center; min-height: 300px; color: #aaa; font-size: 14px; text-align: center; line-height: 1.6; }
+
   .stage-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; margin-bottom: 10px; }
-  .rationale-box { padding: 12px 14px; background: #f8f7f4; border-radius: 7px; border-left: 3px solid #d1d5db; font-size: 13px; color: #555; line-height: 1.6; }
-  .draft-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
-  .draft-area { width: 100%; min-height: 180px; font-size: 14px; line-height: 1.7; border: 1px solid #ddd; border-radius: 7px; padding: 12px; background: #fff; resize: vertical; font-family: inherit; color: #1a1a1a; }
-  .draft-area:focus { outline: none; border-color: #4338ca; }
-  .feedback-row { display: flex; gap: 8px; margin-top: 8px; }
+  .rationale-box { padding: 12px 14px; background: #f8f7f4; border-radius: 7px; border-left: 3px solid #d1d5db; font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 16px; }
+
+  .drafts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 800px) { .drafts-grid { grid-template-columns: 1fr; } }
+
+  .draft-card { border: 1px solid #e8e6e0; border-radius: 8px; padding: 14px; background: #fff; }
+  .draft-card.direct { border-top: 3px solid #1a1a1a; }
+  .draft-card.warm { border-top: 3px solid #4338ca; }
+
+  .draft-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .draft-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .draft-card.direct .draft-label { color: #1a1a1a; }
+  .draft-card.warm .draft-label { color: #4338ca; }
+  .draft-desc { font-size: 11px; color: #888; margin-bottom: 8px; }
+
+  .draft-area { width: 100%; min-height: 160px; font-size: 13px; line-height: 1.7; border: 1px solid #eee; border-radius: 6px; padding: 10px; background: #fafaf8; resize: vertical; font-family: inherit; color: #1a1a1a; }
+  .draft-area:focus { outline: none; border-color: #4338ca; background: #fff; }
+
+  .feedback-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e8e6e0; }
+  .feedback-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 8px; }
+  .feedback-row { display: flex; gap: 8px; }
   .feedback-row input { flex: 1; border: 1px solid #ddd; border-radius: 7px; padding: 9px 11px; font-size: 13px; font-family: inherit; color: #1a1a1a; }
   .feedback-row input:focus { outline: none; border-color: #4338ca; }
+  .feedback-tog-row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .feedback-tog { flex: 1; padding: 7px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-size: 12px; color: #555; cursor: pointer; font-family: inherit; text-align: center; }
+  .feedback-tog.sel { border-color: #4338ca; background: #eef2ff; color: #3730a3; font-weight: 500; }
 
-  /* Loading */
   .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   .spinner.dark { border-color: #ddd; border-top-color: #555; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Status */
   .status { padding: 10px 12px; border-radius: 7px; font-size: 13px; margin-top: 10px; display: none; }
   .status.error { display: block; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-  .status.info { display: block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 
-  /* Loading overlay for output */
   .loading-row { display: none; align-items: center; gap: 8px; font-size: 13px; color: #888; padding: 20px 0; justify-content: center; }
   .loading-row.visible { display: flex; }
 
-  /* Client/audience selectors */
   select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
   .select-loading { font-size: 12px; color: #aaa; margin-top: 4px; display: none; }
   .select-loading.visible { display: block; }
@@ -117,21 +123,19 @@
       </div>
 
       <label>Prospect LinkedIn profile</label>
-      <div class="drop-zone-wrap">
-        <div class="drop-zone" id="dropZone"
-          onclick="document.getElementById('pdfInput').click()"
-          ondragover="handleDragOver(event)"
-          ondragleave="handleDragLeave(event)"
-          ondrop="handleDrop(event)">
-          <i class="ti ti-upload drop-icon" id="dropIcon"></i>
-          <div class="drop-text">
-            <span id="dropLabel">Drop LinkedIn PDF or click to upload</span>
-            <span id="dropFilename"></span>
-            <button id="dropClear" onclick="clearProfile(event)">Clear</button>
-          </div>
+      <div class="drop-zone" id="dropZone"
+        onclick="document.getElementById('pdfInput').click()"
+        ondragover="handleDragOver(event)"
+        ondragleave="handleDragLeave(event)"
+        ondrop="handleDrop(event)">
+        <span class="drop-icon" id="dropIcon">⬆</span>
+        <div class="drop-text">
+          <span id="dropLabel">Drop LinkedIn PDF or click to upload</span>
+          <span id="dropFilename"></span>
+          <button id="dropClear" onclick="clearProfile(event)">Clear</button>
         </div>
-        <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="handleFileInput(event)" />
       </div>
+      <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="handleFileInput(event)" />
       <textarea id="prospect-text" rows="3" placeholder="Or paste profile text here..."></textarea>
 
       <label>Conversation so far</label>
@@ -140,7 +144,7 @@
       <label>Additional context <span style="color:#bbb;font-weight:400">(optional)</span></label>
       <textarea id="extra-context" rows="2" placeholder="Shared connections, recent posts, anything relevant..."></textarea>
 
-      <button class="btn primary" id="analyze-btn" onclick="analyze()">Analyze &amp; draft reply</button>
+      <button class="btn primary" id="analyze-btn" onclick="analyze()">Analyze &amp; draft replies</button>
       <div class="status" id="status"></div>
     </div>
   </div>
@@ -148,24 +152,49 @@
   <!-- RIGHT: Output -->
   <div class="output-panel">
     <div class="card" id="output-empty-card">
-      <div class="output-empty">Fill in the session setup and hit<br>"Analyze & draft reply" to get started.</div>
+      <div class="output-empty">Fill in the session setup and hit<br>"Analyze & draft replies" to get started.</div>
     </div>
 
     <div class="loading-row" id="loading-row">
-      <span class="spinner dark"></span> Analyzing conversation and drafting reply...
+      <span class="spinner dark"></span> Analyzing conversation and drafting replies...
     </div>
 
-    <div class="card" id="output-card" style="display:none">
-      <div id="stage-display"></div>
-      <div class="rationale-box" id="rationale-display" style="display:none"></div>
-      <div style="margin-top:14px">
-        <div class="draft-label">
-          <span>Draft reply</span>
-          <button class="btn copy" id="copy-btn" onclick="copyDraft()">Copy</button>
+    <div id="output-card" style="display:none">
+      <div class="card" style="margin-bottom:12px">
+        <div id="stage-display"></div>
+        <div class="rationale-box" id="rationale-display"></div>
+      </div>
+
+      <div class="drafts-grid">
+        <!-- Direct -->
+        <div class="draft-card direct">
+          <div class="draft-header">
+            <span class="draft-label">⚡ Direct</span>
+            <button class="btn copy" onclick="copyDraft('direct')">Copy</button>
+          </div>
+          <div class="draft-desc">Clear, confident, advances toward a call</div>
+          <textarea class="draft-area" id="draft-direct"></textarea>
         </div>
-        <textarea class="draft-area" id="draft-output"></textarea>
+        <!-- Warm -->
+        <div class="draft-card warm">
+          <div class="draft-header">
+            <span class="draft-label">🤝 Warm</span>
+            <button class="btn copy" onclick="copyDraft('warm')">Copy</button>
+          </div>
+          <div class="draft-desc">Conversational, builds rapport, softer advance</div>
+          <textarea class="draft-area" id="draft-warm"></textarea>
+        </div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="card feedback-section" style="margin-top:12px">
+        <div class="feedback-label">Refine a draft</div>
+        <div class="feedback-tog-row">
+          <button class="feedback-tog sel" id="ftog-direct" onclick="setFeedbackTarget('direct')">⚡ Refine Direct</button>
+          <button class="feedback-tog" id="ftog-warm" onclick="setFeedbackTarget('warm')">🤝 Refine Warm</button>
+        </div>
         <div class="feedback-row">
-          <input type="text" id="feedback-input" placeholder="Feedback to refine (e.g. shorter, warmer, more direct...)">
+          <input type="text" id="feedback-input" placeholder="e.g. make it shorter, mention tax planning, less formal..." />
           <button class="btn" id="regen-btn" onclick="regenerate()">Regenerate</button>
         </div>
       </div>
@@ -181,6 +210,7 @@ let profileText = '';
 let profilePdfBase64 = '';
 let clientData = null;
 let replyHistory = [];
+let feedbackTarget = 'direct';
 
 // ── Init ──────────────────────────────────────────────────────────────
 
@@ -193,7 +223,7 @@ async function loadClients() {
   const select = document.getElementById('client-select');
   try {
     const resp = await fetch(PROXY + '/clients');
-    if (!resp.ok) throw new Error('Could not load clients');
+    if (!resp.ok) throw new Error();
     const clients = await resp.json();
     if (!clients || clients.length === 0) {
       select.innerHTML = '<option value="">No clients configured yet</option>';
@@ -210,7 +240,6 @@ async function onClientChange() {
   const id = document.getElementById('client-select').value;
   const badge = document.getElementById('client-badge');
   const audienceSelect = document.getElementById('audience-select');
-
   if (!id) {
     badge.textContent = 'No client selected';
     audienceSelect.innerHTML = '<option value="">Select a client first</option>';
@@ -218,14 +247,12 @@ async function onClientChange() {
     clientData = null;
     return;
   }
-
   document.getElementById('client-loading').classList.add('visible');
   try {
     const resp = await fetch(PROXY + '/client/' + encodeURIComponent(id));
-    if (!resp.ok) throw new Error('Could not load client');
+    if (!resp.ok) throw new Error();
     clientData = await resp.json();
     badge.textContent = clientData.name;
-
     const audiences = clientData.audiences || [];
     if (audiences.length === 0) {
       audienceSelect.innerHTML = '<option value="">No audiences configured</option>';
@@ -242,8 +269,6 @@ async function onClientChange() {
   }
 }
 
-// ── Chrome extension URL param handler ───────────────────────────────
-
 function loadProfileFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const profileParam = params.get('profile');
@@ -253,22 +278,20 @@ function loadProfileFromUrl() {
       profileText = encoding === 'base64'
         ? decodeURIComponent(escape(atob(profileParam)))
         : decodeURIComponent(profileParam);
-    } catch(e) {
-      profileText = profileParam;
-    }
+    } catch(e) { profileText = profileParam; }
     profilePdfBase64 = '';
     const dz = document.getElementById('dropZone');
     dz.classList.add('loaded');
     document.getElementById('dropLabel').textContent = 'Profile loaded from LinkedIn';
     document.getElementById('dropFilename').textContent = 'Via Chrome extension';
     document.getElementById('dropClear').style.display = 'inline';
-    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+    document.getElementById('dropIcon').textContent = '✓';
   }
 }
 
 window.addEventListener('DOMContentLoaded', init);
 
-// ── Channel toggle ────────────────────────────────────────────────────
+// ── Channel ───────────────────────────────────────────────────────────
 
 function setChannel(c) {
   channel = c;
@@ -276,7 +299,7 @@ function setChannel(c) {
   document.getElementById('tog-em').className = 'tog' + (c === 'email' ? ' sel' : '');
 }
 
-// ── PDF handling ──────────────────────────────────────────────────────
+// ── PDF ───────────────────────────────────────────────────────────────
 
 function handleDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('dragover'); }
 function handleDragLeave() { document.getElementById('dropZone').classList.remove('dragover'); }
@@ -291,31 +314,29 @@ function handleFileInput(e) { const file = e.target.files[0]; if (file) processP
 async function processPDF(file) {
   document.getElementById('dropLabel').textContent = 'Reading PDF...';
   try {
-    const b64 = await fileToBase64(file);
-    profilePdfBase64 = b64;
+    profilePdfBase64 = await fileToBase64(file);
     profileText = '';
     const dz = document.getElementById('dropZone');
     dz.classList.add('loaded');
     document.getElementById('dropLabel').textContent = file.name;
     document.getElementById('dropFilename').textContent = 'PDF loaded';
     document.getElementById('dropClear').style.display = 'inline';
-    document.getElementById('dropIcon').className = 'ti ti-circle-check drop-icon';
+    document.getElementById('dropIcon').textContent = '✓';
   } catch(err) {
     document.getElementById('dropLabel').textContent = 'Drop LinkedIn PDF or click to upload';
-    showStatus('error', 'Could not read PDF. Try pasting the profile text instead.');
+    showStatus('Could not read PDF. Try pasting the profile text instead.');
   }
 }
 
 function clearProfile(e) {
   e.stopPropagation();
-  profileText = '';
-  profilePdfBase64 = '';
+  profileText = ''; profilePdfBase64 = '';
   const dz = document.getElementById('dropZone');
   dz.classList.remove('loaded');
   document.getElementById('dropLabel').textContent = 'Drop LinkedIn PDF or click to upload';
   document.getElementById('dropFilename').textContent = '';
   document.getElementById('dropClear').style.display = 'none';
-  document.getElementById('dropIcon').className = 'ti ti-upload drop-icon';
+  document.getElementById('dropIcon').textContent = '⬆';
   document.getElementById('pdfInput').value = '';
   document.getElementById('prospect-text').value = '';
 }
@@ -331,15 +352,12 @@ function fileToBase64(file) {
 
 // ── Analyze ───────────────────────────────────────────────────────────
 
-function showStatus(type, msg) {
+function showStatus(msg) {
   const el = document.getElementById('status');
-  el.className = 'status ' + type;
+  el.className = 'status error';
   el.textContent = msg;
 }
-
-function clearStatus() {
-  document.getElementById('status').className = 'status';
-}
+function clearStatus() { document.getElementById('status').className = 'status'; }
 
 async function analyze() {
   const conversation = document.getElementById('conversation').value.trim();
@@ -347,22 +365,19 @@ async function analyze() {
   const pastedProfile = document.getElementById('prospect-text').value.trim();
   const selectedAudience = document.getElementById('audience-select').value;
 
-  if (!clientData) { showStatus('error', 'Please select a client.'); return; }
-  if (!selectedAudience) { showStatus('error', 'Please select a target audience.'); return; }
-  if (!conversation) { showStatus('error', 'Please paste the conversation thread.'); return; }
+  if (!clientData) { showStatus('Please select a client.'); return; }
+  if (!selectedAudience) { showStatus('Please select a target audience.'); return; }
+  if (!conversation) { showStatus('Please paste the conversation thread.'); return; }
   if (!profilePdfBase64 && !profileText && !pastedProfile) {
-    showStatus('error', 'Please provide the prospect\'s LinkedIn profile.'); return;
+    showStatus('Please provide the prospect\'s LinkedIn profile.'); return;
   }
 
   clearStatus();
   setLoading(true);
   replyHistory = [];
 
-  // Build system prompt from client data
   const audience = clientData.audiences.find(a => a.name === selectedAudience);
   const systemPrompt = buildSystemPrompt(clientData, audience, channel);
-
-  // Build user message content
   const userText = buildUserMessage(conversation, extraContext, pastedProfile, selectedAudience);
 
   try {
@@ -382,12 +397,7 @@ async function analyze() {
     const resp = await fetch(PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages
-      })
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 1500, system: systemPrompt, messages })
     });
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
@@ -395,7 +405,7 @@ async function analyze() {
     replyHistory = [...messages, { role: 'assistant', content: reply }];
     displayOutput(reply);
   } catch(e) {
-    showStatus('error', 'Error: ' + e.message);
+    showStatus('Error: ' + e.message);
   } finally {
     setLoading(false);
   }
@@ -403,8 +413,10 @@ async function analyze() {
 
 function buildSystemPrompt(client, audience, channel) {
   const audienceContext = audience ? audience.context : '';
-  const services = (client.services || []).join(', ');
-  const audienceServices = audience && audience.services ? audience.services.join(', ') : services;
+  const audienceServices = audience && audience.services ? audience.services.join(', ') : (client.services || []).join(', ');
+  const channelNote = channel === 'linkedin'
+    ? 'Keep each draft under 150 words. No subject line needed.'
+    : 'Each draft up to 200 words. Include a subject line if this is a new email thread.';
 
   return `You are a conversation assistant for the Advisor Appointments (AA) team. You write replies on behalf of the client to their prospects on ${channel === 'linkedin' ? 'LinkedIn' : 'email'}.
 
@@ -417,23 +429,31 @@ ${audienceContext}
 SERVICES RELEVANT TO THIS AUDIENCE: ${audienceServices}
 
 YOUR TASK:
-1. STAGE READ — 1-2 sentences: assess where this conversation is (cold/warming/engaged/objecting/ready to convert). What signals are you reading from the prospect?
-2. RATIONALE — 2-3 sentences: explain your approach for this reply and why.
-3. DRAFT — Write the reply as the client. Match their voice. Advance toward booking a call without being pushy. ${channel === 'linkedin' ? 'Keep it under 150 words.' : 'Up to 200 words. Include a subject line if this is a new email thread.'}
+Analyze the conversation and produce two draft replies — one Direct and one Warm. Both should sound like the client, advance toward booking a call, and be appropriate for the conversation stage.
 
-Format your response exactly as:
-STAGE: [your stage read]
-RATIONALE: [your rationale]
-DRAFT:
-[the message]`;
+DIRECT draft: Shorter, confident, clear. Gets to the point. Makes a specific ask or moves the conversation forward decisively. No filler phrases.
+
+WARM draft: Slightly longer, more conversational. Acknowledges something specific about the prospect or their situation. Softer advance — invites rather than asks.
+
+Both drafts should be genuinely different in feel — not just minor wording variations.
+
+${channelNote}
+
+Format your response EXACTLY as:
+STAGE: [1-2 sentences: where is this conversation and what signals are you reading?]
+RATIONALE: [2-3 sentences: your strategic approach for both drafts]
+DIRECT:
+[direct draft message]
+WARM:
+[warm draft message]`;
 }
 
 function buildUserMessage(conversation, extraContext, pastedProfile, audience) {
   const profile = profileText || pastedProfile;
   let msg = '';
   if (profile) msg += `Prospect LinkedIn profile:\n${profile}\n\n`;
-  if (!profilePdfBase64 && !profile) msg += `Prospect LinkedIn profile: Not provided\n\n`;
   if (profilePdfBase64 && !profile) msg += `Prospect LinkedIn profile: See attached PDF\n\n`;
+  if (!profilePdfBase64 && !profile) msg += `Prospect LinkedIn profile: Not provided\n\n`;
   msg += `Target audience: ${audience}\n\n`;
   msg += `Conversation so far:\n${conversation}`;
   if (extraContext) msg += `\n\nAdditional context: ${extraContext}`;
@@ -444,26 +464,31 @@ function buildUserMessage(conversation, extraContext, pastedProfile, audience) {
 
 function displayOutput(text) {
   const stageM = text.match(/STAGE:\s*(.+?)(?=\nRATIONALE|$)/s);
-  const rationaleM = text.match(/RATIONALE:\s*(.+?)(?=\nDRAFT|$)/s);
-  const draftM = text.match(/DRAFT:\s*([\s\S]+)/);
+  const rationaleM = text.match(/RATIONALE:\s*(.+?)(?=\nDIRECT|$)/s);
+  const directM = text.match(/DIRECT:\s*([\s\S]+?)(?=\nWARM:|$)/);
+  const warmM = text.match(/WARM:\s*([\s\S]+)/);
 
   document.getElementById('output-empty-card').style.display = 'none';
   document.getElementById('output-card').style.display = 'block';
 
-  const stageEl = document.getElementById('stage-display');
-  stageEl.innerHTML = stageM
+  document.getElementById('stage-display').innerHTML = stageM
     ? `<span class="stage-badge">${stageM[1].trim()}</span>`
     : '';
 
   const rationaleEl = document.getElementById('rationale-display');
-  if (rationaleM) {
-    rationaleEl.textContent = rationaleM[1].trim();
-    rationaleEl.style.display = 'block';
-  } else {
-    rationaleEl.style.display = 'none';
-  }
+  rationaleEl.textContent = rationaleM ? rationaleM[1].trim() : '';
+  rationaleEl.style.display = rationaleM ? 'block' : 'none';
 
-  document.getElementById('draft-output').value = draftM ? draftM[1].trim() : text;
+  document.getElementById('draft-direct').value = directM ? directM[1].trim() : '';
+  document.getElementById('draft-warm').value = warmM ? warmM[1].trim() : '';
+}
+
+// ── Feedback ──────────────────────────────────────────────────────────
+
+function setFeedbackTarget(target) {
+  feedbackTarget = target;
+  document.getElementById('ftog-direct').className = 'feedback-tog' + (target === 'direct' ? ' sel' : '');
+  document.getElementById('ftog-warm').className = 'feedback-tog' + (target === 'warm' ? ' sel' : '');
 }
 
 async function regenerate() {
@@ -478,42 +503,41 @@ async function regenerate() {
   const audienceData = clientData && clientData.audiences ? clientData.audiences.find(a => a.name === audience) : null;
   const systemPrompt = buildSystemPrompt(clientData, audienceData, channel);
 
+  const draftLabel = feedbackTarget === 'direct' ? 'Direct' : 'Warm';
+  const currentDraft = document.getElementById('draft-' + feedbackTarget).value;
+
   const newHistory = [
     ...replyHistory,
-    { role: 'user', content: 'Please revise the draft based on this feedback: ' + feedback }
+    { role: 'user', content: `Please revise the ${draftLabel} draft only based on this feedback: ${feedback}\n\nCurrent ${draftLabel} draft:\n${currentDraft}\n\nReturn ONLY the revised draft text — no labels, no other drafts.` }
   ];
 
   try {
     const resp = await fetch(PROXY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: newHistory
-      })
+      body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens: 500, system: systemPrompt, messages: newHistory })
     });
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message);
-    const reply = data.content.map(b => b.text || '').join('');
+    const reply = data.content.map(b => b.text || '').join('').trim();
+    document.getElementById('draft-' + feedbackTarget).value = reply;
     replyHistory = [...newHistory, { role: 'assistant', content: reply }];
-    displayOutput(reply);
     document.getElementById('feedback-input').value = '';
   } catch(e) {
-    showStatus('error', 'Error: ' + e.message);
+    showStatus('Error: ' + e.message);
   } finally {
     btn.textContent = 'Regenerate';
     btn.disabled = false;
   }
 }
 
-function copyDraft() {
-  const text = document.getElementById('draft-output').value;
+function copyDraft(type) {
+  const text = document.getElementById('draft-' + type).value;
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copy-btn');
-    btn.textContent = 'Copied!';
-    setTimeout(() => btn.textContent = 'Copy', 1500);
+    const btns = document.querySelectorAll('.btn.copy');
+    const idx = type === 'direct' ? 0 : 1;
+    btns[idx].textContent = 'Copied!';
+    setTimeout(() => btns[idx].textContent = 'Copy', 1500);
   });
 }
 
@@ -521,7 +545,7 @@ function setLoading(on) {
   document.getElementById('analyze-btn').disabled = on;
   document.getElementById('analyze-btn').innerHTML = on
     ? '<span class="spinner"></span> Analyzing...'
-    : 'Analyze &amp; draft reply';
+    : 'Analyze &amp; draft replies';
   document.getElementById('loading-row').classList.toggle('visible', on);
   if (on) {
     document.getElementById('output-card').style.display = 'none';
